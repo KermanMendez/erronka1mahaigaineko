@@ -12,6 +12,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
 import javax.swing.ImageIcon;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class LoginFrame extends JFrame {
 
@@ -67,17 +69,22 @@ public class LoginFrame extends JFrame {
 		contentPane.add(passwordField);
 		
 		JButton btnLogin = new JButton("Login");
+		btnLogin.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//TODO: LOGIN LOGIC WITH FIREBASE
+			}
+		});
 		btnLogin.setBounds(158, 213, 89, 23);
 		contentPane.add(btnLogin);
 		
-		JLabel lblNewLabel = new JLabel("");
+		JLabel lblLoginLogo = new JLabel("");
 		ImageIcon originalIcon = new ImageIcon("C:\\Users\\in2dm3-d.ELORRIETA\\Desktop\\KermanMendez\\Erronka1\\src\\img\\logo.png");
 
 		java.awt.Image scaledImage = originalIcon.getImage().getScaledInstance(250, 180, java.awt.Image.SCALE_SMOOTH);
 		ImageIcon scaledIcon = new ImageIcon(scaledImage);
-		lblNewLabel.setIcon(scaledIcon);
-		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel.setBounds(207, 22, 217, 180);
-		contentPane.add(lblNewLabel);
+		lblLoginLogo.setIcon(scaledIcon);
+		lblLoginLogo.setHorizontalAlignment(SwingConstants.CENTER);
+		lblLoginLogo.setBounds(207, 22, 217, 180);
+		contentPane.add(lblLoginLogo);
 	}
 }
