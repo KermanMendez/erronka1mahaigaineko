@@ -12,9 +12,10 @@ public class User {
 	private String email;
 	private String password;
 	private Date birthDate;
+	private boolean isTrainer;
 	
 	public User(String id, String name, String surname, String surname2, String email, String password,
-			Date birthDate) {
+			Date birthDate, boolean isTrainer) {
 		this.id = id;
 		this.name = name;
 		this.surname = surname;
@@ -22,6 +23,7 @@ public class User {
 		this.email = email;
 		this.password = password;
 		this.birthDate = birthDate;
+		this.isTrainer = isTrainer;
 	}
 
 	public String getId() {
@@ -78,6 +80,14 @@ public class User {
 
 	public void setBirthDate(Date birthDate) {
 		this.birthDate = birthDate;
-	}	
+	}
+	
+	public boolean isTrainer() {
+		return isTrainer;
+	}
+	
+	public void setTrainer(boolean isTrainer) {
+		this.isTrainer = isTrainer;
+	}
 
 }
