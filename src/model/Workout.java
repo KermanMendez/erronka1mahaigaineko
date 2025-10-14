@@ -3,12 +3,12 @@ package model;
 public class Workout {
 	
 	private String name;
-	private int duration;
+	private Double duration;
 	private int level;
 	private String videoURL;	
 	private Exercise[] exercises;
 	
-	public Workout(String name, int duration, int level, String videoURL, Exercise[] exercises) {
+	public Workout(String name, Double duration, int level, String videoURL, Exercise[] exercises) {
 		this.name = name;
 		this.duration = duration;
 		this.level = level;
@@ -24,11 +24,11 @@ public class Workout {
 		this.name = name;
 	}
 
-	public int getDuration() {
+	public Double getDuration() {
 		return duration;
 	}
 
-	public void setDuration(int duration) {
+	public void setDuration(Double duration) {
 		this.duration = duration;
 	}
 

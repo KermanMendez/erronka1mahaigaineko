@@ -15,6 +15,7 @@ public class Workouts extends JFrame {
 	private JButton btnIkusiHistoria;
 	private JButton btnHasiWorkout;
 	private JLabel lblMailaAktuala;
+	private model.Thread workoutThread = new model.Thread("WorkoutThread");
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -90,6 +91,8 @@ public class Workouts extends JFrame {
 		btnHasiWorkout = new JButton("Hasi Workout-a");
 		btnHasiWorkout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+
+				workoutThread.start();
 			}
 		});
 		btnHasiWorkout.setBounds(350, 210, 180, 30);
