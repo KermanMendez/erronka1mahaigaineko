@@ -6,5 +6,41 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="lib/api-common-2.15.0.jar"/>
+	<classpathentry kind="lib" path="lib/failureaccess-1.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/firebase-admin-9.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/gax-2.32.0.jar"/>
+	<classpathentry kind="lib" path="lib/gax-grpc-2.32.0.jar"/>
+	<classpathentry kind="lib" path="lib/google-api-client-2.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/google-auth-library-credentials-1.19.0.jar"/>
+	<classpathentry kind="lib" path="lib/google-auth-library-oauth2-http-1.19.0.jar"/>
+	<classpathentry kind="lib" path="lib/google-cloud-core-2.8.20.jar"/>
+	<classpathentry kind="lib" path="lib/google-cloud-core-grpc-2.22.0.jar"/>
+	<classpathentry kind="lib" path="lib/google-cloud-firestore-3.13.1.jar"/>
+	<classpathentry kind="lib" path="lib/google-http-client-1.43.3.jar"/>
+	<classpathentry kind="lib" path="lib/google-http-client-gson-1.43.3.jar"/>
+	<classpathentry kind="lib" path="lib/google-http-client-jackson2-1.43.3.jar"/>
+	<classpathentry kind="lib" path="lib/grpc-api-1.56.1.jar"/>
+	<classpathentry kind="lib" path="lib/grpc-auth-1.56.1.jar"/>
+	<classpathentry kind="lib" path="lib/grpc-context-1.56.1.jar"/>
+	<classpathentry kind="lib" path="lib/grpc-core-1.56.1.jar"/>
+	<classpathentry kind="lib" path="lib/grpc-google-cloud-firestore-v1-3.13.1.jar"/>
+	<classpathentry kind="lib" path="lib/grpc-netty-shaded-1.56.1.jar"/>
+	<classpathentry kind="lib" path="lib/grpc-protobuf-1.56.1.jar"/>
+	<classpathentry kind="lib" path="lib/grpc-protobuf-lite-1.56.1.jar"/>
+	<classpathentry kind="lib" path="lib/grpc-stub-1.56.1.jar"/>
+	<classpathentry kind="lib" path="lib/gson-2.10.1.jar"/>
+	<classpathentry kind="lib" path="lib/guava-33.0.0-jre.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.15.2.jar"/>
+	<classpathentry kind="lib" path="lib/opencensus-api-0.31.1.jar"/>
+	<classpathentry kind="lib" path="lib/opencensus-contrib-http-util-0.31.1.jar"/>
+	<classpathentry kind="lib" path="lib/perfmark-api-0.26.0.jar"/>
+	<classpathentry kind="lib" path="lib/protobuf-java-3.23.4.jar"/>
+	<classpathentry kind="lib" path="lib/proto-google-cloud-firestore-v1-3.13.1.jar"/>
+	<classpathentry kind="lib" path="lib/proto-google-common-protos-2.25.1.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-2.0.9.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-simple-2.0.9.jar"/>
+	<classpathentry kind="lib" path="lib/threetenbp-1.6.8.jar"/>
+	<classpathentry kind="lib" path="lib/jbcrypt-0.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

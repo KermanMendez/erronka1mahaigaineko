@@ -1,19 +1,20 @@
 package view;
 
 import java.awt.EventQueue;
+import java.awt.Image;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+
+import org.mindrot.jbcrypt.BCrypt;
+
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.Firestore;
+
+import controller.Controller;
 
 public class LoginFrame extends JFrame {
 
@@ -23,24 +24,18 @@ public class LoginFrame extends JFrame {
 	private JPasswordField passwordField;
 
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					LoginFrame frame = new LoginFrame();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+		EventQueue.invokeLater(() -> {
+			try {
+				LoginFrame frame = new LoginFrame();
+				frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		});
 	}
 
-	/**
-	 * Create the frame.
-	 */
 	public LoginFrame() {
-		setIconImage(Toolkit.getDefaultToolkit()
-				.getImage("C:\\Users\\in2dm3-d.ELORRIETA\\Desktop\\KermanMendez\\Erronka1\\src\\img\\logo.png"));
+		setIconImage(Toolkit.getDefaultToolkit().getImage("img/logo.png"));
 		setTitle("LOGIN");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -67,29 +62,81 @@ public class LoginFrame extends JFrame {
 		contentPane.add(passwordField);
 
 		JLabel lblLoginLogo = new JLabel("");
-		ImageIcon originalIcon = new ImageIcon(
-				"C:\\Users\\in2dm3-d.ELORRIETA\\Desktop\\KermanMendez\\Erronka1\\src\\img\\logo.png");
-
-		java.awt.Image scaledImage = originalIcon.getImage().getScaledInstance(250, 180, java.awt.Image.SCALE_SMOOTH);
-		ImageIcon scaledIcon = new ImageIcon(scaledImage);
-		lblLoginLogo.setIcon(scaledIcon);
+		ImageIcon originalIcon = new ImageIcon("img/logo.png");
+		Image scaledImage = originalIcon.getImage().getScaledInstance(250, 180, Image.SCALE_SMOOTH);
+		lblLoginLogo.setIcon(new ImageIcon(scaledImage));
 		lblLoginLogo.setHorizontalAlignment(SwingConstants.CENTER);
 		lblLoginLogo.setBounds(207, 22, 217, 180);
 		contentPane.add(lblLoginLogo);
 
-		passwordField = new JPasswordField();
-		passwordField.setBounds(40, 135, 136, 20);
-		contentPane.add(passwordField);
-
 		JButton btnLogin = new JButton("Login");
-		btnLogin.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				Workouts workouts = new Workouts();
-				workouts.setVisible(true);
-				dispose();
+		btnLogin.setBounds(59, 211, 89, 23);
+		contentPane.add(btnLogin);
+
+		btnLogin.addActionListener(e -> {
+			String username = textFieldUser.getText().trim();
+			String password = new String(passwordField.getPassword());
+
+			if (username.isEmpty() || password.isEmpty()) {
+				JOptionPane.showMessageDialog(null, "Bete Erabiltzailea eta Pasahitza.");
+				return;
+			}
+
+			try {
+				User user = checkLogin(username, password);
+				if (user != null) {
+					// Paso admin flag al siguiente JFrame
+					Workouts workouts = new Workouts(user.isAdmin);
+					workouts.setVisible(true);
+					dispose();
+				} else {
+					JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.");
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Errorea datu basearekin konektatzean.");
 			}
 		});
-		btnLogin.setBounds(155, 213, 89, 23);
-		contentPane.add(btnLogin);
+
+		JButton btnRegistro = new JButton("Registratu");
+		btnRegistro.setBounds(255, 213, 105, 23);
+		contentPane.add(btnRegistro);
+
+		btnRegistro.addActionListener(e -> {
+			RegisterDialog registerDialog = new RegisterDialog(this);
+			registerDialog.setVisible(true);
+		});
+	}
+
+	private User checkLogin(String username, String plainPassword) throws Exception {
+	    Firestore db;
+	    Controller controller = new Controller();
+	    db = controller.getDb();
+	    DocumentReference docRef = db.collection("users").document(username);
+	    ApiFuture<DocumentSnapshot> future = docRef.get();
+	    DocumentSnapshot doc = future.get();
+	    if (!doc.exists())
+	        return null;
+
+	    String storedHash = doc.getString("password");
+	    if (storedHash == null || storedHash.isEmpty())
+	        return null;
+
+	    if (BCrypt.checkpw(plainPassword, storedHash)) {
+	        Boolean isAdminFromDB = doc.getBoolean("isAdmin");
+	        boolean isAdmin = isAdminFromDB != null && isAdminFromDB;
+	        return new User(isAdmin);
+	    } else {
+	        return null;
+	    }
+	}
+
+
+	private static class User {
+		boolean isAdmin;
+
+		public User(boolean isAdmin) {
+			this.isAdmin = isAdmin;
+		}
 	}
 }

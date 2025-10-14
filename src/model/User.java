@@ -1,10 +1,9 @@
 package model;
 
 import java.sql.Date;
-//import java.util.Date;
 
 public class User {
-	
+
 	private String id;
 	private String name;
 	private String surname;
@@ -13,9 +12,9 @@ public class User {
 	private String password;
 	private Date birthDate;
 	private boolean isTrainer;
-	
-	public User(String id, String name, String surname, String surname2, String email, String password,
-			Date birthDate, boolean isTrainer) {
+
+	public User(String id, String name, String surname, String surname2, String email, String password, Date birthDate,
+			boolean isTrainer) {
 		this.id = id;
 		this.name = name;
 		this.surname = surname;
@@ -81,13 +80,12 @@ public class User {
 	public void setBirthDate(Date birthDate) {
 		this.birthDate = birthDate;
 	}
-	
+
 	public boolean isTrainer() {
 		return isTrainer;
 	}
-	
+
 	public void setTrainer(boolean isTrainer) {
 		this.isTrainer = isTrainer;
 	}
-
 }

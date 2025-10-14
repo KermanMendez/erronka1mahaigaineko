@@ -1,13 +1,13 @@
 package model;
 
 public class Workout {
-	
+
 	private String name;
 	private Double duration;
 	private int level;
-	private String videoURL;	
+	private String videoURL;
 	private Exercise[] exercises;
-	
+
 	public Workout(String name, Double duration, int level, String videoURL, Exercise[] exercises) {
 		this.name = name;
 		this.duration = duration;
@@ -55,6 +55,4 @@ public class Workout {
 	public void setExercises(Exercise[] exercises) {
 		this.exercises = exercises;
 	}
-	
-
 }

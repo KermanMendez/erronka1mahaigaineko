@@ -1,10 +1,26 @@
 package view;
 
 import java.awt.EventQueue;
-import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.AbstractListModel;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+
+import model.CreateUser;
+import model.Hariak;
+import model.Registroak;
+import model.PojoRegistratu;
+import model.Routines;
 
 public class Workouts extends JFrame {
 
@@ -14,23 +30,28 @@ public class Workouts extends JFrame {
 	private JList<String> listaWorkout;
 	private JButton btnIkusiHistoria;
 	private JButton btnHasiWorkout;
+	private JButton btnIkusiAriketak;
+	private JButton btnAdmin;
 	private JLabel lblMailaAktuala;
-	private model.Thread workoutThread = new model.Thread("WorkoutThread");
+	private Hariak workoutThread = new Hariak("WorkoutThread");
+	private Routines routines = new Routines();
 
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					Workouts frame = new Workouts();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+		EventQueue.invokeLater(() -> {
+			try {
+				Workouts frame = new Workouts(false);
+				frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		});
 	}
 
 	public Workouts() {
+		this(false);
+	}
+
+	public Workouts(boolean isAdmin) {
 		setTitle("Workouts");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 600, 400);
@@ -55,8 +76,8 @@ public class Workouts extends JFrame {
 		edukiontzia.add(lblIragazi);
 
 		comboMaila = new JComboBox<>();
-		comboMaila.setModel(
-				new DefaultComboBoxModel<String>(new String[] { "0. maila", "1. maila", "2. maila", "3. maila" }));
+		comboMaila.setModel(new DefaultComboBoxModel<>(
+				new String[] { "1. maila", "2. maila", "3. maila", "4. maila", "5. maila" }));
 		comboMaila.setBounds(180, 100, 120, 22);
 		edukiontzia.add(comboMaila);
 
@@ -71,8 +92,9 @@ public class Workouts extends JFrame {
 		listaWorkout = new JList<>();
 		listaWorkout.setModel(new AbstractListModel<String>() {
 			private static final long serialVersionUID = 1L;
-			String[] balioak = new String[] { "Workout 1 - 0. maila - 5 ariketa", "Workout 2 - 1. maila - 6 ariketa",
-					"Workout 3 - 2. maila - 8 ariketa" };
+			String[] balioak = new String[] { "Workout 1 - 1. maila - 6 ariketa", "Workout 2 - 2. maila - 6 ariketa",
+					"Workout 3 - 3. maila - 6 ariketa", "Workout 4 - 4. maila - 6 ariketa",
+					"Workout 5 - 5. maila - 6 ariketa" };
 
 			public int getSize() {
 				return balioak.length;
@@ -89,13 +111,46 @@ public class Workouts extends JFrame {
 		edukiontzia.add(btnIkusiHistoria);
 
 		btnHasiWorkout = new JButton("Hasi Workout-a");
-		btnHasiWorkout.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				workoutThread.start();
-			}
-		});
+		btnHasiWorkout.addActionListener(e -> workoutThread.start());
 		btnHasiWorkout.setBounds(350, 210, 180, 30);
 		edukiontzia.add(btnHasiWorkout);
+
+		btnIkusiAriketak = new JButton("Ariketak Ikusi");
+		btnIkusiAriketak.addActionListener(e -> {
+			int aukeratuMaila = comboMaila.getSelectedIndex() + 1;
+			routines.ariketak(aukeratuMaila);
+		});
+		btnIkusiAriketak.setBounds(350, 267, 180, 30);
+		edukiontzia.add(btnIkusiAriketak);
+
+		btnAdmin = new JButton("Admin Only");
+		btnAdmin.addActionListener(e -> {
+			Registroak eskaera = new Registroak();
+			List<PojoRegistratu> lista = eskaera.eskaerakKargatu();
+
+			for (PojoRegistratu s : new ArrayList<>(lista)) {
+				int resp = JOptionPane.showOptionDialog(this,
+						"Usuario: " + s.getUsername() + "\nEmail: " + s.getEmail(), "Aceptar o Denegar solicitud",
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+						new Object[] { "Aceptar", "Denegar" }, "Aceptar");
+
+				if (resp == JOptionPane.YES_OPTION) {
+					try {
+						CreateUser createUser = new CreateUser();
+						createUser.createUser(s.getUsername(), s.getEmail(), s.getPassword());
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}
+				// borrar solicitud de la lista
+				lista.remove(s);
+			}
+			// sobrescribir .dat con solicitudes pendientes
+			eskaera.ezabatuEskaerak(lista);
+		});
+
+		btnAdmin.setBounds(350, 320, 180, 30);
+		btnAdmin.setVisible(isAdmin);
+		edukiontzia.add(btnAdmin);
 	}
 }
