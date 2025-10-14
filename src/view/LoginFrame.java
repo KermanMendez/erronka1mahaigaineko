@@ -1,19 +1,19 @@
 package view;
 
 import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import java.awt.Toolkit;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.JPasswordField;
-import javax.swing.JButton;
-import javax.swing.SwingConstants;
-import javax.swing.ImageIcon;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 
 public class LoginFrame extends JFrame {
 
@@ -22,9 +22,6 @@ public class LoginFrame extends JFrame {
 	private JTextField textFieldUser;
 	private JPasswordField passwordField;
 
-	/**
-	 * Launch the application.
-	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -42,7 +39,8 @@ public class LoginFrame extends JFrame {
 	 * Create the frame.
 	 */
 	public LoginFrame() {
-		setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\in2dm3-d.ELORRIETA\\Desktop\\KermanMendez\\Erronka1\\src\\img\\logo.png"));
+		setIconImage(Toolkit.getDefaultToolkit()
+				.getImage("C:\\Users\\in2dm3-d.ELORRIETA\\Desktop\\KermanMendez\\Erronka1\\src\\img\\logo.png"));
 		setTitle("LOGIN");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -50,35 +48,27 @@ public class LoginFrame extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
+
 		JLabel labelUser = new JLabel("User:");
 		labelUser.setBounds(40, 54, 90, 14);
 		contentPane.add(labelUser);
-		
+
 		JLabel labelPassword = new JLabel("Password:");
 		labelPassword.setBounds(40, 110, 87, 14);
 		contentPane.add(labelPassword);
-		
+
 		textFieldUser = new JTextField();
 		textFieldUser.setBounds(40, 79, 136, 20);
 		contentPane.add(textFieldUser);
 		textFieldUser.setColumns(10);
-		
+
 		passwordField = new JPasswordField();
 		passwordField.setBounds(40, 135, 136, 20);
 		contentPane.add(passwordField);
-		
-		JButton btnLogin = new JButton("Login");
-		btnLogin.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				//TODO: LOGIN LOGIC WITH FIREBASE
-			}
-		});
-		btnLogin.setBounds(158, 213, 89, 23);
-		contentPane.add(btnLogin);
-		
+
 		JLabel lblLoginLogo = new JLabel("");
-		ImageIcon originalIcon = new ImageIcon("C:\\Users\\in2dm3-d.ELORRIETA\\Desktop\\KermanMendez\\Erronka1\\src\\img\\logo.png");
+		ImageIcon originalIcon = new ImageIcon(
+				"C:\\Users\\in2dm3-d.ELORRIETA\\Desktop\\KermanMendez\\Erronka1\\src\\img\\logo.png");
 
 		java.awt.Image scaledImage = originalIcon.getImage().getScaledInstance(250, 180, java.awt.Image.SCALE_SMOOTH);
 		ImageIcon scaledIcon = new ImageIcon(scaledImage);
@@ -86,5 +76,20 @@ public class LoginFrame extends JFrame {
 		lblLoginLogo.setHorizontalAlignment(SwingConstants.CENTER);
 		lblLoginLogo.setBounds(207, 22, 217, 180);
 		contentPane.add(lblLoginLogo);
+
+		passwordField = new JPasswordField();
+		passwordField.setBounds(40, 135, 136, 20);
+		contentPane.add(passwordField);
+
+		JButton btnLogin = new JButton("Login");
+		btnLogin.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Workouts workouts = new Workouts();
+				workouts.setVisible(true);
+				dispose();
+			}
+		});
+		btnLogin.setBounds(155, 213, 89, 23);
+		contentPane.add(btnLogin);
 	}
 }
