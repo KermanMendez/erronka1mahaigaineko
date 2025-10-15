@@ -85,7 +85,6 @@ public class LoginFrame extends JFrame {
 			try {
 				User user = checkLogin(username, password);
 				if (user != null) {
-					// Paso admin flag al siguiente JFrame
 					Workouts workouts = new Workouts(user.isAdmin);
 					workouts.setVisible(true);
 					dispose();

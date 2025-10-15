@@ -45,13 +45,11 @@ public class RegisterDialog extends JDialog {
 		passwordField.setBounds(170, 80, 200, 25);
 		getContentPane().add(passwordField);
 
-		// Botón Registrar Solicitud
 		JButton btnRegistrar = new JButton("Eskaera Registratu");
 		btnRegistrar.setBounds(170, 120, 160, 25);
 		btnRegistrar.addActionListener(e -> registrarSolicitud());
 		getContentPane().add(btnRegistrar);
 
-		// Botón Cancelar
 		JButton btnCancelar = new JButton("Utzi");
 		btnCancelar.setBounds(170, 155, 160, 25);
 		btnCancelar.addActionListener(e -> dispose());

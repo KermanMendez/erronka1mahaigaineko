@@ -27,7 +27,7 @@ public class Workouts extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel edukiontzia;
 	private JComboBox<String> comboMaila;
-	private JList<String> listaWorkout;
+	public static JList<String> listaWorkout;
 	private JButton btnIkusiHistoria;
 	private JButton btnHasiWorkout;
 	private JButton btnIkusiAriketak;
@@ -67,7 +67,7 @@ public class Workouts extends JFrame {
 		lblTitulua.setBounds(240, 10, 200, 30);
 		edukiontzia.add(lblTitulua);
 
-		lblMailaAktuala = new JLabel("Maila: 0");
+		lblMailaAktuala = new JLabel("Maila: 1");
 		lblMailaAktuala.setBounds(30, 60, 150, 20);
 		edukiontzia.add(lblMailaAktuala);
 
@@ -118,6 +118,20 @@ public class Workouts extends JFrame {
 		btnIkusiAriketak = new JButton("Ariketak Ikusi");
 		btnIkusiAriketak.addActionListener(e -> {
 			int aukeratuMaila = comboMaila.getSelectedIndex() + 1;
+
+			listaWorkout.setModel(new AbstractListModel<String>() {
+				private static final long serialVersionUID = 1L;
+				String[] balioak = new String[] { "Cargando..." };
+
+				public int getSize() {
+					return balioak.length;
+				}
+
+				public String getElementAt(int index) {
+					return balioak[index];
+				}
+			});
+
 			routines.ariketak(aukeratuMaila);
 		});
 		btnIkusiAriketak.setBounds(350, 267, 180, 30);

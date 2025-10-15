@@ -21,12 +21,14 @@ public class CreateUser {
 		String hashedPassword = BCrypt.hashpw(plainPassword, BCrypt.gensalt());
 
 		ApiFuture<WriteResult> writeUser = usersCol.document(username).set(new java.util.HashMap<>() {
+			private static final long serialVersionUID = 1L;
+
 			{
 				put("username", username);
 				put("email", email);
 				put("password", hashedPassword);
 			}
 		});
-		return true;
+		return writeUser.get() != null;
 	}
 }

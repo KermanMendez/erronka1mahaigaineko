@@ -14,14 +14,14 @@ public class DBConnection {
 		try {
 			List<FirebaseApp> apps = FirebaseApp.getApps();
 			if (!apps.isEmpty()) {
-				//System.out.println("Firebase ya está inicializado");
+				// System.out.println("Firebase ya está inicializado");
 				return;
 			}
 
 			FileInputStream serviceAccount = new FileInputStream("serviceAccountKey.json");
 
 			FirebaseOptions options = FirebaseOptions.builder()
-					.setCredentials(GoogleCredentials.fromStream(serviceAccount)).setDatabaseUrl("https://").build();
+					.setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
 
 			FirebaseApp.initializeApp(options);
 			System.out.println("Firebase conectado con éxito");
