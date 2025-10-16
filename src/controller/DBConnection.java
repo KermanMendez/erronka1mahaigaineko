@@ -49,7 +49,6 @@ public class DBConnection {
 		String birthdate = "01/01/2000";
 		
 		
-		
 		CreateRequest request = new CreateRequest().setEmail(email).setEmailVerified(false).setPassword(password)
 				.setDisabled(false);
 

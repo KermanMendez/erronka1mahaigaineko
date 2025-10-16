@@ -90,23 +90,14 @@ public class LoginFrame extends JFrame {
 			}
 
 			try {
-<<<<<<< HEAD
 				boolean loginSuccess = checkLogin(email, password);
 				if (loginSuccess) {
-=======
-				User user = checkLogin(email, password);
-
-				if (user != null) {
-					JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.", "Errorea", JOptionPane.ERROR_MESSAGE);
-
-					dispose();
-				} else {
->>>>>>> 2da411ca85edf5705f39b9cbf2fa4becc72c5f3a
 					Workouts workouts = new Workouts();
 					dispose();
 					workouts.setVisible(true);
 				} else {
-					JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.", "Errorea", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.", "Errorea",
+							JOptionPane.ERROR_MESSAGE);
 				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -145,31 +136,7 @@ public class LoginFrame extends JFrame {
 		Request request = new Request.Builder().url(url).post(body).build();
 
 		try (Response response = client.newCall(request).execute()) {
-<<<<<<< HEAD
 			return response.isSuccessful();
-=======
-			if (!response.isSuccessful()) {
-				return null; // login fallido
-			}
-
-
-			JsonObject resJson = JsonParser.parseString(response.body().string()).getAsJsonObject();
-			boolean isAdmin = false;
-
-			JsonParser.parseString(response.body().string()).getAsJsonObject();
-
-
-
-			return new User(isAdmin);
-		}
-	}
-
-	private static class User {
-		boolean isAdmin;
-
-		public User(boolean isAdmin) {
-			this.isAdmin = isAdmin;
->>>>>>> 2da411ca85edf5705f39b9cbf2fa4becc72c5f3a
 		}
 	}
 }
