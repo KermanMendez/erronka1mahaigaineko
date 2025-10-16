@@ -145,6 +145,12 @@ public class Workouts extends JFrame {
 		btnAdmin.addActionListener(e -> {
 			Registroak eskaera = new Registroak();
 			List<User> lista = eskaera.eskaerakKargatu();
+			
+			if (lista.isEmpty()) {
+				JOptionPane.showMessageDialog(this, "Ez dago onartzeko eskaerarik.", "Info",
+						JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
 
 			for (User s : new ArrayList<>(lista)) {
 				int resp = JOptionPane.showOptionDialog(this, "Usuario: " + s.getName() + "\nEmail: " + s.getEmail(),
