@@ -21,6 +21,8 @@ import model.Hariak;
 import model.Registroak;
 import model.Routines;
 import model.User;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class Workouts extends JFrame {
 
@@ -36,6 +38,7 @@ public class Workouts extends JFrame {
 	private Hariak workoutThread = new Hariak("WorkoutThread");
 	private Routines routines = new Routines();
 	private DBConnection dbConnection = new DBConnection();
+	private LoginFrame login = new LoginFrame();
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(() -> {
@@ -144,9 +147,8 @@ public class Workouts extends JFrame {
 			List<User> lista = eskaera.eskaerakKargatu();
 
 			for (User s : new ArrayList<>(lista)) {
-				int resp = JOptionPane.showOptionDialog(this,
-						"Usuario: " + s.getName() + "\nEmail: " + s.getEmail(), "Aceptar o Denegar solicitud",
-						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+				int resp = JOptionPane.showOptionDialog(this, "Usuario: " + s.getName() + "\nEmail: " + s.getEmail(),
+						"Aceptar o Denegar solicitud", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
 						new Object[] { "Aceptar", "Denegar" }, "Aceptar");
 
 				if (resp == JOptionPane.YES_OPTION) {
@@ -166,5 +168,15 @@ public class Workouts extends JFrame {
 		btnAdmin.setBounds(350, 320, 180, 30);
 		btnAdmin.setVisible(isAdmin);
 		edukiontzia.add(btnAdmin);
+
+		JButton btnLogout = new JButton("Logout");
+		btnLogout.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+				login.setVisible(true);
+			}
+		});
+		btnLogout.setBounds(485, 18, 89, 23);
+		edukiontzia.add(btnLogout);
 	}
 }
