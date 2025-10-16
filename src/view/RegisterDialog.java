@@ -8,28 +8,20 @@ import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import model.Registroak;
-import model.User;
+import controller.DBConnection;
 
 public class RegisterDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
-	private JTextField textFieldUser;
 	private JTextField textFieldEmail;
 	private JPasswordField passwordField;
+	private DBConnection dbConnection = new DBConnection();
 
 	public RegisterDialog(JFrame parent) {
 		super(parent, "Erabiltzailearen Registroa", true);
 		setSize(399, 239);
 		setLocationRelativeTo(parent);
 		getContentPane().setLayout(null);
-
-		JLabel labelUser = new JLabel("Erabiltzailea:");
-		labelUser.setBounds(10, 10, 150, 25);
-		getContentPane().add(labelUser);
-		textFieldUser = new JTextField();
-		textFieldUser.setBounds(170, 10, 200, 25);
-		getContentPane().add(textFieldUser);
 
 		JLabel labelEmail = new JLabel("Email:");
 		labelEmail.setBounds(10, 45, 150, 25);
@@ -57,23 +49,21 @@ public class RegisterDialog extends JDialog {
 	}
 
 	private void registrarSolicitud() {
-		String username = textFieldUser.getText().trim();
 		String email = textFieldEmail.getText().trim();
 		String password = new String(passwordField.getPassword());
 
-		if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
+		if (email.isEmpty() || password.isEmpty()) {
 			JOptionPane.showMessageDialog(this, "Datu Guztiak Bete.");
 			return;
 		}
 
 		try {
-			Registroak eskaerak = new Registroak();
-			eskaerak.eskaeraGorde(new User(username, email, password));
-			JOptionPane.showMessageDialog(this, "Eskaera Bidalita.\n Administratzaile batek kudeatuko du.");
+			dbConnection.createUser(email, password);
+			JOptionPane.showMessageDialog(this, "Registratu zara");
 			dispose();
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			JOptionPane.showMessageDialog(this, "Errorea eskaera goredetzean.");
+			JOptionPane.showMessageDialog(this, "Errorea registratzen.");
 		}
 	}
 }

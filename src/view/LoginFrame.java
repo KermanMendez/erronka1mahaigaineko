@@ -4,17 +4,25 @@ import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.Toolkit;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import org.mindrot.jbcrypt.BCrypt;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
-import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.Firestore;
-
-import controller.Controller;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class LoginFrame extends JFrame {
 
@@ -44,7 +52,7 @@ public class LoginFrame extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		JLabel labelUser = new JLabel("User:");
+		JLabel labelUser = new JLabel("Email:");
 		labelUser.setBounds(40, 54, 90, 14);
 		contentPane.add(labelUser);
 
@@ -74,16 +82,16 @@ public class LoginFrame extends JFrame {
 		contentPane.add(btnLogin);
 
 		btnLogin.addActionListener(e -> {
-			String username = textFieldUser.getText().trim();
+			String email = textFieldUser.getText().trim();
 			String password = new String(passwordField.getPassword());
 
-			if (username.isEmpty() || password.isEmpty()) {
+			if (email.isEmpty() || password.isEmpty()) {
 				JOptionPane.showMessageDialog(null, "Bete Erabiltzailea eta Pasahitza.");
 				return;
 			}
 
 			try {
-				User user = checkLogin(username, password);
+				User user = checkLogin(email, password);
 				if (user != null) {
 					Workouts workouts = new Workouts(user.isAdmin);
 					workouts.setVisible(true);
@@ -93,7 +101,7 @@ public class LoginFrame extends JFrame {
 				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
-				JOptionPane.showMessageDialog(null, "Errorea datu basearekin konektatzean.");
+				JOptionPane.showMessageDialog(null, "Errorea Firebase Authentication-ekin konektatzean.");
 			}
 		});
 
@@ -107,29 +115,38 @@ public class LoginFrame extends JFrame {
 		});
 	}
 
-	private User checkLogin(String username, String plainPassword) throws Exception {
-	    Firestore db;
-	    Controller controller = new Controller();
-	    db = controller.getDb();
-	    DocumentReference docRef = db.collection("users").document(username);
-	    ApiFuture<DocumentSnapshot> future = docRef.get();
-	    DocumentSnapshot doc = future.get();
-	    if (!doc.exists())
-	        return null;
+	private User checkLogin(String email, String password) throws Exception {
+		String apiKey = "AIzaSyBhHBYyK1vmvbrbP-tWUfFNxRqbeu2AOu4";
 
-	    String storedHash = doc.getString("password");
-	    if (storedHash == null || storedHash.isEmpty())
-	        return null;
+		if (apiKey == null || apiKey.isEmpty()) {
+			throw new IllegalStateException("FIREBASE_API_KEY not set. Set env var or -DFIREBASE_API_KEY=<key>");
+		}
+		String url = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + apiKey;
 
-	    if (BCrypt.checkpw(plainPassword, storedHash)) {
-	        Boolean isAdminFromDB = doc.getBoolean("isAdmin");
-	        boolean isAdmin = isAdminFromDB != null && isAdminFromDB;
-	        return new User(isAdmin);
-	    } else {
-	        return null;
-	    }
+		OkHttpClient client = new OkHttpClient();
+
+		JsonObject json = new JsonObject();
+		json.addProperty("email", email);
+		json.addProperty("password", password);
+		json.addProperty("returnSecureToken", true);
+
+		MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+		RequestBody body = RequestBody.create(JSON, json.toString());
+
+		Request request = new Request.Builder().url(url).post(body).build();
+
+		try (Response response = client.newCall(request).execute()) {
+			if (!response.isSuccessful()) {
+				return null; // login fallido
+			}
+
+			JsonObject resJson = JsonParser.parseString(response.body().string()).getAsJsonObject();
+			boolean isAdmin = false; // ⚠️ opcional: si quieres, puedes buscar un claim personalizado o Firestore
+										// para roles
+
+			return new User(isAdmin);
+		}
 	}
-
 
 	private static class User {
 		boolean isAdmin;

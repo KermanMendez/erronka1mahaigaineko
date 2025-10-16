@@ -42,5 +42,7 @@
 	<classpathentry kind="lib" path="lib/slf4j-simple-2.0.9.jar"/>
 	<classpathentry kind="lib" path="lib/threetenbp-1.6.8.jar"/>
 	<classpathentry kind="lib" path="lib/jbcrypt-0.4.jar"/>
+	<classpathentry kind="lib" path="lib/okhttp-3.14.9.jar"/>
+	<classpathentry kind="lib" path="lib/okio-1.17.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

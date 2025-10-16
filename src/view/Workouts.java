@@ -1,8 +1,8 @@
 package view;
 
 import java.awt.EventQueue;
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultComboBoxModel;
@@ -11,18 +11,12 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
-import controller.DBConnection;
 import model.Hariak;
-import model.Registroak;
 import model.Routines;
-import model.User;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 public class Workouts extends JFrame {
 
@@ -33,11 +27,9 @@ public class Workouts extends JFrame {
 	private JButton btnIkusiHistoria;
 	private JButton btnHasiWorkout;
 	private JButton btnIkusiAriketak;
-	private JButton btnAdmin;
 	private JLabel lblMailaAktuala;
 	private Hariak workoutThread = new Hariak("WorkoutThread");
 	private Routines routines = new Routines();
-	private DBConnection dbConnection = new DBConnection();
 	private LoginFrame login = new LoginFrame();
 
 	public static void main(String[] args) {
@@ -140,40 +132,6 @@ public class Workouts extends JFrame {
 		});
 		btnIkusiAriketak.setBounds(350, 267, 180, 30);
 		edukiontzia.add(btnIkusiAriketak);
-
-		btnAdmin = new JButton("Admin Only");
-		btnAdmin.addActionListener(e -> {
-			Registroak eskaera = new Registroak();
-			List<User> lista = eskaera.eskaerakKargatu();
-			
-			if (lista.isEmpty()) {
-				JOptionPane.showMessageDialog(this, "Ez dago onartzeko eskaerarik.", "Info",
-						JOptionPane.INFORMATION_MESSAGE);
-				return;
-			}
-
-			for (User s : new ArrayList<>(lista)) {
-				int resp = JOptionPane.showOptionDialog(this, "Usuario: " + s.getName() + "\nEmail: " + s.getEmail(),
-						"Aceptar o Denegar solicitud", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-						new Object[] { "Aceptar", "Denegar" }, "Aceptar");
-
-				if (resp == JOptionPane.YES_OPTION) {
-					try {
-						dbConnection.createUser(s.getName(), s.getEmail(), s.getPassword());
-					} catch (Exception ex) {
-						ex.printStackTrace();
-					}
-				}
-				// borrar solicitud de la lista
-				lista.remove(s);
-			}
-			// sobrescribir .dat con solicitudes pendientes
-			eskaera.ezabatuEskaerak(lista);
-		});
-
-		btnAdmin.setBounds(350, 320, 180, 30);
-		btnAdmin.setVisible(isAdmin);
-		edukiontzia.add(btnAdmin);
 
 		JButton btnLogout = new JButton("Logout");
 		btnLogout.addActionListener(new ActionListener() {
