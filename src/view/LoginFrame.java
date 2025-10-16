@@ -93,7 +93,7 @@ public class LoginFrame extends JFrame {
 			try {
 				User user = checkLogin(email, password);
 				if (user != null) {
-					JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.");
+					JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.", "Errorea", JOptionPane.ERROR_MESSAGE);
 					dispose();
 				}
 			} catch (Exception ex) {
@@ -137,7 +137,7 @@ public class LoginFrame extends JFrame {
 				return null; // login fallido
 			}
 
-			JsonObject resJson = JsonParser.parseString(response.body().string()).getAsJsonObject();
+			JsonParser.parseString(response.body().string()).getAsJsonObject();
 			boolean isAdmin = false; // ⚠️ opcional: si quieres, puedes buscar un claim personalizado o Firestore
 										// para roles
 
