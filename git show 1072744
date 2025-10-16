@@ -1,0 +1,40 @@
+* [33m56e82d5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m JCalendar
+*   [33m1a4dfb4[m Referencia UID en la BD
+[32m|[m[33m\[m  
+[32m|[m * [33m2da411c[m new views
+* [33m|[m [33m09e79cd[m Referencia UID en la BD
+[33m|[m[33m/[m  
+*   [33m088c4ed[m Login Fixed
+[34m|[m[35m\[m  
+[34m|[m * [33me13b238[m ignore serviceaccountkey.json
+[34m|[m *   [33m4499d65[m me tienes harto
+[34m|[m [36m|[m[1;31m\[m  
+[34m|[m * [1;31m|[m [33m1fd10c4[m showmessage error fixed
+* [1;31m|[m [1;31m|[m [33mc96d7b1[m Login Fixed
+[1;31m|[m [1;31m|[m[1;31m/[m  
+[1;31m|[m[1;31m/[m[1;31m|[m   
+* [1;31m|[m [33meeace30[m Authentication implementado, modo admin quitado
+[1;31m|[m[1;31m/[m  
+* [33m1072744[m Authentication implementado, modo admin quitado
+*   [33m0d07446[m stage
+[1;32m|[m[1;33m\[m  
+[1;32m|[m * [33me63bdf0[m Login Fixed
+[1;32m|[m * [33meafc054[m Alert si no hay nuevos registros
+[1;32m|[m * [33mccb3d59[m LogOut button
+[1;32m|[m * [33m966366a[m Eliminado JSON sensible del repo
+[1;32m|[m * [33m3992a72[m Json Quitado
+[1;32m|[m * [33mccfb8c8[m Json Quitado
+* [1;33m|[m [33m55ac325[m stage
+[1;33m|[m[1;33m/[m  
+* [33mbc56d52[m POJO fixed and methods moved to old class
+* [33m3044342[m Wanings quitados
+* [33me16bb6a[m Demasiadas cosas: Conexion con la BD, Login hecho, Registro de user con aceptacion o denegacion por parte de admin, validar si eres admin, si eres admin tienes premio, ver rutinas, leer, editar y borrar un .dat, hash de contraseñas... Y creo que ya que commit mas raro kerman presidente
+* [33mab8f397[m Thread implemented (not final)
+* [33mb27f01e[m added isTrainer to User
+* [33m885fcd7[m User POJO added
+* [33md2df887[m Ariketa POJO renamed
+* [33m8d92921[m Pojos Ariketa y interfaz Workouts
+* [33mc82df24[m fixed some names for labels
+* [33me62e5b3[m First Window and LoginFrame implemented
+* [33m81f084d[m workout and excercise objects created
+* [33ma360473[m first commit
