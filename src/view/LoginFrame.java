@@ -92,9 +92,13 @@ public class LoginFrame extends JFrame {
 
 			try {
 				User user = checkLogin(email, password);
-				if (user != null) {
+				if (user == null) {
 					JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.");
 					dispose();
+				} else {
+					Workouts workouts = new Workouts();
+					dispose();
+					workouts.setVisible(true);
 				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -138,8 +142,7 @@ public class LoginFrame extends JFrame {
 			}
 
 			JsonObject resJson = JsonParser.parseString(response.body().string()).getAsJsonObject();
-			boolean isAdmin = false; // ⚠️ opcional: si quieres, puedes buscar un claim personalizado o Firestore
-										// para roles
+			boolean isAdmin = false;
 
 			return new User(isAdmin);
 		}
