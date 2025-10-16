@@ -16,7 +16,6 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -91,19 +90,13 @@ public class LoginFrame extends JFrame {
 			}
 
 			try {
-				User user = checkLogin(email, password);
-<<<<<<< HEAD
-				if (user == null) {
-					JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.");
-=======
-				if (user != null) {
-					JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.", "Errorea", JOptionPane.ERROR_MESSAGE);
->>>>>>> e13b23876fc51268ba788df0c9d43d5b2748e60c
-					dispose();
-				} else {
+				boolean loginSuccess = checkLogin(email, password);
+				if (loginSuccess) {
 					Workouts workouts = new Workouts();
 					dispose();
 					workouts.setVisible(true);
+				} else {
+					JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.", "Errorea", JOptionPane.ERROR_MESSAGE);
 				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -121,7 +114,7 @@ public class LoginFrame extends JFrame {
 		});
 	}
 
-	private User checkLogin(String email, String password) throws Exception {
+	private boolean checkLogin(String email, String password) throws Exception {
 		String apiKey = "AIzaSyBhHBYyK1vmvbrbP-tWUfFNxRqbeu2AOu4";
 
 		if (apiKey == null || apiKey.isEmpty()) {
@@ -142,28 +135,7 @@ public class LoginFrame extends JFrame {
 		Request request = new Request.Builder().url(url).post(body).build();
 
 		try (Response response = client.newCall(request).execute()) {
-			if (!response.isSuccessful()) {
-				return null; // login fallido
-			}
-
-<<<<<<< HEAD
-			JsonObject resJson = JsonParser.parseString(response.body().string()).getAsJsonObject();
-			boolean isAdmin = false;
-=======
-			JsonParser.parseString(response.body().string()).getAsJsonObject();
-			boolean isAdmin = false; // ⚠️ opcional: si quieres, puedes buscar un claim personalizado o Firestore
-										// para roles
->>>>>>> e13b23876fc51268ba788df0c9d43d5b2748e60c
-
-			return new User(isAdmin);
-		}
-	}
-
-	private static class User {
-		boolean isAdmin;
-
-		public User(boolean isAdmin) {
-			this.isAdmin = isAdmin;
+			return response.isSuccessful();
 		}
 	}
 }
