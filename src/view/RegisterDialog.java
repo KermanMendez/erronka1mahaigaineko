@@ -8,6 +8,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+
+
 import controller.DBConnection;
 
 public class RegisterDialog extends JDialog {
@@ -16,6 +18,7 @@ public class RegisterDialog extends JDialog {
 	private JTextField textFieldEmail;
 	private JPasswordField passwordField;
 	private DBConnection dbConnection = new DBConnection();
+
 
 	public RegisterDialog(JFrame parent) {
 		super(parent, "Erabiltzailearen Registroa", true);
@@ -46,6 +49,8 @@ public class RegisterDialog extends JDialog {
 		btnCancelar.setBounds(170, 155, 160, 25);
 		btnCancelar.addActionListener(e -> dispose());
 		getContentPane().add(btnCancelar);
+		
+
 	}
 
 	private void registrarSolicitud() {
