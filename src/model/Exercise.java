@@ -118,8 +118,8 @@ public class Exercise {
 			}
 		}
 
-		System.out.println(
-				"Warning: Unexpected type " + value.getClass().getSimpleName() + " for numeric field, using 0");
+		System.out.println("Warning: Unexpected type " + value.getClass().getSimpleName() 
+				+ " for numeric field, using 0");
 		return 0;
 	}
 
@@ -136,8 +136,11 @@ public class Exercise {
 			return false;
 
 		Exercise exercise = (Exercise) obj;
-		return sets == exercise.sets && reps == exercise.reps && serieTime == exercise.serieTime
-				&& restTime == exercise.restTime && (name != null ? name.equals(exercise.name) : exercise.name == null)
+		return sets == exercise.sets 
+				&& reps == exercise.reps 
+				&& serieTime == exercise.serieTime
+				&& restTime == exercise.restTime 
+				&& (name != null ? name.equals(exercise.name) : exercise.name == null)
 				&& (description != null ? description.equals(exercise.description) : exercise.description == null)
 				&& (img != null ? img.equals(exercise.img) : exercise.img == null)
 				&& (videoURL != null ? videoURL.equals(exercise.videoURL) : exercise.videoURL == null);

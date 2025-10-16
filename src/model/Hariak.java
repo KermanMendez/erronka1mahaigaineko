@@ -2,7 +2,7 @@ package model;
 
 public class Hariak implements Runnable {
 
-	private java.lang.Thread thread;
+	private Thread thread;
 	private String threadName;
 
 	public Hariak(String name) {
@@ -14,7 +14,7 @@ public class Hariak implements Runnable {
 		for (int i = 0; i < 5; i++) {
 			System.out.println("Thread " + threadName + " is running: " + i);
 			try {
-				java.lang.Thread.sleep(500);
+				Thread.sleep(500);
 			} catch (InterruptedException e) {
 				System.out.println("Thread " + threadName + " interrupted.");
 			}
@@ -24,7 +24,7 @@ public class Hariak implements Runnable {
 
 	public void start() {
 		if (thread == null) {
-			thread = new java.lang.Thread(this, threadName);
+			thread = new Thread(this, threadName);
 			thread.start();
 		}
 	}

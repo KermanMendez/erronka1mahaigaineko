@@ -38,8 +38,8 @@ public class Routines {
 					}
 
 					exercises.forEach(exercise -> {
-						System.out.println(exercise.getName() + " - Sets: " + exercise.getSets() + ", Reps: "
-								+ exercise.getReps());
+						System.out.println(exercise.getName() + " - Sets: " + exercise.getSets() 
+								+ ", Reps: " + exercise.getReps());
 						listModel.addElement(exercise.toString());
 					});
 				});
@@ -53,14 +53,20 @@ public class Routines {
 	private List<Exercise> getAriketak(int level) throws InterruptedException, ExecutionException {
 		List<Exercise> exercises = new ArrayList<>();
 
-		QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", level).get().get();
+		QuerySnapshot querySnapshot = db.collection("workouts")
+				.whereEqualTo("level", level)
+				.get()
+				.get();
 
 		if (querySnapshot.isEmpty())
 			return exercises;
 
 		DocumentSnapshot routineDoc = querySnapshot.getDocuments().get(0);
 
-		List<QueryDocumentSnapshot> exerciseDocs = routineDoc.getReference().collection("exercise").get().get()
+		List<QueryDocumentSnapshot> exerciseDocs = routineDoc.getReference()
+				.collection("exercise")
+				.get()
+				.get()
 				.getDocuments();
 
 		exerciseDocs.forEach(doc -> {

@@ -1,8 +1,7 @@
 package view;
 
 import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Font;
 
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultComboBoxModel;
@@ -59,7 +58,7 @@ public class Workouts extends JFrame {
 		edukiontzia.setLayout(null);
 
 		JLabel lblTitulua = new JLabel("Workouts");
-		lblTitulua.setFont(new java.awt.Font("Tahoma", java.awt.Font.BOLD, 20));
+		lblTitulua.setFont(new Font("Tahoma", Font.BOLD, 20));
 		lblTitulua.setBounds(240, 10, 200, 30);
 		edukiontzia.add(lblTitulua);
 
@@ -88,9 +87,13 @@ public class Workouts extends JFrame {
 		listaWorkout = new JList<>();
 		listaWorkout.setModel(new AbstractListModel<String>() {
 			private static final long serialVersionUID = 1L;
-			String[] balioak = new String[] { "Workout 1 - 1. maila - 6 ariketa", "Workout 2 - 2. maila - 6 ariketa",
-					"Workout 3 - 3. maila - 6 ariketa", "Workout 4 - 4. maila - 6 ariketa",
-					"Workout 5 - 5. maila - 6 ariketa" };
+			String[] balioak = new String[] {
+					"Workout 1 - 1. maila - 6 ariketa",
+					"Workout 2 - 2. maila - 6 ariketa",
+					"Workout 3 - 3. maila - 6 ariketa",
+					"Workout 4 - 4. maila - 6 ariketa",
+					"Workout 5 - 5. maila - 6 ariketa"
+			};
 
 			public int getSize() {
 				return balioak.length;
@@ -134,11 +137,9 @@ public class Workouts extends JFrame {
 		edukiontzia.add(btnIkusiAriketak);
 
 		JButton btnLogout = new JButton("Logout");
-		btnLogout.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				dispose();
-				login.setVisible(true);
-			}
+		btnLogout.addActionListener(e -> {
+			dispose();
+			login.setVisible(true);
 		});
 		btnLogout.setBounds(485, 18, 89, 23);
 		edukiontzia.add(btnLogout);
