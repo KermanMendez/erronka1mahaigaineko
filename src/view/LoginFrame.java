@@ -92,9 +92,9 @@ public class LoginFrame extends JFrame {
 			try {
 				boolean loginSuccess = checkLogin(email, password);
 				if (loginSuccess) {
-					Workouts workouts = new Workouts();
+					Inter inter = new Inter();
 					dispose();
-					workouts.setVisible(true);
+					inter.setVisible(true);
 				} else {
 					JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.", "Errorea",
 							JOptionPane.ERROR_MESSAGE);
