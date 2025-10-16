@@ -63,7 +63,7 @@ public class RegisterDialog extends JDialog {
 			dispose();
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			JOptionPane.showMessageDialog(this, "Errorea registratzen.");
+			JOptionPane.showMessageDialog(this, "Errorea registratzen.", "Errorea", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }
