@@ -1,11 +1,11 @@
 package model;
 
-import java.sql.Date;
 import java.io.Serializable;
+import java.sql.Date;
 
 public class User implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
 	private String id;
 	private String name;
@@ -33,7 +33,7 @@ public class User implements Serializable {
 		this.email = email;
 		this.password = password;
 	}
-	
+
 	public String getId() {
 		return id;
 	}

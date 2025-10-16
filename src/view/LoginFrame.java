@@ -26,6 +26,8 @@ import okhttp3.Response;
 public class LoginFrame extends JFrame {
 
 	private static final long serialVersionUID = 1L;
+	private static final String API_KEY = "AIzaSyBhHBYyK1vmvbrbP-tWUfFNxRqbeu2AOu4";
+
 	private JPanel contentPane;
 	private JTextField textFieldUser;
 	private JPasswordField passwordField;
@@ -46,6 +48,7 @@ public class LoginFrame extends JFrame {
 		setTitle("LOGIN");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
+
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -61,8 +64,8 @@ public class LoginFrame extends JFrame {
 
 		textFieldUser = new JTextField();
 		textFieldUser.setBounds(40, 79, 136, 20);
-		contentPane.add(textFieldUser);
 		textFieldUser.setColumns(10);
+		contentPane.add(textFieldUser);
 
 		passwordField = new JPasswordField();
 		passwordField.setBounds(40, 135, 136, 20);
@@ -78,50 +81,51 @@ public class LoginFrame extends JFrame {
 
 		JButton btnLogin = new JButton("Login");
 		btnLogin.setBounds(59, 211, 89, 23);
+		btnLogin.addActionListener(e -> handleLogin());
 		contentPane.add(btnLogin);
-
-		btnLogin.addActionListener(e -> {
-			String email = textFieldUser.getText().trim();
-			String password = new String(passwordField.getPassword());
-
-			if (email.isEmpty() || password.isEmpty()) {
-				JOptionPane.showMessageDialog(null, "Bete Erabiltzailea eta Pasahitza.");
-				return;
-			}
-
-			try {
-				boolean loginSuccess = checkLogin(email, password);
-				if (loginSuccess) {
-					Inter inter = new Inter();
-					dispose();
-					inter.setVisible(true);
-				} else {
-					JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.", "Errorea",
-							JOptionPane.ERROR_MESSAGE);
-				}
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				JOptionPane.showMessageDialog(null, "Errorea Firebase Authentication-ekin konektatzean.");
-			}
-		});
 
 		JButton btnRegistro = new JButton("Registratu");
 		btnRegistro.setBounds(255, 213, 105, 23);
-		contentPane.add(btnRegistro);
-
 		btnRegistro.addActionListener(e -> {
 			RegisterDialog registerDialog = new RegisterDialog(this);
 			registerDialog.setVisible(true);
 		});
+		contentPane.add(btnRegistro);
+	}
+
+	private void handleLogin() {
+		String email = textFieldUser.getText().trim();
+		String password = new String(passwordField.getPassword());
+
+		if (email.isEmpty() || password.isEmpty()) {
+			JOptionPane.showMessageDialog(this, "Bete Erabiltzailea eta Pasahitza.");
+			return;
+		}
+
+		try {
+			boolean loginSuccess = checkLogin(email, password);
+			if (loginSuccess) {
+				Inter inter = new Inter();
+				dispose();
+				inter.setVisible(true);
+			} else {
+				JOptionPane.showMessageDialog(this, 
+						"Erabiltzailea edo Pasahitza okerrak.", 
+						"Errorea",
+						JOptionPane.ERROR_MESSAGE);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Errorea Firebase Authentication-ekin konektatzean.");
+		}
 	}
 
 	private boolean checkLogin(String email, String password) throws Exception {
-		String apiKey = "AIzaSyBhHBYyK1vmvbrbP-tWUfFNxRqbeu2AOu4";
-
-		if (apiKey == null || apiKey.isEmpty()) {
+		if (API_KEY == null || API_KEY.isEmpty()) {
 			throw new IllegalStateException("FIREBASE_API_KEY not set. Set env var or -DFIREBASE_API_KEY=<key>");
 		}
-		String url = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + apiKey;
+
+		String url = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + API_KEY;
 
 		OkHttpClient client = new OkHttpClient();
 
@@ -133,7 +137,10 @@ public class LoginFrame extends JFrame {
 		MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 		RequestBody body = RequestBody.create(JSON, json.toString());
 
-		Request request = new Request.Builder().url(url).post(body).build();
+		Request request = new Request.Builder()
+				.url(url)
+				.post(body)
+				.build();
 
 		try (Response response = client.newCall(request).execute()) {
 			return response.isSuccessful();

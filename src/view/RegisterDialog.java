@@ -1,8 +1,6 @@
 package view;
 
 import java.util.Properties;
-import java.text.SimpleDateFormat;
-
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -11,7 +9,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import org.jdatepicker.JDatePicker;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
@@ -30,7 +27,6 @@ public class RegisterDialog extends JDialog {
 	private JTextField abizena2Field;
 	private JDatePickerImpl datePicker;
 
-
 	public RegisterDialog(JFrame parent) {
 		super(parent, "Erabiltzailearen Registroa", true);
 		setSize(399, 388);
@@ -40,6 +36,7 @@ public class RegisterDialog extends JDialog {
 		JLabel labelEmail = new JLabel("Email:");
 		labelEmail.setBounds(10, 22, 150, 25);
 		getContentPane().add(labelEmail);
+
 		textFieldEmail = new JTextField();
 		textFieldEmail.setBounds(170, 22, 200, 25);
 		getContentPane().add(textFieldEmail);
@@ -47,6 +44,7 @@ public class RegisterDialog extends JDialog {
 		JLabel labelPass = new JLabel("Pasahitza:");
 		labelPass.setBounds(10, 57, 150, 25);
 		getContentPane().add(labelPass);
+
 		passwordField = new JPasswordField();
 		passwordField.setBounds(170, 57, 200, 25);
 		getContentPane().add(passwordField);
@@ -60,6 +58,7 @@ public class RegisterDialog extends JDialog {
 		btnCancelar.setBounds(170, 290, 160, 25);
 		btnCancelar.addActionListener(e -> dispose());
 		getContentPane().add(btnCancelar);
+
 		
 		JLabel lblAbizena1 = new JLabel("Abizena:");
 		lblAbizena1.setBounds(10, 92, 150, 25);
@@ -95,8 +94,6 @@ public class RegisterDialog extends JDialog {
 			ex.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Error initializing date picker: " + ex.getMessage(), "Date Picker Error", JOptionPane.ERROR_MESSAGE);
 		}
-		
-
 	}
 
 	private void registrarSolicitud() {
@@ -120,7 +117,9 @@ public class RegisterDialog extends JDialog {
 			JOptionPane.showMessageDialog(this, "Errorea registratzen.", "Errorea", JOptionPane.ERROR_MESSAGE);
 		}
 	}
+
 	
+	@SuppressWarnings("serial")
 	// Custom formatter for Date.toString() format but without time
 	class DateToStringFormatter extends DateComponentFormatter {
 	    private final java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd-MM-yyyy");
@@ -134,4 +133,5 @@ public class RegisterDialog extends JDialog {
 	        return super.valueToString(value);
 	    }
 	}
+
 }
