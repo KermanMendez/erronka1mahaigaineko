@@ -13,7 +13,6 @@ import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 
 import controller.Controller;
-import view.Workouts;
 
 public class Routines {
 
