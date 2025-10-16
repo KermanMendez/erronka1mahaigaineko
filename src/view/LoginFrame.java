@@ -93,11 +93,8 @@ public class LoginFrame extends JFrame {
 			try {
 				User user = checkLogin(email, password);
 				if (user != null) {
-					Workouts workouts = new Workouts(user.isAdmin);
-					workouts.setVisible(true);
-					dispose();
-				} else {
 					JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.");
+					dispose();
 				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
