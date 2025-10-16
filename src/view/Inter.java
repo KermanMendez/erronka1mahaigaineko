@@ -10,6 +10,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class Inter extends JFrame {
 
@@ -44,10 +46,24 @@ public class Inter extends JFrame {
 		contentPane.setLayout(null);
 		
 		JButton btnNewButton = new JButton("Profila");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Profile profile = new Profile();
+				dispose();
+				profile.setVisible(true);
+			}
+		});
 		btnNewButton.setBounds(38, 32, 117, 84);
 		contentPane.add(btnNewButton);
 		
 		JButton btnNewButton_1 = new JButton("Workouts");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Workouts workouts = new Workouts();
+				dispose();
+				workouts.setVisible(true);
+			}
+		});
 		btnNewButton_1.setBounds(38, 143, 117, 84);
 		contentPane.add(btnNewButton_1);
 		
