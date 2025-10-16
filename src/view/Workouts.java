@@ -16,11 +16,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
-import model.CreateUser;
+import controller.DBConnection;
 import model.Hariak;
 import model.Registroak;
-import model.PojoRegistratu;
 import model.Routines;
+import model.User;
 
 public class Workouts extends JFrame {
 
@@ -35,6 +35,7 @@ public class Workouts extends JFrame {
 	private JLabel lblMailaAktuala;
 	private Hariak workoutThread = new Hariak("WorkoutThread");
 	private Routines routines = new Routines();
+	private DBConnection dbConnection = new DBConnection();
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(() -> {
@@ -140,18 +141,17 @@ public class Workouts extends JFrame {
 		btnAdmin = new JButton("Admin Only");
 		btnAdmin.addActionListener(e -> {
 			Registroak eskaera = new Registroak();
-			List<PojoRegistratu> lista = eskaera.eskaerakKargatu();
+			List<User> lista = eskaera.eskaerakKargatu();
 
-			for (PojoRegistratu s : new ArrayList<>(lista)) {
+			for (User s : new ArrayList<>(lista)) {
 				int resp = JOptionPane.showOptionDialog(this,
-						"Usuario: " + s.getUsername() + "\nEmail: " + s.getEmail(), "Aceptar o Denegar solicitud",
+						"Usuario: " + s.getName() + "\nEmail: " + s.getEmail(), "Aceptar o Denegar solicitud",
 						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
 						new Object[] { "Aceptar", "Denegar" }, "Aceptar");
 
 				if (resp == JOptionPane.YES_OPTION) {
 					try {
-						CreateUser createUser = new CreateUser();
-						createUser.createUser(s.getUsername(), s.getEmail(), s.getPassword());
+						dbConnection.createUser(s.getName(), s.getEmail(), s.getPassword());
 					} catch (Exception ex) {
 						ex.printStackTrace();
 					}

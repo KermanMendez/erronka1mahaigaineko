@@ -19,8 +19,8 @@ public class Registroak {
         return result;
     }
 
-    public void eskaeraGorde(PojoRegistratu s) throws IOException {
-        List<PojoRegistratu> lista = eskaerakKargatu();
+    public void eskaeraGorde(User s) throws IOException {
+        List<User> lista = eskaerakKargatu();
         lista.add(s);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -33,7 +33,7 @@ public class Registroak {
     }
 
     @SuppressWarnings("unchecked")
-    public List<PojoRegistratu> eskaerakKargatu() {
+    public List<User> eskaerakKargatu() {
         File f = new File(fitxategia);
         if (!f.exists() || f.length() == 0)
             return new ArrayList<>();
@@ -41,14 +41,14 @@ public class Registroak {
             byte[] fileBytes = Files.readAllBytes(Paths.get(fitxategia));
             byte[] descifratuak = xorBytes(fileBytes);
             ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(descifratuak));
-            return (List<PojoRegistratu>) ois.readObject();
+            return (List<User>) ois.readObject();
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();
         }
     }
 
-    public void ezabatuEskaerak(List<PojoRegistratu> lista) {
+    public void ezabatuEskaerak(List<User> lista) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos);

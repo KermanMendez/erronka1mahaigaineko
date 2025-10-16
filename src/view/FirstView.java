@@ -34,7 +34,7 @@ public class FirstView extends JFrame {
 
 	public FirstView() {
 		setTitle("LONG RING LONG LAND GYM");
-		setIconImage(Toolkit.getDefaultToolkit().getImage("img/logo.png"));
+		setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/img/logo.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 534, 343);
 		contentPane = new JPanel();
@@ -54,7 +54,7 @@ public class FirstView extends JFrame {
 		contentPane.add(btnEnter);
 
 		JLabel labelLogo = new JLabel("");
-		ImageIcon originalIcon = new ImageIcon("img/logo.png");
+		ImageIcon originalIcon = new ImageIcon(getClass().getResource("/img/logo.png"));
 		Image scaledImage = originalIcon.getImage().getScaledInstance(300, 220, Image.SCALE_SMOOTH);
 		ImageIcon scaledIcon = new ImageIcon(scaledImage);
 		labelLogo.setIcon(scaledIcon);

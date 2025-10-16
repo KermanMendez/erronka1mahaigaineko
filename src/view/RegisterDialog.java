@@ -8,8 +8,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import model.PojoRegistratu;
 import model.Registroak;
+import model.User;
 
 public class RegisterDialog extends JDialog {
 
@@ -20,7 +20,7 @@ public class RegisterDialog extends JDialog {
 
 	public RegisterDialog(JFrame parent) {
 		super(parent, "Erabiltzailearen Registroa", true);
-		setSize(400, 220);
+		setSize(399, 239);
 		setLocationRelativeTo(parent);
 		getContentPane().setLayout(null);
 
@@ -68,7 +68,7 @@ public class RegisterDialog extends JDialog {
 
 		try {
 			Registroak eskaerak = new Registroak();
-			eskaerak.eskaeraGorde(new PojoRegistratu(username, email, password));
+			eskaerak.eskaeraGorde(new User(username, email, password));
 			JOptionPane.showMessageDialog(this, "Eskaera Bidalita.\n Administratzaile batek kudeatuko du.");
 			dispose();
 		} catch (Exception ex) {

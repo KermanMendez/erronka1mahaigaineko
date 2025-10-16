@@ -62,7 +62,7 @@ public class LoginFrame extends JFrame {
 		contentPane.add(passwordField);
 
 		JLabel lblLoginLogo = new JLabel("");
-		ImageIcon originalIcon = new ImageIcon("img/logo.png");
+		ImageIcon originalIcon = new ImageIcon(getClass().getResource("/img/logo.png"));
 		Image scaledImage = originalIcon.getImage().getScaledInstance(250, 180, Image.SCALE_SMOOTH);
 		lblLoginLogo.setIcon(new ImageIcon(scaledImage));
 		lblLoginLogo.setHorizontalAlignment(SwingConstants.CENTER);

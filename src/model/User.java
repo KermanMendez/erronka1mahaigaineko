@@ -25,6 +25,12 @@ public class User {
 		this.isTrainer = isTrainer;
 	}
 
+	public User(String username, String email, String password) {
+		this.name = username;
+		this.email = email;
+		this.password = password;
+	}
+	
 	public String getId() {
 		return id;
 	}
