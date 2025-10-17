@@ -29,8 +29,7 @@ public class DBConnection {
 			FileInputStream serviceAccount = new FileInputStream("serviceAccountKey.json");
 
 			FirebaseOptions options = FirebaseOptions.builder()
-					.setCredentials(GoogleCredentials.fromStream(serviceAccount))
-					.build();
+					.setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
 
 			FirebaseApp.initializeApp(options);
 			System.out.println("Firebase conectado con éxito");
@@ -40,16 +39,10 @@ public class DBConnection {
 		}
 	}
 
-	public void createUser(String email, String password) throws Exception {
-		String name = "Test User";
-		String surname = "Test Surname";
-		String surname2 = "Test Surname2";
-		String birthdate = "01/01/2000";
+	public void createUser(String name, String surname1, String surname2, String email, String password,
+			String birthdate, Boolean isTrainer) throws Exception {
 
-		CreateRequest request = new CreateRequest()
-				.setEmail(email)
-				.setEmailVerified(false)
-				.setPassword(password)
+		CreateRequest request = new CreateRequest().setEmail(email).setEmailVerified(false).setPassword(password)
 				.setDisabled(false);
 
 		UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
@@ -59,13 +52,16 @@ public class DBConnection {
 		Firestore db = controller.getDb();
 
 		DocumentReference uidDoc = db.collection("users").document(userRecord.getUid());
-		Map<String, Object> routineData = new HashMap<>();
-		routineData.put("name", name);
-		routineData.put("surname", surname);
-		routineData.put("surname2", surname2);
-		routineData.put("birthdate", birthdate);
+		Map<String, Object> userData = new HashMap<>();
+		userData.put("name", name);
+		userData.put("email", email);
+		userData.put("surname", surname1);
+		userData.put("surname2", surname2);
+		userData.put("birthdate", birthdate);
+		userData.put("isTrainer", isTrainer);
 
-		ApiFuture<WriteResult> writeRoutine = uidDoc.set(routineData);
-		System.out.println(uidDoc + " guardada en: " + writeRoutine.get().getUpdateTime());
+		ApiFuture<WriteResult> writeUser = uidDoc.set(userData);
+		System.out.println(uidDoc + " guardado en: " + writeUser.get().getUpdateTime());
 	}
+
 }

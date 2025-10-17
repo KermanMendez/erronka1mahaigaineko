@@ -87,13 +87,9 @@ public class Workouts extends JFrame {
 		listaWorkout = new JList<>();
 		listaWorkout.setModel(new AbstractListModel<String>() {
 			private static final long serialVersionUID = 1L;
-			String[] balioak = new String[] {
-					"Workout 1 - 1. maila - 6 ariketa",
-					"Workout 2 - 2. maila - 6 ariketa",
-					"Workout 3 - 3. maila - 6 ariketa",
-					"Workout 4 - 4. maila - 6 ariketa",
-					"Workout 5 - 5. maila - 6 ariketa"
-			};
+			String[] balioak = new String[] { "Workout 1 - 1. maila - 6 ariketa", "Workout 2 - 2. maila - 6 ariketa",
+					"Workout 3 - 3. maila - 6 ariketa", "Workout 4 - 4. maila - 6 ariketa",
+					"Workout 5 - 5. maila - 6 ariketa" };
 
 			public int getSize() {
 				return balioak.length;

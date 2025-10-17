@@ -15,8 +15,12 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.Firestore;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
+import controller.Controller;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -31,6 +35,8 @@ public class LoginFrame extends JFrame {
 	private JPanel contentPane;
 	private JTextField textFieldUser;
 	private JPasswordField passwordField;
+	private Controller controller = new Controller();
+	Firestore db = controller.getDb();
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(() -> {
@@ -103,15 +109,27 @@ public class LoginFrame extends JFrame {
 		}
 
 		try {
-			boolean loginSuccess = checkLogin(email, password);
-			if (loginSuccess) {
-				Inter inter = new Inter();
-				dispose();
-				inter.setVisible(true);
+			String uid = checkLogin(email, password);
+
+			if (uid != null) {
+				DocumentSnapshot userDoc = db.collection("users").document(uid).get().get();
+
+				if (userDoc.exists()) {
+
+					Boolean isTrainer = userDoc.getBoolean("isTrainer");
+					if (isTrainer == null) {
+						isTrainer = false;
+					}
+
+					Inter inter = new Inter(isTrainer);
+					dispose();
+					inter.setVisible(true);
+				} else {
+					JOptionPane.showMessageDialog(this, "Ez dira erabiltzailearen datuak aurkitu.", "Error",
+							JOptionPane.ERROR_MESSAGE);
+				}
 			} else {
-				JOptionPane.showMessageDialog(this, 
-						"Erabiltzailea edo Pasahitza okerrak.", 
-						"Errorea",
+				JOptionPane.showMessageDialog(this, "Erabiltzailea edo Pasahitza okerrak.", "Errorea",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (Exception ex) {
@@ -120,7 +138,7 @@ public class LoginFrame extends JFrame {
 		}
 	}
 
-	private boolean checkLogin(String email, String password) throws Exception {
+	private String checkLogin(String email, String password) throws Exception {
 		if (API_KEY == null || API_KEY.isEmpty()) {
 			throw new IllegalStateException("FIREBASE_API_KEY not set. Set env var or -DFIREBASE_API_KEY=<key>");
 		}
@@ -137,13 +155,17 @@ public class LoginFrame extends JFrame {
 		MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 		RequestBody body = RequestBody.create(JSON, json.toString());
 
-		Request request = new Request.Builder()
-				.url(url)
-				.post(body)
-				.build();
+		Request request = new Request.Builder().url(url).post(body).build();
 
 		try (Response response = client.newCall(request).execute()) {
-			return response.isSuccessful();
+			if (response.isSuccessful() && response.body() != null) {
+				String responseBody = response.body().string();
+				JsonObject responseJson = JsonParser.parseString(responseBody).getAsJsonObject();
+
+				String uid = responseJson.get("localId").getAsString();
+				return uid;
+			}
+			return null;
 		}
 	}
 }

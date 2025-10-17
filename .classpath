@@ -35,7 +35,6 @@
 	<classpathentry kind="lib" path="lib/opencensus-api-0.31.1.jar"/>
 	<classpathentry kind="lib" path="lib/opencensus-contrib-http-util-0.31.1.jar"/>
 	<classpathentry kind="lib" path="lib/perfmark-api-0.26.0.jar"/>
-	<classpathentry kind="lib" path="lib/protobuf-java-3.23.4.jar"/>
 	<classpathentry kind="lib" path="lib/proto-google-cloud-firestore-v1-3.13.1.jar"/>
 	<classpathentry kind="lib" path="lib/proto-google-common-protos-2.25.1.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-2.0.9.jar"/>
@@ -44,6 +43,8 @@
 	<classpathentry kind="lib" path="lib/jbcrypt-0.4.jar"/>
 	<classpathentry kind="lib" path="lib/okhttp-3.14.9.jar"/>
 	<classpathentry kind="lib" path="lib/okio-1.17.5.jar"/>
-	<classpathentry kind="lib" path="C:/Users/kerman.mendez/OneDrive - SENER/DPD/ZZ_Personal/2025/05_Erronka/erronka1mahaigaineko/lib/jdatepicker-1.3.4.jar"/>
+	<classpathentry kind="lib" path="lib/jdatepicker-1.3.4.jar"/>
+	<classpathentry kind="lib" path="lib/protobuf-java-util-4.33.0.jar"/>
+	<classpathentry kind="lib" path="lib/protobuf-java-3.23.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

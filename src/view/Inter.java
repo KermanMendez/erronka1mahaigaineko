@@ -28,6 +28,10 @@ public class Inter extends JFrame {
 	}
 
 	public Inter() {
+		this(false);
+	}
+
+	public Inter(Boolean isTrainer) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 
@@ -53,6 +57,17 @@ public class Inter extends JFrame {
 		});
 		btnWorkouts.setBounds(38, 143, 117, 84);
 		contentPane.add(btnWorkouts);
+		
+		
+		JButton btnAdmin = new JButton("ADMIIIIIIIIIIIIN");
+		btnAdmin.setBounds(307, 32, 117, 84);
+		contentPane.add(btnAdmin);
+		if (isTrainer) {
+			btnAdmin.setVisible(true);
+		} else {
+			btnAdmin.setVisible(false);
+		}
+		
 
 		JLabel lblProfile = new JLabel("");
 		lblProfile.setBounds(165, 32, 99, 84);
