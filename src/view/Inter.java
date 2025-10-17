@@ -57,8 +57,7 @@ public class Inter extends JFrame {
 		});
 		btnWorkouts.setBounds(38, 143, 117, 84);
 		contentPane.add(btnWorkouts);
-		
-		
+
 		JButton btnAdmin = new JButton("ADMIIIIIIIIIIIIN");
 		btnAdmin.setBounds(307, 32, 117, 84);
 		contentPane.add(btnAdmin);
@@ -67,7 +66,6 @@ public class Inter extends JFrame {
 		} else {
 			btnAdmin.setVisible(false);
 		}
-		
 
 		JLabel lblProfile = new JLabel("");
 		lblProfile.setBounds(165, 32, 99, 84);

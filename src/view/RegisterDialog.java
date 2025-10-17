@@ -123,7 +123,7 @@ public class RegisterDialog extends JDialog {
 					"Date Picker Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	
+
 	@SuppressWarnings("serial")
 	class DateToStringFormatter extends DateComponentFormatter {
 		private final java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd-MM-yyyy");
