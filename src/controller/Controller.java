@@ -10,12 +10,19 @@ public class Controller {
 	private FirstView firstView;
 	private DBConnection dbConnection;
 	private Firestore db;
+	private static Firestore firestoreInstantzia;
 
 	public Controller() {
-		firstView = new FirstView();
-		setDbConnection(new DBConnection());
 		DBConnection.initialize();
-		db = FirestoreClient.getFirestore();
+		db = getFirestore();
+		setDbConnection(new DBConnection(this));
+	}
+
+	private static Firestore getFirestore() {
+		if (firestoreInstantzia == null) {
+			firestoreInstantzia = FirestoreClient.getFirestore();
+		}
+		return firestoreInstantzia;
 	}
 
 	public Firestore getDb() {
@@ -23,6 +30,9 @@ public class Controller {
 	}
 
 	public FirstView getFirstView() {
+		if (firstView == null) {
+			firstView = new FirstView();
+		}
 		return firstView;
 	}
 

@@ -3,7 +3,6 @@ package controller;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,10 +33,18 @@ import view.Inter;
 
 public class DBConnection {
 
-	Controller controller = new Controller();
-	Firestore db = controller.getDb();
+	Controller controller;
+	Firestore db;
 
 	private static final String API_KEY = "AIzaSyBhHBYyK1vmvbrbP-tWUfFNxRqbeu2AOu4";
+	private static final OkHttpClient HTTP_BEZEROA = new OkHttpClient();
+	private static final MediaType JSON_MEDIA = MediaType.parse("application/json; charset=utf-8");
+	private static final java.text.SimpleDateFormat DATA_FORMATUA = new java.text.SimpleDateFormat("dd/MM/yyyy");
+
+	public DBConnection(Controller controller) {
+		this.controller = controller;
+		this.db = controller.getDb();
+	}
 
 	public static void initialize() {
 		try {
@@ -68,19 +75,11 @@ public class DBConnection {
 		UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
 		System.out.println("Usuario creado: " + userRecord.getUid());
 
-		Controller controller = new Controller();
-		Firestore db = controller.getDb();
-
 		DocumentReference uidDoc = db.collection("users").document(userRecord.getUid());
-		Map<String, Object> userData = new HashMap<>();
-		userData.put("name", name);
-		userData.put("email", email);
-		userData.put("surname", surname1);
-		userData.put("surname2", surname2);
-		userData.put("birthdate", birthdate);
-		userData.put("isTrainer", isTrainer);
+		Map<String, Object> erabiltzaileDatuak = Map.of("name", name, "email", email, "surname", surname1, "surname2",
+				surname2, "birthdate", birthdate, "isTrainer", isTrainer);
 
-		ApiFuture<WriteResult> writeUser = uidDoc.set(userData);
+		ApiFuture<WriteResult> writeUser = uidDoc.set(erabiltzaileDatuak);
 		System.out.println(uidDoc + " guardado en: " + writeUser.get().getUpdateTime());
 	}
 
@@ -92,8 +91,7 @@ public class DBConnection {
 			return null;
 		}
 
-		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
-		String birthdateString = sdf.format(birthdate);
+		String birthdateString = DATA_FORMATUA.format(birthdate);
 
 		try {
 			createUser(izena, abizena1, abizena2, email, password, birthdateString, isTrainer);
@@ -107,44 +105,45 @@ public class DBConnection {
 		}
 	}
 
-	public void handleLogin(JTextField textFieldUser, JPasswordField passwordField) {
+	public Boolean handleLogin(JTextField textFieldUser, JPasswordField passwordField) {
 		String email = textFieldUser.getText().trim();
 		String password = new String(passwordField.getPassword());
 
 		if (email.isEmpty() || password.isEmpty()) {
 			JOptionPane.showMessageDialog(null, "Bete Erabiltzailea eta Pasahitza.", "Login",
 					JOptionPane.INFORMATION_MESSAGE);
-			return;
+			return false;
 		}
 
 		try {
 			String uid = checkLogin(email, password);
-
-			if (uid != null) {
-				DocumentSnapshot userDoc = db.collection("users").document(uid).get().get();
-
-				if (userDoc.exists()) {
-
-					Boolean isTrainer = userDoc.getBoolean("isTrainer");
-					if (isTrainer == null) {
-						isTrainer = false;
-					}
-
-					Inter inter = new Inter(isTrainer);
-					// dispose();
-					inter.setVisible(true);
-				} else {
-					JOptionPane.showMessageDialog(null, "Ez dira erabiltzailearen datuak aurkitu.", "Error",
-							JOptionPane.ERROR_MESSAGE);
-				}
-			} else {
+			if (uid == null) {
 				JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.", "Errorea",
 						JOptionPane.ERROR_MESSAGE);
+				return false;
 			}
+
+			DocumentSnapshot erabiltzaileDoc = db.collection("users").document(uid).get().get();
+			if (!erabiltzaileDoc.exists()) {
+				JOptionPane.showMessageDialog(null, "Ez dira erabiltzailearen datuak aurkitu.", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return false;
+			}
+
+			Boolean entrenatzaileaDa = erabiltzaileDoc.getBoolean("isTrainer");
+			if (entrenatzaileaDa == null) {
+				entrenatzaileaDa = false;
+			}
+
+			Inter inter = new Inter(entrenatzaileaDa);
+			inter.setVisible(true);
+			return true;
+
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Errorea Firebase Authentication-ekin konektatzean.", "Errorea",
 					JOptionPane.ERROR_MESSAGE);
+			return false;
 		}
 	}
 
@@ -155,25 +154,19 @@ public class DBConnection {
 
 		String url = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + API_KEY;
 
-		OkHttpClient client = new OkHttpClient();
-
 		JsonObject json = new JsonObject();
 		json.addProperty("email", email);
 		json.addProperty("password", password);
 		json.addProperty("returnSecureToken", true);
 
-		MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-		RequestBody body = RequestBody.create(JSON, json.toString());
-
+		RequestBody body = RequestBody.create(JSON_MEDIA, json.toString());
 		Request request = new Request.Builder().url(url).post(body).build();
 
-		try (Response response = client.newCall(request).execute()) {
+		try (Response response = HTTP_BEZEROA.newCall(request).execute()) {
 			if (response.isSuccessful() && response.body() != null) {
 				String responseBody = response.body().string();
 				JsonObject responseJson = JsonParser.parseString(responseBody).getAsJsonObject();
-
-				String uid = responseJson.get("localId").getAsString();
-				return uid;
+				return responseJson.get("localId").getAsString();
 			}
 			return null;
 		}
