@@ -18,6 +18,7 @@ import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
+import controller.Controller;
 import controller.DBConnection;
 
 public class RegisterDialog extends JDialog {
@@ -25,7 +26,8 @@ public class RegisterDialog extends JDialog {
 	private static final long serialVersionUID = 1L;
 	private JTextField textFieldEmail;
 	private JPasswordField passwordField;
-	private DBConnection dbConnection = new DBConnection();
+	private Controller controller = new Controller();
+	private DBConnection dbConnection = controller.getDbConnection();
 	private JTextField abizena1Field;
 	private JTextField abizena2Field;
 	private JDatePickerImpl datePicker;

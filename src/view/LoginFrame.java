@@ -29,7 +29,7 @@ public class LoginFrame extends JFrame {
 	private JTextField textFieldUser;
 	private JPasswordField passwordField;
 	private Controller controller = new Controller();
-	private DBConnection dbConnection = new DBConnection();
+	private DBConnection dbConnection = controller.getDbConnection();
 	Firestore db = controller.getDb();
 
 	public static void main(String[] args) {
@@ -82,7 +82,10 @@ public class LoginFrame extends JFrame {
 		JButton btnLogin = new JButton("Login");
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				dbConnection.handleLogin(textFieldUser, passwordField);
+				Boolean ok = dbConnection.handleLogin(textFieldUser, passwordField);
+				if (ok) {
+				dispose();
+				}
 			}
 		});
 		btnLogin.setBounds(59, 211, 89, 23);
