@@ -1,2 +1,3 @@
 # Ignore service account key for security
 serviceAccountKey.json
+*.json
