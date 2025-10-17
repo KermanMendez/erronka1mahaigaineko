@@ -1,8 +1,11 @@
 package view;
 
-import java.util.Date;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Properties;
+
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -10,13 +13,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import org.jdatepicker.impl.DateComponentFormatter;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
-import org.jdatepicker.impl.DateComponentFormatter;
 
 import controller.DBConnection;
-import javax.swing.JCheckBox;
 
 public class RegisterDialog extends JDialog {
 
@@ -53,8 +55,16 @@ public class RegisterDialog extends JDialog {
 		getContentPane().add(passwordField);
 
 		JButton btnRegistrar = new JButton("Eskaera Registratu");
+		btnRegistrar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				dbConnection.eskaeraRegistratu(textFieldIzena.getText().trim(), abizena1Field.getText().trim(),
+						abizena2Field.getText().trim(), textFieldEmail.getText().trim(),
+						new String(passwordField.getPassword()), (java.util.Date) datePicker.getModel().getValue(),
+						checkboxIsTrainer.isSelected());
+			}
+		});
 		btnRegistrar.setBounds(170, 255, 160, 25);
-		btnRegistrar.addActionListener(e -> registrarSolicitud());
 		getContentPane().add(btnRegistrar);
 
 		JButton btnCancelar = new JButton("Utzi");
@@ -88,7 +98,6 @@ public class RegisterDialog extends JDialog {
 			p.put("text.month", "Month");
 			p.put("text.year", "Year");
 			JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
-			// Use custom formatter for Date.toString() format
 			datePicker = new JDatePickerImpl(datePanel, new DateToStringFormatter());
 			datePicker.setBounds(170, 204, 200, 40);
 			getContentPane().add(datePicker);
@@ -114,35 +123,7 @@ public class RegisterDialog extends JDialog {
 					"Date Picker Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
-
-	private void registrarSolicitud() {
-		String izena = textFieldIzena.getText().trim();
-		String abizena1 = abizena1Field.getText().trim();
-		String abizena2 = abizena2Field.getText().trim();
-		String email = textFieldEmail.getText().trim();
-		String password = new String(passwordField.getPassword());
-		Boolean isTrainer = checkboxIsTrainer.isSelected();
-		Date selectedDate = (java.util.Date) datePicker.getModel().getValue();
-
-		if (email.isEmpty() || password.isEmpty() || izena.isEmpty() || abizena1.isEmpty() || abizena2.isEmpty()
-				|| selectedDate == null) {
-			JOptionPane.showMessageDialog(this, "Datu Guztiak Bete.");
-			return;
-		}
-
-		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
-		String birthdateString = sdf.format(selectedDate);
-
-		try {
-			dbConnection.createUser(izena, abizena1, abizena2, email, password, birthdateString, isTrainer);
-			JOptionPane.showMessageDialog(this, "Registratu zara");
-			dispose();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			JOptionPane.showMessageDialog(this, "Errorea registratzen.", "Errorea", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-
+	
 	@SuppressWarnings("serial")
 	class DateToStringFormatter extends DateComponentFormatter {
 		private final java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd-MM-yyyy");
