@@ -69,9 +69,6 @@ public class Hariak implements Runnable {
 			exercise.setSerieTime(doc.get("timeSets"));
 			exercise.setRestTimeSec(doc.get("timePauseSec"));
 
-			System.out.println("Ejercicio cargado - Sets: " + exercise.getSets() + ", Reps: " + exercise.getReps()
-					+ ", SerieTime: " + exercise.getSerieTime() + ", RestTime: " + exercise.getRestTimeSec());
-
 			exercises.add(exercise);
 		});
 
@@ -85,13 +82,6 @@ public class Hariak implements Runnable {
 	}
 
 	private void calculos(List<Exercise> exercises) {
-		System.out.println("Total de ejercicios recibidos: " + exercises.size());
-
-		for (int idx = 0; idx < exercises.size(); idx++) {
-			Exercise ex = exercises.get(idx);
-			System.out.println("Ejercicio " + (idx + 1) + " - Sets: " + ex.getSets() + ", SerieTime: "
-					+ ex.getSerieTime() + ", RestTime: " + ex.getRestTimeSec());
-		}
 
 		Thread hilo1 = new Thread(() -> {
 			System.out.println("\n=== HILO 1: Serie + Descanso alternados ===");
