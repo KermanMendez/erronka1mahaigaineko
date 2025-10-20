@@ -367,7 +367,7 @@ public class Hariak implements Runnable {
 							}
 						}
 					}
-					// If this is the last set of the last exercise, stop and print time
+
 					if (exIdx == exercises.size() - 1 && i == sets) {
 						long endTime = System.currentTimeMillis();
 						long totalSeconds = (endTime - startTime) / 1000;
