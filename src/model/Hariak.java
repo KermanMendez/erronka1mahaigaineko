@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import javax.swing.DefaultListModel;
+import javax.swing.SwingUtilities;
+
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
@@ -14,9 +17,13 @@ import controller.Controller;
 public class Hariak implements Runnable {
 
 	private String threadName;
+	private Controller controller = new Controller();
+	private Firestore db = controller.getDb();
+	private int sec;
 
-	Controller controller = new Controller();
-	Firestore db = controller.getDb();
+	public Hariak() {
+		this.threadName = "";
+	}
 
 	public Hariak(String name) {
 		this.threadName = name;
@@ -35,11 +42,9 @@ public class Hariak implements Runnable {
 		System.out.println("Thread " + threadName + " in execution.");
 	}
 
-	public void start(int aukeratutakoMaila, String aukeratutakoRutina)
+	public List<Exercise> start(int aukeratutakoMaila, String aukeratutakoRutina)
 			throws InterruptedException, ExecutionException {
-
-		getAriketak(aukeratutakoMaila, aukeratutakoRutina);
-
+		return getAriketak(aukeratutakoMaila, aukeratutakoRutina);
 	}
 
 	private List<Exercise> getAriketak(int level, String aukeratutakoRutina)
@@ -68,36 +73,37 @@ public class Hariak implements Runnable {
 			exercise.setSets(doc.get("sets"));
 			exercise.setSerieTime(doc.get("timeSets"));
 			exercise.setRestTimeSec(doc.get("timePauseSec"));
-
 			exercises.add(exercise);
 		});
 
 		if (exercises.isEmpty()) {
 			System.out.println("La lista de ejercicios está vacía");
-		} else {
-			calculos(exercises);
 		}
 
 		return exercises;
 	}
 
-	private void calculos(List<Exercise> exercises) {
+	public void calculos(List<Exercise> exercises, DefaultListModel<String> listModel) {
+		if (exercises == null || listModel == null)
+			return;
 
 		Thread hilo1 = new Thread(() -> {
-			System.out.println("\n=== HILO 1: Serie + Descanso alternados ===");
-			int totalTime = 0;
+			int[] totalTime = { 0 };
 
 			for (Exercise exercise : exercises) {
-				System.out.println("\n[HILO 1] Ejercicio - Sets: " + exercise.getSets());
+				int sets = exercise.getSets();
+				int serieTime = exercise.getSerieTime();
+				int restTime = exercise.getRestTimeSec();
 
-				for (int i = 1; i <= exercise.getSets(); i++) {
-					int serieTime = exercise.getSerieTime();
-					System.out.println("[HILO 1] Iniciando Serie " + i + " (" + serieTime + " segundos)");
+				for (int i = 1; i <= sets; i++) {
+					final int setNumber = i;
 
 					for (int segundo = 1; segundo <= serieTime; segundo++) {
-						System.out.println(
-								"[HILO 1] Serie " + i + " - Tiempo: " + segundo + "/" + serieTime + " segundos");
-						totalTime++;
+						final int sec = segundo;
+						totalTime[0]++;
+
+						SwingUtilities.invokeLater(() -> listModel.addElement(
+								"[HILO 1] Serie " + setNumber + " - Tiempo: " + sec + "/" + serieTime + " seg"));
 
 						try {
 							Thread.sleep(1000);
@@ -106,13 +112,13 @@ public class Hariak implements Runnable {
 						}
 					}
 
-					if (i < exercise.getSets()) {
-						int restTime = exercise.getRestTimeSec();
-						System.out.println("[HILO 1] Iniciando Descanso (" + restTime + " segundos)");
-
+					if (i < sets) {
 						for (int segundo = 1; segundo <= restTime; segundo++) {
-							System.out.println("[HILO 1] Descanso - Tiempo: " + segundo + "/" + restTime + " segundos");
-							totalTime++;
+							final int sec = segundo;
+							totalTime[0]++;
+
+							SwingUtilities.invokeLater(() -> listModel
+									.addElement("[HILO 1] Descanso - Tiempo: " + sec + "/" + restTime + " seg"));
 
 							try {
 								Thread.sleep(1000);
@@ -124,23 +130,26 @@ public class Hariak implements Runnable {
 				}
 			}
 
-			System.out.println("\n[HILO 1] Tiempo total: " + totalTime + " segundos");
+			SwingUtilities.invokeLater(() -> listModel.addElement("[HILO 1] Tiempo total: " + totalTime[0] + " seg"));
 		});
 
 		Thread hilo2 = new Thread(() -> {
-			System.out.println("\n=== HILO 2: Contador de Tiempo Total ===");
-			int totalTime = 0;
+			int[] totalTime = { 0 };
 
 			for (Exercise exercise : exercises) {
-				System.out.println("\n[HILO 2] Ejercicio - Sets: " + exercise.getSets());
+				int sets = exercise.getSets();
+				int serieTime = exercise.getSerieTime();
+				int restTime = exercise.getRestTimeSec();
 
-				for (int i = 1; i <= exercise.getSets(); i++) {
-					int serieTime = exercise.getSerieTime();
+				for (int i = 1; i <= sets; i++) {
+					final int setNumber = i;
 
 					for (int segundo = 1; segundo <= serieTime; segundo++) {
-						totalTime++;
-						System.out.println(
-								"[HILO 2] Tiempo total transcurrido: " + totalTime + " segundos (Serie " + i + ")");
+						setSec(segundo);
+						totalTime[0]++;
+
+						SwingUtilities.invokeLater(() -> listModel.addElement("[HILO 2] Tiempo total transcurrido: "
+								+ totalTime[0] + " seg (Serie " + setNumber + ")"));
 
 						try {
 							Thread.sleep(1000);
@@ -149,13 +158,13 @@ public class Hariak implements Runnable {
 						}
 					}
 
-					if (i < exercise.getSets()) {
-						int restTime = exercise.getRestTimeSec();
-
+					if (i < sets) {
 						for (int segundo = 1; segundo <= restTime; segundo++) {
-							totalTime++;
-							System.out.println(
-									"[HILO 2] Tiempo total transcurrido: " + totalTime + " segundos (Descanso)");
+							setSec(segundo);
+							totalTime[0]++;
+
+							SwingUtilities.invokeLater(() -> listModel.addElement(
+									"[HILO 2] Tiempo total transcurrido: " + totalTime[0] + " seg (Descanso)"));
 
 							try {
 								Thread.sleep(1000);
@@ -167,7 +176,8 @@ public class Hariak implements Runnable {
 				}
 			}
 
-			System.out.println("\n[HILO 2] Tiempo total final: " + totalTime + " segundos");
+			SwingUtilities
+					.invokeLater(() -> listModel.addElement("[HILO 2] Tiempo total final: " + totalTime[0] + " seg"));
 		});
 
 		hilo1.start();
@@ -180,6 +190,333 @@ public class Hariak implements Runnable {
 			e.printStackTrace();
 		}
 
-		System.out.println("\n=== Los dos hilos han terminado ===");
+		SwingUtilities.invokeLater(() -> listModel.addElement("=== Los dos hilos han terminado ==="));
+	}
+
+	public Thread calculosWithStop(List<Exercise> exercises, DefaultListModel<String> listModel,
+			java.util.function.Supplier<Boolean> stopFlagSupplier) {
+		Thread hilo1 = new Thread(() -> {
+			int[] totalTime = { 0 };
+			for (Exercise exercise : exercises) {
+				int sets = exercise.getSets();
+				int serieTime = exercise.getSerieTime();
+				int restTime = exercise.getRestTimeSec();
+				for (int i = 1; i <= sets; i++) {
+					final int setNumber = i;
+					for (int segundo = 1; segundo <= serieTime; segundo++) {
+						if (stopFlagSupplier.get() || Thread.currentThread().isInterrupted())
+							return;
+						final int sec = segundo;
+						totalTime[0]++;
+						javax.swing.SwingUtilities.invokeLater(() -> listModel.addElement(
+								"[HILO 1] Serie " + setNumber + " - Tiempo: " + sec + "/" + serieTime + " seg"));
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							return;
+						}
+					}
+					if (i < sets) {
+						for (int segundo = 1; segundo <= restTime; segundo++) {
+							if (stopFlagSupplier.get() || Thread.currentThread().isInterrupted())
+								return;
+							final int sec = segundo;
+							totalTime[0]++;
+							javax.swing.SwingUtilities.invokeLater(() -> listModel
+									.addElement("[HILO 1] Descanso - Tiempo: " + sec + "/" + restTime + " seg"));
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+								return;
+							}
+						}
+					}
+				}
+			}
+			javax.swing.SwingUtilities
+					.invokeLater(() -> listModel.addElement("[HILO 1] Tiempo total: " + totalTime[0] + " seg"));
+		});
+		Thread hilo2 = new Thread(() -> {
+			int[] totalTime = { 0 };
+			for (Exercise exercise : exercises) {
+				int sets = exercise.getSets();
+				int serieTime = exercise.getSerieTime();
+				int restTime = exercise.getRestTimeSec();
+				for (int i = 1; i <= sets; i++) {
+					final int setNumber = i;
+					for (int segundo = 1; segundo <= serieTime; segundo++) {
+						sec = segundo;
+						totalTime[0]++;
+						javax.swing.SwingUtilities
+								.invokeLater(() -> listModel.addElement("[HILO 2] Tiempo total transcurrido: "
+										+ totalTime[0] + " seg (Serie " + setNumber + ")"));
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							return;
+						}
+					}
+					if (i < sets) {
+						for (int segundo = 1; segundo <= restTime; segundo++) {
+							sec = segundo;
+							totalTime[0]++;
+							javax.swing.SwingUtilities.invokeLater(() -> listModel.addElement(
+									"[HILO 2] Tiempo total transcurrido: " + totalTime[0] + " seg (Descanso)"));
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+								return;
+							}
+						}
+					}
+				}
+			}
+			javax.swing.SwingUtilities
+					.invokeLater(() -> listModel.addElement("[HILO 2] Tiempo total final: " + totalTime[0] + " seg"));
+		});
+		hilo1.start();
+		hilo2.start();
+		return hilo1;
+	}
+
+	public Thread calculosWithStop(List<Exercise> exercises, DefaultListModel<String> listModel,
+			java.util.function.Supplier<Boolean> stopFlagSupplier,
+			java.util.function.Supplier<Boolean> skipRestSupplier) {
+		long startTime = System.currentTimeMillis();
+		Thread hilo1 = new Thread(() -> {
+			int[] totalTime = { 0 };
+			for (int exIdx = 0; exIdx < exercises.size(); exIdx++) {
+				Exercise exercise = exercises.get(exIdx);
+				int sets = exercise.getSets();
+				int serieTime = exercise.getSerieTime();
+				int restTime = exercise.getRestTimeSec();
+				for (int i = 1; i <= sets; i++) {
+					final int setNumber = i;
+					for (int segundo = 1; segundo <= serieTime; segundo++) {
+						if (stopFlagSupplier.get() || Thread.currentThread().isInterrupted())
+							return;
+						sec = segundo;
+						totalTime[0]++;
+						javax.swing.SwingUtilities.invokeLater(() -> listModel.addElement(
+								"[HILO 1] Serie " + setNumber + " - Tiempo: " + sec + "/" + serieTime + " seg"));
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							return;
+						}
+					}
+					if (i < sets) {
+						for (int segundo = 1; segundo <= restTime; segundo++) {
+							if (stopFlagSupplier.get() || Thread.currentThread().isInterrupted())
+								return;
+							if (skipRestSupplier.get())
+								break;
+							final int sec = segundo;
+							totalTime[0]++;
+							javax.swing.SwingUtilities.invokeLater(() -> listModel
+									.addElement("[HILO 1] Descanso - Tiempo: " + sec + "/" + restTime + " seg"));
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+								return;
+							}
+						}
+					}
+					if (exIdx == exercises.size() - 1 && i == sets) {
+						long endTime = System.currentTimeMillis();
+						long totalSeconds = (endTime - startTime) / 1000;
+						System.out.println("Workout completado en: " + totalSeconds + " segundos");
+						return;
+					}
+				}
+			}
+			javax.swing.SwingUtilities
+					.invokeLater(() -> listModel.addElement("[HILO 1] Tiempo total: " + totalTime[0] + " seg"));
+		});
+		Thread hilo2 = new Thread(() -> {
+			int[] totalTime = { 0 };
+			for (int exIdx = 0; exIdx < exercises.size(); exIdx++) {
+				Exercise exercise = exercises.get(exIdx);
+				int sets = exercise.getSets();
+				int serieTime = exercise.getSerieTime();
+				int restTime = exercise.getRestTimeSec();
+				for (int i = 1; i <= sets; i++) {
+					final int setNumber = i;
+					for (int segundo = 1; segundo <= serieTime; segundo++) {
+						sec = segundo;
+						totalTime[0]++;
+						javax.swing.SwingUtilities
+								.invokeLater(() -> listModel.addElement("[HILO 2] Tiempo total transcurrido: "
+										+ totalTime[0] + " seg (Serie " + setNumber + ")"));
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							return;
+						}
+					}
+					if (i < sets) {
+						for (int segundo = 1; segundo <= restTime; segundo++) {
+							sec = segundo;
+							totalTime[0]++;
+							javax.swing.SwingUtilities.invokeLater(() -> listModel.addElement(
+									"[HILO 2] Tiempo total transcurrido: " + totalTime[0] + " seg (Descanso)"));
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+								return;
+							}
+						}
+					}
+					// If this is the last set of the last exercise, stop and print time
+					if (exIdx == exercises.size() - 1 && i == sets) {
+						long endTime = System.currentTimeMillis();
+						long totalSeconds = (endTime - startTime) / 1000;
+						System.out.println("Workout completado en: " + totalSeconds + " segundos");
+						return;
+					}
+				}
+			}
+			javax.swing.SwingUtilities
+					.invokeLater(() -> listModel.addElement("[HILO 2] Tiempo total final: " + totalTime[0] + " seg"));
+		});
+		hilo1.start();
+		hilo2.start();
+		return hilo1;
+	}
+
+	public Thread calculosWithStop(List<Exercise> exercises, DefaultListModel<String> listModel,
+			java.util.function.Supplier<Boolean> stopFlagSupplier,
+			java.util.function.Supplier<Boolean> skipRestSupplier, java.util.function.Supplier<Boolean> pauseSupplier,
+			Object pauseLock) {
+		long startTime = System.currentTimeMillis();
+		Thread hilo1 = new Thread(() -> {
+			int[] totalTime = { 0 };
+			for (int exIdx = 0; exIdx < exercises.size(); exIdx++) {
+				Exercise exercise = exercises.get(exIdx);
+				int sets = exercise.getSets();
+				int serieTime = exercise.getSerieTime();
+				int restTime = exercise.getRestTimeSec();
+				for (int i = 1; i <= sets; i++) {
+					final int setNumber = i;
+					for (int segundo = 1; segundo <= serieTime; segundo++) {
+						if (stopFlagSupplier.get() || Thread.currentThread().isInterrupted())
+							return;
+						while (pauseSupplier.get()) {
+							synchronized (pauseLock) {
+								try {
+									pauseLock.wait();
+								} catch (InterruptedException e) {
+									return;
+								}
+							}
+						}
+						final int sec = segundo;
+						totalTime[0]++;
+						javax.swing.SwingUtilities.invokeLater(() -> listModel.addElement(
+								"[HILO 1] Serie " + setNumber + " - Tiempo: " + sec + "/" + serieTime + " seg"));
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							return;
+						}
+					}
+					if (i < sets) {
+						for (int segundo = 1; segundo <= restTime; segundo++) {
+							if (stopFlagSupplier.get() || Thread.currentThread().isInterrupted())
+								return;
+							while (pauseSupplier.get()) {
+								synchronized (pauseLock) {
+									try {
+										pauseLock.wait();
+									} catch (InterruptedException e) {
+										return;
+									}
+								}
+							}
+							if (skipRestSupplier.get())
+								break;
+							final int sec = segundo;
+							totalTime[0]++;
+							javax.swing.SwingUtilities.invokeLater(() -> listModel
+									.addElement("[HILO 1] Descanso - Tiempo: " + sec + "/" + restTime + " seg"));
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+								return;
+							}
+						}
+					}
+					if (exIdx == exercises.size() - 1 && i == sets) {
+						long endTime = System.currentTimeMillis();
+						long totalSeconds = (endTime - startTime) / 1000;
+						System.out.println("Workout completado en: " + totalSeconds + " segundos");
+						return;
+					}
+				}
+			}
+			javax.swing.SwingUtilities
+					.invokeLater(() -> listModel.addElement("[HILO 1] Tiempo total: " + totalTime[0] + " seg"));
+		});
+		Thread hilo2 = new Thread(() -> {
+			int[] totalTime = { 0 };
+			for (int exIdx = 0; exIdx < exercises.size(); exIdx++) {
+				Exercise exercise = exercises.get(exIdx);
+				int sets = exercise.getSets();
+				int serieTime = exercise.getSerieTime();
+				int restTime = exercise.getRestTimeSec();
+				for (int i = 1; i <= sets; i++) {
+					final int setNumber = i;
+					for (int segundo = 1; segundo <= serieTime; segundo++) {
+						sec = segundo;
+						totalTime[0]++;
+						javax.swing.SwingUtilities
+								.invokeLater(() -> listModel.addElement("[HILO 2] Tiempo total transcurrido: "
+										+ totalTime[0] + " seg (Serie " + setNumber + ")"));
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							return;
+						}
+					}
+					if (i < sets) {
+						for (int segundo = 1; segundo <= restTime; segundo++) {
+							sec = segundo;
+							totalTime[0]++;
+							javax.swing.SwingUtilities.invokeLater(() -> listModel.addElement(
+									"[HILO 2] Tiempo total transcurrido: " + totalTime[0] + " seg (Descanso)"));
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+								return;
+							}
+						}
+					}
+					if (exIdx == exercises.size() - 1 && i == sets) {
+						long endTime = System.currentTimeMillis();
+						long totalSeconds = (endTime - startTime) / 1000;
+						System.out.println("Workout completado en: " + totalSeconds + " segundos");
+						return;
+					}
+				}
+			}
+			javax.swing.SwingUtilities
+					.invokeLater(() -> listModel.addElement("[HILO 2] Tiempo total final: " + totalTime[0] + " seg"));
+		});
+		hilo1.start();
+		hilo2.start();
+		return hilo1;
+	}
+
+	public int getSec() {
+		return sec;
+	}
+
+	public void setSec(int sec) {
+		this.sec = sec;
+	}
+
+	public void stopWorkout() {
+
+		Thread.currentThread().interrupt();
 	}
 }

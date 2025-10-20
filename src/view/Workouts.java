@@ -16,7 +16,6 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
-import model.Hariak;
 import model.Routines;
 
 public class Workouts extends JFrame {
@@ -29,7 +28,6 @@ public class Workouts extends JFrame {
 	private JButton btnHasiWorkout;
 	private JButton btnIkusiAriketak;
 	private JLabel lblMailaAktuala;
-	private Hariak workoutThread = new Hariak("WorkoutThread");
 	private Routines routines = new Routines();
 	private LoginFrame login = new LoginFrame();
 
@@ -163,14 +161,11 @@ public class Workouts extends JFrame {
 
 		btnHasiWorkout = new JButton("Hasi Workout-a");
 		btnHasiWorkout.addActionListener(e -> {
-			try {
-				workoutThread.start(comboMaila.getSelectedIndex() + 1,
-						comboMailaRutinakLevel.getSelectedItem().toString());
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-			} catch (ExecutionException e1) {
-				e1.printStackTrace();
-			}
+			ThreadFrame threadFrame = new ThreadFrame(comboMaila.getSelectedIndex() + 1,
+					comboMailaRutinakLevel.getSelectedItem().toString());
+			
+			threadFrame.setVisible(true);
+			dispose();
 		});
 		btnHasiWorkout.setBounds(350, 210, 180, 30);
 		edukiontzia.add(btnHasiWorkout);
