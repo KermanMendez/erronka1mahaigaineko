@@ -194,7 +194,7 @@ public class Hariak implements Runnable {
 	}
 
 	public Thread calculosWithStop(List<Exercise> exercises, DefaultListModel<String> listModel,
-			java.util.function.Supplier<Boolean> stopFlagSupplier) {
+			java.util.function.Supplier<Boolean> geldituEgoeraHornitzailea) {
 		Thread hilo1 = new Thread(() -> {
 			int[] totalTime = { 0 };
 			for (Exercise exercise : exercises) {
@@ -204,7 +204,7 @@ public class Hariak implements Runnable {
 				for (int i = 1; i <= sets; i++) {
 					final int setNumber = i;
 					for (int segundo = 1; segundo <= serieTime; segundo++) {
-						if (stopFlagSupplier.get() || Thread.currentThread().isInterrupted())
+						if (geldituEgoeraHornitzailea.get() || Thread.currentThread().isInterrupted())
 							return;
 						final int sec = segundo;
 						totalTime[0]++;
@@ -218,7 +218,7 @@ public class Hariak implements Runnable {
 					}
 					if (i < sets) {
 						for (int segundo = 1; segundo <= restTime; segundo++) {
-							if (stopFlagSupplier.get() || Thread.currentThread().isInterrupted())
+							if (geldituEgoeraHornitzailea.get() || Thread.currentThread().isInterrupted())
 								return;
 							final int sec = segundo;
 							totalTime[0]++;
@@ -280,8 +280,8 @@ public class Hariak implements Runnable {
 	}
 
 	public Thread calculosWithStop(List<Exercise> exercises, DefaultListModel<String> listModel,
-			java.util.function.Supplier<Boolean> stopFlagSupplier,
-			java.util.function.Supplier<Boolean> skipRestSupplier) {
+			java.util.function.Supplier<Boolean> geldituEgoeraHornitzailea,
+			java.util.function.Supplier<Boolean> atsedenSalto) {
 		long startTime = System.currentTimeMillis();
 		Thread hilo1 = new Thread(() -> {
 			int[] totalTime = { 0 };
@@ -293,7 +293,7 @@ public class Hariak implements Runnable {
 				for (int i = 1; i <= sets; i++) {
 					final int setNumber = i;
 					for (int segundo = 1; segundo <= serieTime; segundo++) {
-						if (stopFlagSupplier.get() || Thread.currentThread().isInterrupted())
+						if (geldituEgoeraHornitzailea.get() || Thread.currentThread().isInterrupted())
 							return;
 						sec = segundo;
 						totalTime[0]++;
@@ -307,9 +307,9 @@ public class Hariak implements Runnable {
 					}
 					if (i < sets) {
 						for (int segundo = 1; segundo <= restTime; segundo++) {
-							if (stopFlagSupplier.get() || Thread.currentThread().isInterrupted())
+							if (geldituEgoeraHornitzailea.get() || Thread.currentThread().isInterrupted())
 								return;
-							if (skipRestSupplier.get())
+							if (atsedenSalto.get())
 								break;
 							final int sec = segundo;
 							totalTime[0]++;
@@ -383,11 +383,10 @@ public class Hariak implements Runnable {
 		hilo2.start();
 		return hilo1;
 	}
-
 	public Thread calculosWithStop(List<Exercise> exercises, DefaultListModel<String> listModel,
-			java.util.function.Supplier<Boolean> stopFlagSupplier,
-			java.util.function.Supplier<Boolean> skipRestSupplier, java.util.function.Supplier<Boolean> pauseSupplier,
-			Object pauseLock) {
+			java.util.function.Supplier<Boolean> geldituEgoeraHornitzailea,
+			java.util.function.Supplier<Boolean> atsedenSalto, java.util.function.Supplier<Boolean> geldituEgoera,
+			Object geldituDenbora) {
 		long startTime = System.currentTimeMillis();
 		Thread hilo1 = new Thread(() -> {
 			int[] totalTime = { 0 };
@@ -399,12 +398,12 @@ public class Hariak implements Runnable {
 				for (int i = 1; i <= sets; i++) {
 					final int setNumber = i;
 					for (int segundo = 1; segundo <= serieTime; segundo++) {
-						if (stopFlagSupplier.get() || Thread.currentThread().isInterrupted())
+						if (geldituEgoeraHornitzailea.get() || Thread.currentThread().isInterrupted())
 							return;
-						while (pauseSupplier.get()) {
-							synchronized (pauseLock) {
+						while (geldituEgoera.get()) {
+							synchronized (geldituDenbora) {
 								try {
-									pauseLock.wait();
+									geldituDenbora.wait();
 								} catch (InterruptedException e) {
 									return;
 								}
@@ -422,18 +421,18 @@ public class Hariak implements Runnable {
 					}
 					if (i < sets) {
 						for (int segundo = 1; segundo <= restTime; segundo++) {
-							if (stopFlagSupplier.get() || Thread.currentThread().isInterrupted())
+							if (geldituEgoeraHornitzailea.get() || Thread.currentThread().isInterrupted())
 								return;
-							while (pauseSupplier.get()) {
-								synchronized (pauseLock) {
+							while (geldituEgoera.get()) {
+								synchronized (geldituDenbora) {
 									try {
-										pauseLock.wait();
+										geldituDenbora.wait();
 									} catch (InterruptedException e) {
 										return;
 									}
 								}
 							}
-							if (skipRestSupplier.get())
+							if (atsedenSalto.get())
 								break;
 							final int sec = segundo;
 							totalTime[0]++;
