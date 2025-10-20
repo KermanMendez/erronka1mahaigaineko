@@ -71,6 +71,58 @@ public class Routines {
 		return exercises;
 	}
 
+	public String[] getRoutines(int selectedLevel) throws InterruptedException, ExecutionException {
+
+		QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", selectedLevel).get().get();
+
+		if (querySnapshot.isEmpty())
+			return new String[] { "Ez daude workout-ak maila honetarako" };
+
+		List<String> workoutNames = new ArrayList<>();
+		
+		for (DocumentSnapshot routineDoc : querySnapshot.getDocuments()) {
+			String name = routineDoc.getString("name");
+			if (name != null) {
+				workoutNames.add(name);
+			}
+		}
+
+		return workoutNames.toArray(new String[0]);
+
+	}
+	
+	public String[] getLevels(int nivelSeleccionado, String nivelText) throws InterruptedException, ExecutionException {
+
+		QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", nivelSeleccionado)
+				.whereEqualTo("name", nivelText).get().get();
+
+		if (querySnapshot.isEmpty()) {
+			System.out.println("No se encontraron workouts para nivel " + nivelSeleccionado + " y nombre " + nivelText);
+			return new String[] { "Ez daude workout-ak maila honetarako" };
+		}
+
+		List<String> levels = new ArrayList<>();
+		
+		for (DocumentSnapshot routineDoc : querySnapshot.getDocuments()) {
+			List<QueryDocumentSnapshot> exerciseDocs = routineDoc.getReference().collection("exercise").get().get()
+					.getDocuments();
+			
+			for (DocumentSnapshot exerciseDoc : exerciseDocs) {
+				String exerciseName = exerciseDoc.getString("name");
+				if (exerciseName != null) {
+					levels.add(exerciseName);
+				}
+			}
+		}
+
+		if (levels.isEmpty()) {
+			return new String[] { "Ez daude ariketarik workout honetan" };
+		}
+
+		return levels.toArray(new String[0]);
+
+	}
+
 	public DefaultListModel<String> getListModel() {
 		return listModel;
 	}

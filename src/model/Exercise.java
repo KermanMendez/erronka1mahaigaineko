@@ -59,8 +59,8 @@ public class Exercise {
 	public int getSerieTime() {
 		return serieTime;
 	}
-
-	public int getRestTime() {
+	
+	public int getRestTimeSec() {
 		return restTime;
 	}
 
@@ -80,20 +80,20 @@ public class Exercise {
 		this.videoURL = videoURL;
 	}
 
-	public void setSets(Object sets) {
-		this.sets = convertToInt(sets);
+	public int setSets(Object sets) {
+		return this.sets = convertToInt(sets);
 	}
 
-	public void setReps(Object reps) {
-		this.reps = convertToInt(reps);
+	public int setReps(Object reps) {
+		return this.reps = convertToInt(reps);
 	}
 
-	public void setSerieTime(Object serieTime) {
-		this.serieTime = convertToInt(serieTime);
+	public int setSerieTime(Object serieTime) {
+		return this.serieTime = convertToInt(serieTime);
 	}
-
-	public void setRestTime(Object restTime) {
-		this.restTime = convertToInt(restTime);
+	
+	public int setRestTimeSec(Object object) {
+		return this.restTime = convertToInt(object);
 	}
 
 	private int convertToInt(Object value) {

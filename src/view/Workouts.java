@@ -2,6 +2,7 @@ package view;
 
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultComboBoxModel;
@@ -12,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import model.Hariak;
@@ -76,6 +78,18 @@ public class Workouts extends JFrame {
 		comboMaila.setBounds(180, 100, 120, 22);
 		edukiontzia.add(comboMaila);
 
+		JComboBox<String> comboMailaRutinakLevel = new JComboBox<String>();
+		try {
+			comboMailaRutinakLevel
+					.setModel(new DefaultComboBoxModel<>(routines.getRoutines(comboMaila.getSelectedIndex() + 1)));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+		comboMailaRutinakLevel.setBounds(337, 99, 120, 22);
+		edukiontzia.add(comboMailaRutinakLevel);
+
 		JLabel lblZerrenda = new JLabel("Workouts zerrenda:");
 		lblZerrenda.setBounds(30, 140, 150, 20);
 		edukiontzia.add(lblZerrenda);
@@ -85,28 +99,79 @@ public class Workouts extends JFrame {
 		edukiontzia.add(scrollPane);
 
 		listaWorkout = new JList<>();
-		listaWorkout.setModel(new AbstractListModel<String>() {
-			private static final long serialVersionUID = 1L;
-			String[] balioak = new String[] { "Workout 1 - 1. maila - 6 ariketa", "Workout 2 - 2. maila - 6 ariketa",
-					"Workout 3 - 3. maila - 6 ariketa", "Workout 4 - 4. maila - 6 ariketa",
-					"Workout 5 - 5. maila - 6 ariketa" };
-
-			public int getSize() {
-				return balioak.length;
-			}
-
-			public String getElementAt(int index) {
-				return balioak[index];
-			}
-		});
 		scrollPane.setViewportView(listaWorkout);
+
+		Runnable listaEguneratu = () -> {
+			int nivelSeleccionado = comboMaila.getSelectedIndex() + 1;
+			Object selectedItem = comboMailaRutinakLevel.getSelectedItem();
+
+			if (selectedItem == null) {
+				return;
+			}
+
+			String nivelText = selectedItem.toString();
+
+			new Thread(() -> {
+				try {
+					String[] ejercicios = routines.getLevels(nivelSeleccionado, nivelText);
+					SwingUtilities.invokeLater(() -> {
+						listaWorkout.setModel(new AbstractListModel<String>() {
+							private static final long serialVersionUID = 1L;
+							String[] balioak = ejercicios;
+
+							public int getSize() {
+								return balioak.length;
+							}
+
+							public String getElementAt(int index) {
+								return balioak[index];
+							}
+						});
+					});
+				} catch (InterruptedException | ExecutionException ex) {
+					ex.printStackTrace();
+				}
+			}).start();
+		};
+
+		listaEguneratu.run();
+
+		comboMaila.addActionListener(e -> {
+			int nivelSeleccionado = comboMaila.getSelectedIndex() + 1;
+			lblMailaAktuala.setText("Maila: " + nivelSeleccionado);
+
+			new Thread(() -> {
+				try {
+					String[] workouts = routines.getRoutines(nivelSeleccionado);
+					SwingUtilities.invokeLater(() -> {
+						comboMailaRutinakLevel.setModel(new DefaultComboBoxModel<>(workouts));
+						listaEguneratu.run();
+					});
+				} catch (InterruptedException | ExecutionException ex) {
+					ex.printStackTrace();
+				}
+			}).start();
+		});
+
+		comboMailaRutinakLevel.addActionListener(e -> {
+			listaEguneratu.run();
+		});
 
 		btnIkusiHistoria = new JButton("Ikusi historia");
 		btnIkusiHistoria.setBounds(350, 160, 180, 30);
 		edukiontzia.add(btnIkusiHistoria);
 
 		btnHasiWorkout = new JButton("Hasi Workout-a");
-		btnHasiWorkout.addActionListener(e -> workoutThread.start());
+		btnHasiWorkout.addActionListener(e -> {
+			try {
+				workoutThread.start(comboMaila.getSelectedIndex() + 1,
+						comboMailaRutinakLevel.getSelectedItem().toString());
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			} catch (ExecutionException e1) {
+				e1.printStackTrace();
+			}
+		});
 		btnHasiWorkout.setBounds(350, 210, 180, 30);
 		edukiontzia.add(btnHasiWorkout);
 
