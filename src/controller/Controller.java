@@ -1,7 +1,6 @@
 package controller;
 
 import com.google.cloud.firestore.Firestore;
-import com.google.firebase.cloud.FirestoreClient;
 
 import view.FirstView;
 
@@ -19,10 +18,20 @@ public class Controller {
 	}
 
 	private static Firestore getFirestore() {
-		if (firestoreInstantzia == null) {
-			firestoreInstantzia = FirestoreClient.getFirestore();
+		try {
+			if (firestoreInstantzia == null) {
+				// Solo intentar obtener Firestore si FirebaseApp está inicializado
+				if (com.google.firebase.FirebaseApp.getApps().isEmpty()) {
+					System.out.println("[ERROR] FirebaseApp no está inicializado. Firestore no disponible.");
+					return null;
+				}
+				firestoreInstantzia = com.google.firebase.cloud.FirestoreClient.getFirestore();
+			}
+			return firestoreInstantzia;
+		} catch (Exception e) {
+			System.out.println("[ERROR] No se pudo obtener Firestore");
+			return null;
 		}
-		return firestoreInstantzia;
 	}
 
 	public Firestore getDb() {
