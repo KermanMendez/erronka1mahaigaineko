@@ -32,8 +32,7 @@ public class ThreadFrame extends JFrame {
 
 	public static void main(String[] args) {
 		if (!AppState.isAppStarted()) {
-			new FirstView().setVisible(true);
-			return;
+			System.exit(0);
 		}
 		EventQueue.invokeLater(() -> {
 			try {
@@ -46,11 +45,6 @@ public class ThreadFrame extends JFrame {
 	}
 
 	public ThreadFrame(int level, String routineName) {
-		if (!AppState.isAppStarted()) {
-			new FirstView().setVisible(true);
-			dispose();
-			return;
-		}
 		setTitle("Workout Thread - " + routineName);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 370);

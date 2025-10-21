@@ -21,8 +21,7 @@ public class Profile extends JFrame {
 
 	public static void main(String[] args) {
 		if (!AppState.isAppStarted()) {
-			new FirstView().setVisible(true);
-			return;
+			System.exit(0);
 		}
 		EventQueue.invokeLater(() -> {
 			try {
@@ -35,11 +34,6 @@ public class Profile extends JFrame {
 	}
 
 	public Profile() {
-		if (!AppState.isAppStarted()) {
-			new FirstView().setVisible(true);
-			dispose();
-			return;
-		}
 		setTitle("Zure Profila");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);

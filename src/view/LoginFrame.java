@@ -35,8 +35,7 @@ public class LoginFrame extends JFrame {
 
 	public static void main(String[] args) {
 		if (!AppState.isAppStarted()) {
-			new FirstView().setVisible(true);
-			return;
+			System.exit(0);
 		}
 		EventQueue.invokeLater(() -> {
 			try {

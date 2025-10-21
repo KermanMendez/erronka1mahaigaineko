@@ -34,8 +34,7 @@ public class Workouts extends JFrame {
 
 	public static void main(String[] args) {
 		if (!AppState.isAppStarted()) {
-			new FirstView().setVisible(true);
-			return;
+			System.exit(0);
 		}
 		EventQueue.invokeLater(() -> {
 			try {
@@ -48,11 +47,6 @@ public class Workouts extends JFrame {
 	}
 
 	public Workouts() {
-		if (!AppState.isAppStarted()) {
-			new FirstView().setVisible(true);
-			dispose();
-			return;
-		}
 		setTitle("Workouts");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 600, 400);

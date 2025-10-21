@@ -20,26 +20,16 @@ public class Inter extends JFrame {
 
 	public static void main(String[] args) {
 		if (!AppState.isAppStarted()) {
-			new FirstView().setVisible(true);
-			return;
+			System.exit(0);
 		}
 		EventQueue.invokeLater(() -> {
 			try {
-				Inter frame = new Inter();
+				Inter frame = new Inter(Boolean.FALSE);
 				frame.setVisible(true);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		});
-	}
-
-	public Inter() {
-		if (!AppState.isAppStarted()) {
-			new FirstView().setVisible(true);
-			dispose();
-			return;
-		}
-
 	}
 
 	public Inter(Boolean isTrainer) {

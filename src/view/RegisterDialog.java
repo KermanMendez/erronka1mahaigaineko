@@ -32,12 +32,11 @@ public class RegisterDialog extends JDialog {
 	private JTextField textFieldIzena;
 	private JCheckBox checkboxIsTrainer;
 	private ConnectDB connectDB = new ConnectDB();
+
 	public RegisterDialog(JFrame parent) {
 		super(parent, "Erabiltzailearen Registroa", true);
 		if (!AppState.isAppStarted()) {
-			new FirstView().setVisible(true);
-			dispose();
-			return;
+			System.exit(0);
 		}
 		setSize(399, 388);
 		setLocationRelativeTo(parent);
@@ -63,8 +62,8 @@ public class RegisterDialog extends JDialog {
 		btnRegistrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				Boolean registroa = connectDB.eskaeraRegistratu(textFieldIzena.getText().trim(), abizena1Field.getText().trim(),
-						abizena2Field.getText().trim(), textFieldEmail.getText().trim(),
+				Boolean registroa = connectDB.eskaeraRegistratu(textFieldIzena.getText().trim(),
+						abizena1Field.getText().trim(), abizena2Field.getText().trim(), textFieldEmail.getText().trim(),
 						new String(passwordField.getPassword()), (java.util.Date) datePicker.getModel().getValue(),
 						checkboxIsTrainer.isSelected());
 				if (registroa) {
@@ -131,6 +130,5 @@ public class RegisterDialog extends JDialog {
 					"Date Picker Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
-
 
 }
