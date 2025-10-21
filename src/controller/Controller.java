@@ -5,16 +5,34 @@ import com.google.cloud.firestore.Firestore;
 import view.FirstView;
 
 public class Controller {
-
-	private FirstView firstView;
+	private static Firestore firestoreInstantzia;
 	private DBConnection dbConnection;
 	private Firestore db;
-	private static Firestore firestoreInstantzia;
+	private FirstView firstView;
 
 	public Controller() {
 		DBConnection.initialize();
 		db = getFirestore();
 		setDbConnection(new DBConnection(this));
+	}
+
+	public DBConnection getDbConnection() {
+		return dbConnection;
+	}
+
+	public Firestore getDb() {
+		return db;
+	}
+
+	public FirstView getFirstView() {
+		if (firstView == null) {
+			firstView = new FirstView();
+		}
+		return firstView;
+	}
+
+	public void setDbConnection(DBConnection dbConnection) {
+		this.dbConnection = dbConnection;
 	}
 
 	private static Firestore getFirestore() {
@@ -32,24 +50,5 @@ public class Controller {
 			System.out.println("[ERROR] No se pudo obtener Firestore");
 			return null;
 		}
-	}
-
-	public Firestore getDb() {
-		return db;
-	}
-
-	public FirstView getFirstView() {
-		if (firstView == null) {
-			firstView = new FirstView();
-		}
-		return firstView;
-	}
-
-	public DBConnection getDbConnection() {
-		return dbConnection;
-	}
-
-	public void setDbConnection(DBConnection dbConnection) {
-		this.dbConnection = dbConnection;
 	}
 }

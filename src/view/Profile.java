@@ -19,20 +19,6 @@ public class Profile extends JFrame {
 	private JTextField txtSurname1;
 	private JTextField txtSurname2;
 
-	public static void main(String[] args) {
-		if (!AppState.isAppStarted()) {
-			System.exit(0);
-		}
-		EventQueue.invokeLater(() -> {
-			try {
-				Profile frame = new Profile();
-				frame.setVisible(true);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
-	}
-
 	public Profile() {
 		setTitle("Zure Profila");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -81,5 +67,19 @@ public class Profile extends JFrame {
 		JButton btnChangePass = new JButton("Aldatu Pasahitza");
 		btnChangePass.setBounds(160, 128, 125, 23);
 		contentPane.add(btnChangePass);
+	}
+
+	public static void main(String[] args) {
+		if (!AppState.isAppStarted()) {
+			System.exit(0);
+		}
+		EventQueue.invokeLater(() -> {
+			try {
+				Profile frame = new Profile();
+				frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
 	}
 }

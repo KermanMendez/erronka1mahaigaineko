@@ -30,20 +30,6 @@ public class ThreadFrame extends JFrame {
 	private volatile boolean paused = false;
 	private final Object hilo1Lock = new Object();
 
-	public static void main(String[] args) {
-		if (!AppState.isAppStarted()) {
-			System.exit(0);
-		}
-		EventQueue.invokeLater(() -> {
-			try {
-				ThreadFrame frame = new ThreadFrame(1, "My Routine");
-				frame.setVisible(true);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
-	}
-
 	public ThreadFrame(int level, String routineName) {
 		setTitle("Workout Thread - " + routineName);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -118,6 +104,20 @@ public class ThreadFrame extends JFrame {
 				listModel.addElement("Error loading exercises");
 			}
 		}).start();
+	}
+
+	public static void main(String[] args) {
+		if (!AppState.isAppStarted()) {
+			System.exit(0);
+		}
+		EventQueue.invokeLater(() -> {
+			try {
+				ThreadFrame frame = new ThreadFrame(1, "My Routine");
+				frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
 	}
 
 	public Thread getHilo1() {

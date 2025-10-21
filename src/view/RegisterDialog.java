@@ -9,7 +9,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
@@ -22,7 +21,6 @@ import model.ConnectDB;
 import model.DateFormater;
 
 public class RegisterDialog extends JDialog {
-
 	private static final long serialVersionUID = 1L;
 	private JTextField textFieldEmail;
 	private JPasswordField passwordField;
@@ -61,7 +59,6 @@ public class RegisterDialog extends JDialog {
 		JButton btnRegistrar = new JButton("Eskaera Registratu");
 		btnRegistrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				Boolean registroa = connectDB.eskaeraRegistratu(textFieldIzena.getText().trim(),
 						abizena1Field.getText().trim(), abizena2Field.getText().trim(), textFieldEmail.getText().trim(),
 						new String(passwordField.getPassword()), (java.util.Date) datePicker.getModel().getValue(),
@@ -98,37 +95,30 @@ public class RegisterDialog extends JDialog {
 		JLabel labelData = new JLabel("Jaiotze Data:");
 		labelData.setBounds(10, 204, 150, 25);
 		getContentPane().add(labelData);
-		try {
-			UtilDateModel model = new UtilDateModel();
-			Properties p = new Properties();
-			p.put("text.today", "Today");
-			p.put("text.month", "Month");
-			p.put("text.year", "Year");
-			JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
-			datePicker = new JDatePickerImpl(datePanel, new DateFormater());
-			datePicker.setBounds(170, 204, 200, 40);
-			getContentPane().add(datePicker);
+		UtilDateModel model = new UtilDateModel();
+		Properties p = new Properties();
+		p.put("text.today", "Gaur");
+		p.put("text.month", "Hilabetea");
+		p.put("text.year", "Urtea");
+		JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+		datePicker = new JDatePickerImpl(datePanel, new DateFormater());
+		datePicker.setBounds(170, 204, 200, 25);
+		getContentPane().add(datePicker);
 
-			JLabel lblIzena = new JLabel("Izena:");
-			lblIzena.setBounds(10, 86, 150, 25);
-			getContentPane().add(lblIzena);
+		JLabel lblIzena = new JLabel("Izena:");
+		lblIzena.setBounds(10, 87, 150, 25);
+		getContentPane().add(lblIzena);
 
-			textFieldIzena = new JTextField();
-			textFieldIzena.setBounds(170, 93, 200, 25);
-			getContentPane().add(textFieldIzena);
+		textFieldIzena = new JTextField();
+		textFieldIzena.setBounds(170, 87, 200, 25);
+		getContentPane().add(textFieldIzena);
 
-			JLabel labelIsTrainer = new JLabel("Is Trainer:");
-			labelIsTrainer.setBounds(10, 255, 150, 25);
-			getContentPane().add(labelIsTrainer);
+		JLabel lblTrainer = new JLabel("Entrenatzailea da?");
+		lblTrainer.setBounds(10, 230, 150, 25);
+		getContentPane().add(lblTrainer);
 
-			checkboxIsTrainer = new JCheckBox("");
-			checkboxIsTrainer.setBounds(83, 255, 21, 23);
-			getContentPane().add(checkboxIsTrainer);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			JOptionPane.showMessageDialog(this, "Error initializing date picker: " + ex.getMessage(),
-					"Date Picker Error", JOptionPane.ERROR_MESSAGE);
-		}
+		checkboxIsTrainer = new JCheckBox();
+		checkboxIsTrainer.setBounds(170, 230, 200, 25);
+		getContentPane().add(checkboxIsTrainer);
 	}
-
 }

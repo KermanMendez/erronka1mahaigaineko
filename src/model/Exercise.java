@@ -59,7 +59,7 @@ public class Exercise {
 	public int getSerieTime() {
 		return serieTime;
 	}
-	
+
 	public int getRestTimeSec() {
 		return restTime;
 	}
@@ -91,7 +91,7 @@ public class Exercise {
 	public int setSerieTime(Object serieTime) {
 		return this.serieTime = convertToInt(serieTime);
 	}
-	
+
 	public int setRestTimeSec(Object object) {
 		return this.restTime = convertToInt(object);
 	}

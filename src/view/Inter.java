@@ -18,20 +18,6 @@ public class Inter extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 
-	public static void main(String[] args) {
-		if (!AppState.isAppStarted()) {
-			System.exit(0);
-		}
-		EventQueue.invokeLater(() -> {
-			try {
-				Inter frame = new Inter(Boolean.FALSE);
-				frame.setVisible(true);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
-	}
-
 	public Inter(Boolean isTrainer) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -83,5 +69,19 @@ public class Inter extends JFrame {
 		lblWorkout.setIcon(new ImageIcon(scaledWorkoutImage));
 		lblWorkout.setHorizontalAlignment(SwingConstants.CENTER);
 		contentPane.add(lblWorkout);
+	}
+
+	public static void main(String[] args) {
+		if (!AppState.isAppStarted()) {
+			System.exit(0);
+		}
+		EventQueue.invokeLater(() -> {
+			try {
+				Inter frame = new Inter(Boolean.FALSE);
+				frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
 	}
 }

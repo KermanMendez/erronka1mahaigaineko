@@ -32,20 +32,6 @@ public class Workouts extends JFrame {
 	private Routines routines = new Routines();
 	private LoginFrame login = new LoginFrame();
 
-	public static void main(String[] args) {
-		if (!AppState.isAppStarted()) {
-			System.exit(0);
-		}
-		EventQueue.invokeLater(() -> {
-			try {
-				Workouts frame = new Workouts();
-				frame.setVisible(true);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
-	}
-
 	public Workouts() {
 		setTitle("Workouts");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -198,5 +184,19 @@ public class Workouts extends JFrame {
 		});
 		btnLogout.setBounds(485, 18, 89, 23);
 		edukiontzia.add(btnLogout);
+	}
+
+	public static void main(String[] args) {
+		if (!AppState.isAppStarted()) {
+			System.exit(0);
+		}
+		EventQueue.invokeLater(() -> {
+			try {
+				Workouts frame = new Workouts();
+				frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
 	}
 }

@@ -5,7 +5,6 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -15,23 +14,73 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
-
 import com.google.cloud.firestore.Firestore;
-
 import controller.AppState;
 import controller.Controller;
 import model.ConnectDB;
 
 public class LoginFrame extends JFrame {
-
 	private static final long serialVersionUID = 1L;
-
 	private JPanel contentPane;
 	private JTextField textFieldUser;
 	private JPasswordField passwordField;
 	private Controller controller = new Controller();
 	Firestore db = controller.getDb();
 	private ConnectDB connectDB = new ConnectDB();
+
+	public LoginFrame() {
+		if (!AppState.isAppStarted()) {
+			new FirstView().setVisible(true);
+			dispose();
+			return;
+		}
+		setIconImage(Toolkit.getDefaultToolkit().getImage("img/logo.png"));
+		setTitle("LOGIN");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 450, 300);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+		JLabel labelUser = new JLabel("Email:");
+		labelUser.setBounds(40, 54, 90, 14);
+		contentPane.add(labelUser);
+		JLabel labelPassword = new JLabel("Password:");
+		labelPassword.setBounds(40, 110, 87, 14);
+		contentPane.add(labelPassword);
+		textFieldUser = new JTextField();
+		textFieldUser.setBounds(40, 79, 136, 20);
+		textFieldUser.setColumns(10);
+		contentPane.add(textFieldUser);
+		passwordField = new JPasswordField();
+		passwordField.setBounds(40, 135, 136, 20);
+		contentPane.add(passwordField);
+		JLabel lblLoginLogo = new JLabel("");
+		ImageIcon originalIcon = new ImageIcon(getClass().getResource("/img/logo.png"));
+		Image scaledImage = originalIcon.getImage().getScaledInstance(250, 180, Image.SCALE_SMOOTH);
+		lblLoginLogo.setIcon(new ImageIcon(scaledImage));
+		lblLoginLogo.setHorizontalAlignment(SwingConstants.CENTER);
+		lblLoginLogo.setBounds(207, 22, 217, 180);
+		contentPane.add(lblLoginLogo);
+		JButton btnLogin = new JButton("Login");
+		btnLogin.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Boolean ok = connectDB.handleLogin(textFieldUser, passwordField);
+				if (ok) {
+					dispose();
+				}
+			}
+		});
+		btnLogin.setBounds(40, 180, 136, 23);
+		contentPane.add(btnLogin);
+		JButton btnRegister = new JButton("Register");
+		btnRegister.addActionListener(e -> {
+			RegisterDialog registerDialog = new RegisterDialog(this);
+			registerDialog.setVisible(true);
+		});
+		btnRegister.setBounds(40, 220, 136, 23);
+		contentPane.add(btnRegister);
+	}
 
 	public static void main(String[] args) {
 		if (!AppState.isAppStarted()) {
@@ -45,69 +94,5 @@ public class LoginFrame extends JFrame {
 				e.printStackTrace();
 			}
 		});
-	}
-
-	public LoginFrame() {
-		if (!AppState.isAppStarted()) {
-			new FirstView().setVisible(true);
-			dispose();
-			return;
-		}
-		
-		
-		setIconImage(Toolkit.getDefaultToolkit().getImage("img/logo.png"));
-		setTitle("LOGIN");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
-
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
-
-		JLabel labelUser = new JLabel("Email:");
-		labelUser.setBounds(40, 54, 90, 14);
-		contentPane.add(labelUser);
-
-		JLabel labelPassword = new JLabel("Password:");
-		labelPassword.setBounds(40, 110, 87, 14);
-		contentPane.add(labelPassword);
-
-		textFieldUser = new JTextField();
-		textFieldUser.setBounds(40, 79, 136, 20);
-		textFieldUser.setColumns(10);
-		contentPane.add(textFieldUser);
-
-		passwordField = new JPasswordField();
-		passwordField.setBounds(40, 135, 136, 20);
-		contentPane.add(passwordField);
-
-		JLabel lblLoginLogo = new JLabel("");
-		ImageIcon originalIcon = new ImageIcon(getClass().getResource("/img/logo.png"));
-		Image scaledImage = originalIcon.getImage().getScaledInstance(250, 180, Image.SCALE_SMOOTH);
-		lblLoginLogo.setIcon(new ImageIcon(scaledImage));
-		lblLoginLogo.setHorizontalAlignment(SwingConstants.CENTER);
-		lblLoginLogo.setBounds(207, 22, 217, 180);
-		contentPane.add(lblLoginLogo);
-
-		JButton btnLogin = new JButton("Login");
-		btnLogin.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				Boolean ok = connectDB.handleLogin(textFieldUser, passwordField);
-				if (ok) {
-				dispose();
-				}
-			}
-		});
-		btnLogin.setBounds(59, 211, 89, 23);
-		contentPane.add(btnLogin);
-
-		JButton btnRegistro = new JButton("Registratu");
-		btnRegistro.setBounds(255, 213, 105, 23);
-		btnRegistro.addActionListener(e -> {
-			RegisterDialog registerDialog = new RegisterDialog(this);
-			registerDialog.setVisible(true);
-		});
-		contentPane.add(btnRegistro);
 	}
 }

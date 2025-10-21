@@ -4,18 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 
 public class DBConnection {
-
-	Controller controller;
-	Firestore db;
-
 	public DBConnection(Controller controller) {
-		this.controller = controller;
-		this.db = controller.getDb();
 	}
 
 	public static void initialize() {

@@ -27,7 +27,6 @@ import com.google.firebase.auth.ListUsersPage;
 import controller.Controller;
 
 public class CreateBackup {
-	
 	private Controller controller = new Controller();
 	Firestore db = controller.getDb();
 
@@ -36,49 +35,38 @@ public class CreateBackup {
 			System.err.println("[ERROR] FirebaseApp no está inicializado. No se puede hacer backup a XML.");
 			return;
 		}
-
 		try {
 			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 			Document doc = docBuilder.newDocument();
-
 			Element rootElement = doc.createElement("backup");
 			doc.appendChild(rootElement);
-
 			Element usersElement = doc.createElement("users");
 			rootElement.appendChild(usersElement);
-
 			ListUsersPage page = FirebaseAuth.getInstance().listUsers(null);
 			for (ExportedUserRecord user : page.getValues()) {
 				Element userElement = doc.createElement("user");
 				usersElement.appendChild(userElement);
-
 				Element uid = doc.createElement("uid");
 				uid.appendChild(doc.createTextNode(user.getUid()));
 				userElement.appendChild(uid);
-
 				Element email = doc.createElement("email");
 				email.appendChild(doc.createTextNode(user.getEmail() != null ? user.getEmail() : ""));
 				userElement.appendChild(email);
 			}
-
 			Iterable<CollectionReference> collections = db.listCollections();
 			for (CollectionReference collection : collections) {
 				Element collectionElement = doc.createElement("collection");
 				collectionElement.setAttribute("name", collection.getId());
 				rootElement.appendChild(collectionElement);
-
 				addDocumentsToXML(collection, collectionElement, doc);
 			}
-
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 			DOMSource source = new DOMSource(doc);
 			StreamResult result = new StreamResult(new FileWriter("backup.xml"));
-
 			transformer.transform(source, result);
-
 			System.out.println("Backup saved to backup.xml");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -89,26 +77,15 @@ public class CreateBackup {
 			throws Exception {
 		ApiFuture<QuerySnapshot> future = collection.get();
 		List<QueryDocumentSnapshot> documents = future.get().getDocuments();
-
 		for (QueryDocumentSnapshot document : documents) {
 			Element documentElement = doc.createElement("document");
 			documentElement.setAttribute("id", document.getId());
 			parentElement.appendChild(documentElement);
-
 			Map<String, Object> data = document.getData();
 			for (Map.Entry<String, Object> entry : data.entrySet()) {
 				Element field = doc.createElement(entry.getKey());
 				field.appendChild(doc.createTextNode(entry.getValue().toString()));
 				documentElement.appendChild(field);
-			}
-
-			Iterable<CollectionReference> subCollections = document.getReference().listCollections();
-			for (CollectionReference subCollection : subCollections) {
-				Element subCollectionElement = doc.createElement("subcollection");
-				subCollectionElement.setAttribute("name", subCollection.getId());
-				documentElement.appendChild(subCollectionElement);
-
-				addDocumentsToXML(subCollection, subCollectionElement, doc);
 			}
 		}
 	}
