@@ -13,13 +13,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import org.jdatepicker.impl.DateComponentFormatter;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
 import controller.AppState;
 import model.ConnectDB;
+import model.DateFormater;
 
 public class RegisterDialog extends JDialog {
 
@@ -106,7 +106,7 @@ public class RegisterDialog extends JDialog {
 			p.put("text.month", "Month");
 			p.put("text.year", "Year");
 			JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
-			datePicker = new JDatePickerImpl(datePanel, new DateToStringFormatter());
+			datePicker = new JDatePickerImpl(datePanel, new DateFormater());
 			datePicker.setBounds(170, 204, 200, 40);
 			getContentPane().add(datePicker);
 
@@ -132,18 +132,5 @@ public class RegisterDialog extends JDialog {
 		}
 	}
 
-	@SuppressWarnings("serial")
-	class DateToStringFormatter extends DateComponentFormatter {
-		private final java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd-MM-yyyy");
 
-		@Override
-		public String valueToString(Object value) throws java.text.ParseException {
-			if (value instanceof java.util.Date) {
-				return sdf.format((java.util.Date) value);
-			} else if (value instanceof java.util.Calendar) {
-				return sdf.format(((java.util.Calendar) value).getTime());
-			}
-			return super.valueToString(value);
-		}
-	}
 }
