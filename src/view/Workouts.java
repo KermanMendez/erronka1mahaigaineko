@@ -16,7 +16,11 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
+import controller.Controller;
+import controller.DBConnection;
 import model.Routines;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class Workouts extends JFrame {
 
@@ -30,6 +34,8 @@ public class Workouts extends JFrame {
 	private JLabel lblMailaAktuala;
 	private Routines routines = new Routines();
 	private LoginFrame login = new LoginFrame();
+	private Controller controller = new Controller();
+	private DBConnection dbConnection = controller.getDbConnection();
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(() -> {
@@ -46,7 +52,7 @@ public class Workouts extends JFrame {
 		this(false);
 	}
 
-	public Workouts(boolean isAdmin) {
+	public Workouts(boolean isTrainer) {
 		setTitle("Workouts");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 600, 400);
@@ -163,7 +169,7 @@ public class Workouts extends JFrame {
 		btnHasiWorkout.addActionListener(e -> {
 			ThreadFrame threadFrame = new ThreadFrame(comboMaila.getSelectedIndex() + 1,
 					comboMailaRutinakLevel.getSelectedItem().toString());
-			
+
 			threadFrame.setVisible(true);
 			dispose();
 		});
@@ -199,5 +205,22 @@ public class Workouts extends JFrame {
 		});
 		btnLogout.setBounds(485, 18, 89, 23);
 		edukiontzia.add(btnLogout);
+
+		JButton btnBackup = new JButton("Create Backup");
+		btnBackup.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				dbConnection.saveBackupToXML();
+			}
+		});
+
+		if (isTrainer) {
+			btnBackup.setVisible(true);
+		} else {
+			btnBackup.setVisible(false);
+		}
+
+		btnBackup.setBounds(30, 18, 120, 23);
+		edukiontzia.add(btnBackup);
 	}
 }

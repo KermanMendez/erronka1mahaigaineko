@@ -51,7 +51,7 @@ public class Inter extends JFrame {
 
 		JButton btnWorkouts = new JButton("Workouts");
 		btnWorkouts.addActionListener(e -> {
-			Workouts workouts = new Workouts();
+			Workouts workouts = new Workouts(isTrainer);
 			dispose();
 			workouts.setVisible(true);
 		});

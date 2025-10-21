@@ -60,10 +60,13 @@ public class RegisterDialog extends JDialog {
 		btnRegistrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				dbConnection.eskaeraRegistratu(textFieldIzena.getText().trim(), abizena1Field.getText().trim(),
+				Boolean registroa = dbConnection.eskaeraRegistratu(textFieldIzena.getText().trim(), abizena1Field.getText().trim(),
 						abizena2Field.getText().trim(), textFieldEmail.getText().trim(),
 						new String(passwordField.getPassword()), (java.util.Date) datePicker.getModel().getValue(),
 						checkboxIsTrainer.isSelected());
+				if (registroa) {
+					dispose();
+				}
 			}
 		});
 		btnRegistrar.setBounds(170, 255, 160, 25);
