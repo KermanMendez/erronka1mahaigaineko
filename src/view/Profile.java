@@ -1,15 +1,18 @@
 package view;
 
+import java.awt.Cursor;
 import java.awt.EventQueue;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
 
 import controller.AppState;
+import model.UIStyle;
 
 public class Profile extends JFrame {
 
@@ -23,50 +26,102 @@ public class Profile extends JFrame {
 		setTitle("Zure Profila");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
-
 		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		UIStyle.stylePanel(contentPane);
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
 		JLabel lblIzenaP = new JLabel("Izena");
 		lblIzenaP.setBounds(89, 33, 92, 14);
+		UIStyle.styleLabel(lblIzenaP, false);
 		contentPane.add(lblIzenaP);
 
 		JLabel lblAbizena1P = new JLabel("Abizena:");
 		lblAbizena1P.setBounds(89, 58, 92, 14);
+		UIStyle.styleLabel(lblAbizena1P, false);
 		contentPane.add(lblAbizena1P);
 
 		JLabel lblAbizena2P = new JLabel("2º Abizena:");
 		lblAbizena2P.setBounds(89, 83, 92, 14);
+		UIStyle.styleLabel(lblAbizena2P, false);
 		contentPane.add(lblAbizena2P);
 
 		txtName = new JTextField();
 		txtName.setBounds(226, 30, 142, 20);
+		UIStyle.styleField(txtName);
 		txtName.setColumns(10);
+		txtName.setToolTipText("Izena");
 		contentPane.add(txtName);
 
 		txtSurname1 = new JTextField();
 		txtSurname1.setBounds(226, 55, 142, 20);
+		UIStyle.styleField(txtSurname1);
 		txtSurname1.setColumns(10);
+		txtSurname1.setToolTipText("Lehenengo Abizena");
 		contentPane.add(txtSurname1);
 
 		txtSurname2 = new JTextField();
 		txtSurname2.setBounds(226, 80, 142, 20);
+		UIStyle.styleField(txtSurname2);
 		txtSurname2.setColumns(10);
+		txtSurname2.setToolTipText("Bigarren");
 		contentPane.add(txtSurname2);
 
 		JButton btnOnartuP = new JButton("Onartu");
-		btnOnartuP.setBounds(127, 227, 89, 23);
+		UIStyle.styleButton(btnOnartuP);
+		btnOnartuP.setToolTipText("Aldaketak Gorde");
+		btnOnartuP.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		btnOnartuP.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				btnOnartuP.setBackground(UIStyle.ACCENT);
+				btnOnartuP.setForeground(UIStyle.SECONDARY);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				btnOnartuP.setBackground(UIStyle.BUTTON_BG);
+				btnOnartuP.setForeground(UIStyle.BUTTON_FG);
+			}
+		});
+		btnOnartuP.setBounds(127, 227, 89, 30);
 		contentPane.add(btnOnartuP);
 
 		JButton btnUtziP = new JButton("Utzi");
-		btnUtziP.setBounds(226, 227, 89, 23);
+		UIStyle.styleButton(btnUtziP);
+		btnUtziP.setToolTipText("Aldaketak Utzi");
+		btnUtziP.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		btnUtziP.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				btnUtziP.setBackground(UIStyle.ACCENT);
+				btnUtziP.setForeground(UIStyle.SECONDARY);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				btnUtziP.setBackground(UIStyle.BUTTON_BG);
+				btnUtziP.setForeground(UIStyle.BUTTON_FG);
+			}
+		});
+		btnUtziP.setBounds(226, 227, 89, 30);
 		contentPane.add(btnUtziP);
 
 		JButton btnChangePass = new JButton("Aldatu Pasahitza");
-		btnChangePass.setBounds(160, 128, 125, 23);
+		UIStyle.styleButton(btnChangePass);
+		btnChangePass.setToolTipText("Pasahitza Aldatu");
+		btnChangePass.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		btnChangePass.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				btnChangePass.setBackground(UIStyle.ACCENT);
+				btnChangePass.setForeground(UIStyle.SECONDARY);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				btnChangePass.setBackground(UIStyle.BUTTON_BG);
+				btnChangePass.setForeground(UIStyle.BUTTON_FG);
+			}
+		});
+		btnChangePass.setBounds(160, 128, 125, 30);
 		contentPane.add(btnChangePass);
+
+		getContentPane().setBackground(UIStyle.BACKGROUND);
 	}
 
 	public static void main(String[] args) {

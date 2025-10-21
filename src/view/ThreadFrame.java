@@ -1,22 +1,25 @@
 package view;
 
+import java.awt.Cursor;
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.border.EmptyBorder;
 
 import controller.AppState;
 import model.Exercise;
 import model.Hariak;
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import model.UIStyle;
 
 public class ThreadFrame extends JFrame {
 
@@ -36,7 +39,7 @@ public class ThreadFrame extends JFrame {
 		setBounds(100, 100, 450, 370);
 
 		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		UIStyle.stylePanel(contentPane);
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
@@ -46,9 +49,24 @@ public class ThreadFrame extends JFrame {
 
 		DefaultListModel<String> listModel = new DefaultListModel<>();
 		hariakList = new JList<>(listModel);
+		UIStyle.styleField(hariakList);
 		scrollPane.setViewportView(hariakList);
 
 		JButton btnStopTime = new JButton("Denbora Gelditu");
+		UIStyle.styleButton(btnStopTime);
+		btnStopTime.setToolTipText("Denbora gelditu/jarraitu");
+		btnStopTime.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		btnStopTime.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				btnStopTime.setBackground(UIStyle.ACCENT);
+				btnStopTime.setForeground(UIStyle.SECONDARY);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				btnStopTime.setBackground(UIStyle.BUTTON_BG);
+				btnStopTime.setForeground(UIStyle.BUTTON_FG);
+			}
+		});
 		btnStopTime.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!paused) {
@@ -63,19 +81,47 @@ public class ThreadFrame extends JFrame {
 				}
 			}
 		});
-		btnStopTime.setBounds(30, 263, 115, 23);
+		btnStopTime.setBounds(30, 263, 115, 30);
 		contentPane.add(btnStopTime);
 
 		JButton btnNextExercise = new JButton("Hurrengo Ariketa");
+		UIStyle.styleButton(btnNextExercise);
+		btnNextExercise.setToolTipText("Hurrengo ariketarekin jarraitu");
+		btnNextExercise.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		btnNextExercise.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				btnNextExercise.setBackground(UIStyle.ACCENT);
+				btnNextExercise.setForeground(UIStyle.SECONDARY);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				btnNextExercise.setBackground(UIStyle.BUTTON_BG);
+				btnNextExercise.setForeground(UIStyle.BUTTON_FG);
+			}
+		});
 		btnNextExercise.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				skipRestRequested = true;
 			}
 		});
-		btnNextExercise.setBounds(155, 263, 126, 23);
+		btnNextExercise.setBounds(155, 263, 126, 30);
 		contentPane.add(btnNextExercise);
 
 		JButton btnFinish = new JButton("Amaitu");
+		UIStyle.styleButton(btnFinish);
+		btnFinish.setToolTipText("Entrenamendua amaitu");
+		btnFinish.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		btnFinish.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				btnFinish.setBackground(UIStyle.ACCENT);
+				btnFinish.setForeground(UIStyle.SECONDARY);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				btnFinish.setBackground(UIStyle.BUTTON_BG);
+				btnFinish.setForeground(UIStyle.BUTTON_FG);
+			}
+		});
 		btnFinish.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				hariakInstance.stopWorkout();
@@ -84,7 +130,7 @@ public class ThreadFrame extends JFrame {
 				dispose();
 			}
 		});
-		btnFinish.setBounds(291, 263, 119, 23);
+		btnFinish.setBounds(291, 263, 119, 30);
 		contentPane.add(btnFinish);
 
 		hariakInstance = new Hariak("WorkoutThread");
@@ -104,6 +150,7 @@ public class ThreadFrame extends JFrame {
 				listModel.addElement("Error loading exercises");
 			}
 		}).start();
+		getContentPane().setBackground(UIStyle.BACKGROUND);
 	}
 
 	public static void main(String[] args) {

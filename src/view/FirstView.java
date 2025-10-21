@@ -1,7 +1,10 @@
 package view;
 
+import java.awt.Cursor;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -9,9 +12,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
 
 import controller.AppState;
+import model.UIStyle;
 
 public class FirstView extends JFrame {
 
@@ -28,22 +31,37 @@ public class FirstView extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 534, 343);
 		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		UIStyle.stylePanel(contentPane);
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		JButton btnEnter = new JButton("Enter");
+		JButton btnEnter = new JButton("Entrar");
+		UIStyle.styleButton(btnEnter);
+		btnEnter.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		btnEnter.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				btnEnter.setBackground(UIStyle.ACCENT);
+				btnEnter.setForeground(UIStyle.SECONDARY);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				btnEnter.setBackground(UIStyle.BUTTON_BG);
+				btnEnter.setForeground(UIStyle.BUTTON_FG);
+			}
+		});
 		btnEnter.addActionListener(e -> {
 			LoginFrame loginFrame = new LoginFrame();
 			loginFrame.setVisible(true);
 			dispose();
 		});
-		btnEnter.setBounds(207, 255, 89, 23);
+		btnEnter.setBounds(207, 255, 120, 35);
 		contentPane.add(btnEnter);
 		JLabel labelLogo = new JLabel("");
 		labelLogo.setIcon(getLogo());
 		labelLogo.setHorizontalAlignment(SwingConstants.CENTER);
 		labelLogo.setBounds(68, 11, 369, 218);
+		UIStyle.styleLabel(labelLogo, true);
 		contentPane.add(labelLogo);
+		getContentPane().setBackground(UIStyle.BACKGROUND);
 	}
 
 	private ImageIcon getLogo() {

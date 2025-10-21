@@ -1,7 +1,9 @@
 package view;
 
+import java.awt.Cursor;
 import java.awt.EventQueue;
-import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractListModel;
@@ -14,10 +16,10 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
 
 import controller.AppState;
 import model.Routines;
+import model.UIStyle;
 
 public class Workouts extends JFrame {
 
@@ -39,43 +41,49 @@ public class Workouts extends JFrame {
 		setLocationRelativeTo(null);
 
 		edukiontzia = new JPanel();
-		edukiontzia.setBorder(new EmptyBorder(10, 10, 10, 10));
+		UIStyle.stylePanel(edukiontzia);
 		setContentPane(edukiontzia);
 		edukiontzia.setLayout(null);
 
 		JLabel lblTitulua = new JLabel("Workouts");
-		lblTitulua.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblTitulua.setFont(UIStyle.TITLE_FONT);
+		lblTitulua.setForeground(UIStyle.PRIMARY);
 		lblTitulua.setBounds(240, 10, 200, 30);
 		edukiontzia.add(lblTitulua);
 
 		lblMailaAktuala = new JLabel("Maila: 1");
 		lblMailaAktuala.setBounds(30, 60, 150, 20);
+		UIStyle.styleLabel(lblMailaAktuala, false);
 		edukiontzia.add(lblMailaAktuala);
 
 		JLabel lblIragazi = new JLabel("Zure maila aukeratu:");
 		lblIragazi.setBounds(30, 100, 150, 20);
+		UIStyle.styleLabel(lblIragazi, false);
 		edukiontzia.add(lblIragazi);
 
 		comboMaila = new JComboBox<>();
 		comboMaila.setModel(new DefaultComboBoxModel<>(
 				new String[] { "1. maila", "2. maila", "3. maila", "4. maila", "5. maila" }));
 		comboMaila.setBounds(180, 100, 120, 22);
+		UIStyle.styleField(comboMaila);
+		comboMaila.setToolTipText("Selecciona tu nivel");
 		edukiontzia.add(comboMaila);
 
 		JComboBox<String> comboMailaRutinakLevel = new JComboBox<String>();
 		try {
 			comboMailaRutinakLevel
 					.setModel(new DefaultComboBoxModel<>(routines.getRoutines(comboMaila.getSelectedIndex() + 1)));
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
 		comboMailaRutinakLevel.setBounds(337, 99, 120, 22);
+		UIStyle.styleField(comboMailaRutinakLevel);
+		comboMailaRutinakLevel.setToolTipText("Selecciona rutina");
 		edukiontzia.add(comboMailaRutinakLevel);
 
 		JLabel lblZerrenda = new JLabel("Workouts zerrenda:");
 		lblZerrenda.setBounds(30, 140, 150, 20);
+		UIStyle.styleLabel(lblZerrenda, false);
 		edukiontzia.add(lblZerrenda);
 
 		JScrollPane scrollPane = new JScrollPane();
@@ -83,6 +91,7 @@ public class Workouts extends JFrame {
 		edukiontzia.add(scrollPane);
 
 		listaWorkout = new JList<>();
+		UIStyle.styleField(listaWorkout);
 		scrollPane.setViewportView(listaWorkout);
 
 		Runnable listaEguneratu = () -> {
@@ -142,48 +151,88 @@ public class Workouts extends JFrame {
 		});
 
 		btnIkusiHistoria = new JButton("Ikusi historia");
+		UIStyle.styleButton(btnIkusiHistoria);
+		btnIkusiHistoria.setToolTipText("Ver historial de entrenamientos");
+		btnIkusiHistoria.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		btnIkusiHistoria.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				btnIkusiHistoria.setBackground(UIStyle.ACCENT);
+				btnIkusiHistoria.setForeground(UIStyle.SECONDARY);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				btnIkusiHistoria.setBackground(UIStyle.BUTTON_BG);
+				btnIkusiHistoria.setForeground(UIStyle.BUTTON_FG);
+			}
+		});
 		btnIkusiHistoria.setBounds(350, 160, 180, 30);
 		edukiontzia.add(btnIkusiHistoria);
 
 		btnHasiWorkout = new JButton("Hasi Workout-a");
+		UIStyle.styleButton(btnHasiWorkout);
+		btnHasiWorkout.setToolTipText("Comenzar entrenamiento");
+		btnHasiWorkout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		btnHasiWorkout.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				btnHasiWorkout.setBackground(UIStyle.ACCENT);
+				btnHasiWorkout.setForeground(UIStyle.SECONDARY);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				btnHasiWorkout.setBackground(UIStyle.BUTTON_BG);
+				btnHasiWorkout.setForeground(UIStyle.BUTTON_FG);
+			}
+		});
 		btnHasiWorkout.addActionListener(e -> {
 			ThreadFrame threadFrame = new ThreadFrame(comboMaila.getSelectedIndex() + 1,
 					comboMailaRutinakLevel.getSelectedItem().toString());
 			threadFrame.setVisible(true);
 			dispose();
 		});
-		btnHasiWorkout.setBounds(350, 210, 180, 30);
+		btnHasiWorkout.setBounds(350, 200, 180, 30);
 		edukiontzia.add(btnHasiWorkout);
 
-		btnIkusiAriketak = new JButton("Ariketak Ikusi");
-		btnIkusiAriketak.addActionListener(e -> {
-			int aukeratuMaila = comboMaila.getSelectedIndex() + 1;
+		btnIkusiAriketak = new JButton("Ikusi ariketak");
+		UIStyle.styleButton(btnIkusiAriketak);
+		btnIkusiAriketak.setToolTipText("Aukeratutako workout-aren ariketak ikusi");
+		btnIkusiAriketak.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		btnIkusiAriketak.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				btnIkusiAriketak.setBackground(UIStyle.ACCENT);
+				btnIkusiAriketak.setForeground(UIStyle.SECONDARY);
+			}
 
-			listaWorkout.setModel(new AbstractListModel<String>() {
-				private static final long serialVersionUID = 1L;
-				String[] balioak = new String[] { "Cargando..." };
-
-				public int getSize() {
-					return balioak.length;
-				}
-
-				public String getElementAt(int index) {
-					return balioak[index];
-				}
-			});
-
-			routines.ariketak(aukeratuMaila);
+			public void mouseExited(MouseEvent e) {
+				btnIkusiAriketak.setBackground(UIStyle.BUTTON_BG);
+				btnIkusiAriketak.setForeground(UIStyle.BUTTON_FG);
+			}
 		});
-		btnIkusiAriketak.setBounds(350, 267, 180, 30);
+		btnIkusiAriketak.setBounds(350, 240, 180, 30);
 		edukiontzia.add(btnIkusiAriketak);
 
 		JButton btnLogout = new JButton("Logout");
+		UIStyle.styleButton(btnLogout);
+		btnLogout.setToolTipText("Saioa itxi");
+		btnLogout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		btnLogout.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				btnLogout.setBackground(UIStyle.ACCENT);
+				btnLogout.setForeground(UIStyle.SECONDARY);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				btnLogout.setBackground(UIStyle.BUTTON_BG);
+				btnLogout.setForeground(UIStyle.BUTTON_FG);
+			}
+		});
 		btnLogout.addActionListener(e -> {
 			dispose();
 			login.setVisible(true);
 		});
 		btnLogout.setBounds(485, 18, 89, 23);
 		edukiontzia.add(btnLogout);
+
+		getContentPane().setBackground(UIStyle.BACKGROUND);
 	}
 
 	public static void main(String[] args) {
