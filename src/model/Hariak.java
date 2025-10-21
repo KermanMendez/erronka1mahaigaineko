@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.DefaultListModel;
-import javax.swing.SwingUtilities;
 
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
@@ -81,116 +80,6 @@ public class Hariak implements Runnable {
 		}
 
 		return exercises;
-	}
-
-	public void calculos(List<Exercise> exercises, DefaultListModel<String> listModel) {
-		if (exercises == null || listModel == null)
-			return;
-
-		Thread hilo1 = new Thread(() -> {
-			int[] totalTime = { 0 };
-
-			for (Exercise exercise : exercises) {
-				int sets = exercise.getSets();
-				int serieTime = exercise.getSerieTime();
-				int restTime = exercise.getRestTimeSec();
-
-				for (int i = 1; i <= sets; i++) {
-					final int setNumber = i;
-
-					for (int segundo = 1; segundo <= serieTime; segundo++) {
-						final int sec = segundo;
-						totalTime[0]++;
-
-						SwingUtilities.invokeLater(() -> listModel.addElement(
-								"[HILO 1] Serie " + setNumber + " - Tiempo: " + sec + "/" + serieTime + " seg"));
-
-						try {
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-
-					if (i < sets) {
-						for (int segundo = 1; segundo <= restTime; segundo++) {
-							final int sec = segundo;
-							totalTime[0]++;
-
-							SwingUtilities.invokeLater(() -> listModel
-									.addElement("[HILO 1] Descanso - Tiempo: " + sec + "/" + restTime + " seg"));
-
-							try {
-								Thread.sleep(1000);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
-					}
-				}
-			}
-
-			SwingUtilities.invokeLater(() -> listModel.addElement("[HILO 1] Tiempo total: " + totalTime[0] + " seg"));
-		});
-
-		Thread hilo2 = new Thread(() -> {
-			int[] totalTime = { 0 };
-
-			for (Exercise exercise : exercises) {
-				int sets = exercise.getSets();
-				int serieTime = exercise.getSerieTime();
-				int restTime = exercise.getRestTimeSec();
-
-				for (int i = 1; i <= sets; i++) {
-					final int setNumber = i;
-
-					for (int segundo = 1; segundo <= serieTime; segundo++) {
-						setSec(segundo);
-						totalTime[0]++;
-
-						SwingUtilities.invokeLater(() -> listModel.addElement("[HILO 2] Tiempo total transcurrido: "
-								+ totalTime[0] + " seg (Serie " + setNumber + ")"));
-
-						try {
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-
-					if (i < sets) {
-						for (int segundo = 1; segundo <= restTime; segundo++) {
-							setSec(segundo);
-							totalTime[0]++;
-
-							SwingUtilities.invokeLater(() -> listModel.addElement(
-									"[HILO 2] Tiempo total transcurrido: " + totalTime[0] + " seg (Descanso)"));
-
-							try {
-								Thread.sleep(1000);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
-					}
-				}
-			}
-
-			SwingUtilities
-					.invokeLater(() -> listModel.addElement("[HILO 2] Tiempo total final: " + totalTime[0] + " seg"));
-		});
-
-		hilo1.start();
-		hilo2.start();
-
-		try {
-			hilo1.join();
-			hilo2.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		SwingUtilities.invokeLater(() -> listModel.addElement("=== Los dos hilos han terminado ==="));
 	}
 
 	public Thread calculosWithStop(List<Exercise> exercises, DefaultListModel<String> listModel,
