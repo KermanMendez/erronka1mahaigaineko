@@ -383,6 +383,7 @@ public class Hariak implements Runnable {
 		hilo2.start();
 		return hilo1;
 	}
+
 	public Thread calculosWithStop(List<Exercise> exercises, DefaultListModel<String> listModel,
 			java.util.function.Supplier<Boolean> geldituEgoeraHornitzailea,
 			java.util.function.Supplier<Boolean> atsedenSalto, java.util.function.Supplier<Boolean> geldituEgoera,

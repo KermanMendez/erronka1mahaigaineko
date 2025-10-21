@@ -102,7 +102,6 @@ public class ThreadFrame extends JFrame {
 		new Thread(() -> {
 			try {
 				List<Exercise> exercises = hariakInstance.start(level, routineName);
-				// Start hilo1 and hilo2, but keep reference to hilo1
 				setHilo1(hariakInstance.calculosWithStop(exercises, listModel, () -> stopRequested, () -> {
 					if (skipRestRequested) {
 						skipRestRequested = false;
