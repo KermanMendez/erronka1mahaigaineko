@@ -18,6 +18,7 @@ import javax.swing.border.EmptyBorder;
 
 import com.google.cloud.firestore.Firestore;
 
+import controller.AppState;
 import controller.Controller;
 import controller.DBConnection;
 
@@ -33,6 +34,10 @@ public class LoginFrame extends JFrame {
 	Firestore db = controller.getDb();
 
 	public static void main(String[] args) {
+		if (!AppState.isAppStarted()) {
+			new FirstView().setVisible(true);
+			return;
+		}
 		EventQueue.invokeLater(() -> {
 			try {
 				LoginFrame frame = new LoginFrame();
@@ -44,6 +49,13 @@ public class LoginFrame extends JFrame {
 	}
 
 	public LoginFrame() {
+		if (!AppState.isAppStarted()) {
+			new FirstView().setVisible(true);
+			dispose();
+			return;
+		}
+		
+		
 		setIconImage(Toolkit.getDefaultToolkit().getImage("img/logo.png"));
 		setTitle("LOGIN");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -11,12 +11,18 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import controller.AppState;
+
 public class Inter extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 
 	public static void main(String[] args) {
+		if (!AppState.isAppStarted()) {
+			new FirstView().setVisible(true);
+			return;
+		}
 		EventQueue.invokeLater(() -> {
 			try {
 				Inter frame = new Inter();
@@ -28,7 +34,12 @@ public class Inter extends JFrame {
 	}
 
 	public Inter() {
-		this(false);
+		if (!AppState.isAppStarted()) {
+			new FirstView().setVisible(true);
+			dispose();
+			return;
+		}
+
 	}
 
 	public Inter(Boolean isTrainer) {
@@ -51,7 +62,7 @@ public class Inter extends JFrame {
 
 		JButton btnWorkouts = new JButton("Workouts");
 		btnWorkouts.addActionListener(e -> {
-			Workouts workouts = new Workouts(isTrainer);
+			Workouts workouts = new Workouts();
 			dispose();
 			workouts.setVisible(true);
 		});

@@ -9,6 +9,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import controller.AppState;
+
 public class Profile extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -18,6 +20,10 @@ public class Profile extends JFrame {
 	private JTextField txtSurname2;
 
 	public static void main(String[] args) {
+		if (!AppState.isAppStarted()) {
+			new FirstView().setVisible(true);
+			return;
+		}
 		EventQueue.invokeLater(() -> {
 			try {
 				Profile frame = new Profile();
@@ -29,6 +35,11 @@ public class Profile extends JFrame {
 	}
 
 	public Profile() {
+		if (!AppState.isAppStarted()) {
+			new FirstView().setVisible(true);
+			dispose();
+			return;
+		}
 		setTitle("Zure Profila");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);

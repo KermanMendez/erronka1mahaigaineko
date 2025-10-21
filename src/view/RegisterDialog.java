@@ -18,6 +18,7 @@ import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
+import controller.AppState;
 import controller.Controller;
 import controller.DBConnection;
 
@@ -36,6 +37,11 @@ public class RegisterDialog extends JDialog {
 
 	public RegisterDialog(JFrame parent) {
 		super(parent, "Erabiltzailearen Registroa", true);
+		if (!AppState.isAppStarted()) {
+			new FirstView().setVisible(true);
+			dispose();
+			return;
+		}
 		setSize(399, 388);
 		setLocationRelativeTo(parent);
 		getContentPane().setLayout(null);

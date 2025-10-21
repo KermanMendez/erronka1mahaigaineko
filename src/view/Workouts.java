@@ -16,11 +16,8 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
-import controller.Controller;
-import controller.DBConnection;
+import controller.AppState;
 import model.Routines;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 public class Workouts extends JFrame {
 
@@ -34,13 +31,15 @@ public class Workouts extends JFrame {
 	private JLabel lblMailaAktuala;
 	private Routines routines = new Routines();
 	private LoginFrame login = new LoginFrame();
-	private Controller controller = new Controller();
-	private DBConnection dbConnection = controller.getDbConnection();
 
 	public static void main(String[] args) {
+		if (!AppState.isAppStarted()) {
+			new FirstView().setVisible(true);
+			return;
+		}
 		EventQueue.invokeLater(() -> {
 			try {
-				Workouts frame = new Workouts(false);
+				Workouts frame = new Workouts();
 				frame.setVisible(true);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -49,10 +48,11 @@ public class Workouts extends JFrame {
 	}
 
 	public Workouts() {
-		this(false);
-	}
-
-	public Workouts(boolean isTrainer) {
+		if (!AppState.isAppStarted()) {
+			new FirstView().setVisible(true);
+			dispose();
+			return;
+		}
 		setTitle("Workouts");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 600, 400);
@@ -117,11 +117,11 @@ public class Workouts extends JFrame {
 
 			new Thread(() -> {
 				try {
-					String[] ejercicios = routines.getLevels(nivelSeleccionado, nivelText);
+					String[] ariketak = routines.getLevels(nivelSeleccionado, nivelText);
 					SwingUtilities.invokeLater(() -> {
 						listaWorkout.setModel(new AbstractListModel<String>() {
 							private static final long serialVersionUID = 1L;
-							String[] balioak = ejercicios;
+							String[] balioak = ariketak;
 
 							public int getSize() {
 								return balioak.length;
@@ -169,7 +169,6 @@ public class Workouts extends JFrame {
 		btnHasiWorkout.addActionListener(e -> {
 			ThreadFrame threadFrame = new ThreadFrame(comboMaila.getSelectedIndex() + 1,
 					comboMailaRutinakLevel.getSelectedItem().toString());
-
 			threadFrame.setVisible(true);
 			dispose();
 		});
@@ -205,22 +204,5 @@ public class Workouts extends JFrame {
 		});
 		btnLogout.setBounds(485, 18, 89, 23);
 		edukiontzia.add(btnLogout);
-
-		JButton btnBackup = new JButton("Create Backup");
-		btnBackup.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				dbConnection.saveBackupToXML();
-			}
-		});
-
-		if (isTrainer) {
-			btnBackup.setVisible(true);
-		} else {
-			btnBackup.setVisible(false);
-		}
-
-		btnBackup.setBounds(30, 18, 120, 23);
-		edukiontzia.add(btnBackup);
 	}
 }

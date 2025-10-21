@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
+import controller.AppState;
 import model.Exercise;
 import model.Hariak;
 import javax.swing.JButton;
@@ -30,6 +31,10 @@ public class ThreadFrame extends JFrame {
 	private final Object hilo1Lock = new Object();
 
 	public static void main(String[] args) {
+		if (!AppState.isAppStarted()) {
+			new FirstView().setVisible(true);
+			return;
+		}
 		EventQueue.invokeLater(() -> {
 			try {
 				ThreadFrame frame = new ThreadFrame(1, "My Routine");
@@ -41,6 +46,11 @@ public class ThreadFrame extends JFrame {
 	}
 
 	public ThreadFrame(int level, String routineName) {
+		if (!AppState.isAppStarted()) {
+			new FirstView().setVisible(true);
+			dispose();
+			return;
+		}
 		setTitle("Workout Thread - " + routineName);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 370);

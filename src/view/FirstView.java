@@ -11,6 +11,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import controller.AppState;
+
 public class FirstView extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -18,6 +20,9 @@ public class FirstView extends JFrame {
 	private static ImageIcon logo;
 
 	public FirstView() {
+		if (!AppState.isAppStarted()) {
+			System.exit(0);
+		}
 		setTitle("LONG RING LONG LAND GYM");
 		setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/img/logo.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
