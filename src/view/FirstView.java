@@ -34,7 +34,7 @@ public class FirstView extends JFrame {
 		UIStyle.stylePanel(contentPane);
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		JButton btnEnter = new JButton("Entrar");
+		JButton btnEnter = new JButton("Sartu");
 		UIStyle.styleButton(btnEnter);
 		btnEnter.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		btnEnter.addMouseListener(new MouseAdapter() {
