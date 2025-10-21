@@ -20,7 +20,7 @@ import com.google.cloud.firestore.Firestore;
 
 import controller.AppState;
 import controller.Controller;
-import controller.DBConnection;
+import model.ConnectDB;
 
 public class LoginFrame extends JFrame {
 
@@ -30,8 +30,8 @@ public class LoginFrame extends JFrame {
 	private JTextField textFieldUser;
 	private JPasswordField passwordField;
 	private Controller controller = new Controller();
-	private DBConnection dbConnection = controller.getDbConnection();
 	Firestore db = controller.getDb();
+	private ConnectDB connectDB = new ConnectDB();
 
 	public static void main(String[] args) {
 		if (!AppState.isAppStarted()) {
@@ -94,7 +94,7 @@ public class LoginFrame extends JFrame {
 		JButton btnLogin = new JButton("Login");
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Boolean ok = dbConnection.handleLogin(textFieldUser, passwordField);
+				Boolean ok = connectDB.handleLogin(textFieldUser, passwordField);
 				if (ok) {
 				dispose();
 				}

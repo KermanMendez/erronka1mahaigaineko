@@ -19,22 +19,19 @@ import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
 import controller.AppState;
-import controller.Controller;
-import controller.DBConnection;
+import model.ConnectDB;
 
 public class RegisterDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 	private JTextField textFieldEmail;
 	private JPasswordField passwordField;
-	private Controller controller = new Controller();
-	private DBConnection dbConnection = controller.getDbConnection();
 	private JTextField abizena1Field;
 	private JTextField abizena2Field;
 	private JDatePickerImpl datePicker;
 	private JTextField textFieldIzena;
 	private JCheckBox checkboxIsTrainer;
-
+	private ConnectDB connectDB = new ConnectDB();
 	public RegisterDialog(JFrame parent) {
 		super(parent, "Erabiltzailearen Registroa", true);
 		if (!AppState.isAppStarted()) {
@@ -66,7 +63,7 @@ public class RegisterDialog extends JDialog {
 		btnRegistrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				Boolean registroa = dbConnection.eskaeraRegistratu(textFieldIzena.getText().trim(), abizena1Field.getText().trim(),
+				Boolean registroa = connectDB.eskaeraRegistratu(textFieldIzena.getText().trim(), abizena1Field.getText().trim(),
 						abizena2Field.getText().trim(), textFieldEmail.getText().trim(),
 						new String(passwordField.getPassword()), (java.util.Date) datePicker.getModel().getValue(),
 						checkboxIsTrainer.isSelected());
