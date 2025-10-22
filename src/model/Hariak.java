@@ -396,6 +396,123 @@ public class Hariak implements Runnable {
 		return hilo1;
 	}
 
+	public void startThreads(List<Exercise> exercises, DefaultListModel<String> listModel,
+			java.util.function.Supplier<Boolean> geldituEgoeraHornitzailea) {
+		// Hilo 1: Countdown
+		Thread countdownThread = new Thread(() -> {
+			// Fixed the scope of the variable 'i' to avoid potential conflicts
+			for (int i = 5; i >= 0; i--) {
+				final int countdownValue = i; // Use a final variable for thread-safe operations
+				System.out.println("Cuenta regresiva: " + countdownValue);
+				javax.swing.SwingUtilities.invokeLater(() -> listModel.addElement("Cuenta regresiva: " + countdownValue));
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					return;
+				}
+			}
+			System.out.println("¡Comienzan los hilos!");
+			javax.swing.SwingUtilities.invokeLater(() -> listModel.addElement("¡Comienzan los hilos!"));
+
+			// Start other threads after countdown
+			startExerciseThreads(exercises, listModel, geldituEgoeraHornitzailea);
+		});
+
+		countdownThread.start();
+	}
+
+	private void startExerciseThreads(List<Exercise> exercises, DefaultListModel<String> listModel,
+			java.util.function.Supplier<Boolean> geldituEgoeraHornitzailea) {
+		// Hilo 2: Total elapsed time
+		Thread totalElapsedTimeThread = new Thread(() -> {
+			int totalTime = 0;
+			synchronized (this) { // Added synchronization block for thread safety
+				for (Exercise exercise : exercises) {
+					int sets = exercise.getSets();
+					int serieTime = exercise.getSerieTime();
+					int restTime = exercise.getRestTimeSec();
+					for (int i = 1; i <= sets; i++) {
+						for (int segundo = 1; segundo <= serieTime; segundo++) {
+							if (geldituEgoeraHornitzailea.get() || Thread.currentThread().isInterrupted())
+								return;
+							totalTime++;
+							final int elapsedTime = totalTime; // Use a final variable for thread-safe operations
+							javax.swing.SwingUtilities.invokeLater(() -> listModel
+									.addElement("[HILO 2] Tiempo total transcurrido: " + elapsedTime + " seg"));
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+								return;
+							}
+						}
+						for (int segundo = 1; segundo <= restTime; segundo++) {
+							if (geldituEgoeraHornitzailea.get() || Thread.currentThread().isInterrupted())
+								return;
+							totalTime++;
+							final int elapsedTime = totalTime; // Use a final variable for thread-safe operations
+							javax.swing.SwingUtilities.invokeLater(() -> listModel
+									.addElement("[HILO 2] Tiempo total transcurrido: " + elapsedTime + " seg"));
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+								return;
+							}
+						}
+					}
+				}
+			}
+		});
+
+		// Hilo 3: Time per series
+		Thread seriesTimeThread = new Thread(() -> {
+			for (Exercise exercise : exercises) {
+				int sets = exercise.getSets();
+				int serieTime = exercise.getSerieTime();
+				for (int i = 1; i <= sets; i++) {
+					final int setNumber = i;
+					for (int segundo = 1; segundo <= serieTime; segundo++) {
+						if (geldituEgoeraHornitzailea.get() || Thread.currentThread().isInterrupted())
+							return;
+						final int sec = segundo;
+						javax.swing.SwingUtilities.invokeLater(() -> listModel.addElement(
+								"[HILO 3] Serie " + setNumber + " - Tiempo: " + sec + "/" + serieTime + " seg"));
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							return;
+						}
+					}
+				}
+			}
+		});
+
+		// Hilo 4: Rest time
+		Thread restTimeThread = new Thread(() -> {
+			for (Exercise exercise : exercises) {
+				int sets = exercise.getSets();
+				int restTime = exercise.getRestTimeSec();
+				for (int i = 1; i < sets; i++) { // Rest occurs between sets
+					for (int segundo = 1; segundo <= restTime; segundo++) {
+						if (geldituEgoeraHornitzailea.get() || Thread.currentThread().isInterrupted())
+							return;
+						final int sec = segundo;
+						javax.swing.SwingUtilities.invokeLater(() -> listModel
+								.addElement("[HILO 4] Descanso - Tiempo: " + sec + "/" + restTime + " seg"));
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							return;
+						}
+					}
+				}
+			}
+		});
+
+		totalElapsedTimeThread.start();
+		seriesTimeThread.start();
+		restTimeThread.start();
+	}
+
 	public int getSec() {
 		return sec;
 	}
