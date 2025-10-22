@@ -126,6 +126,8 @@ public class ThreadFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				hariakInstance.stopWorkout();
 				Workouts workoutsFrame = new Workouts(Boolean.FALSE);
+				Hariak hariak = new Hariak();
+				hariak.historyLog();
 				workoutsFrame.setVisible(true);
 				dispose();
 			}

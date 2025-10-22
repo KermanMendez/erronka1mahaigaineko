@@ -66,26 +66,26 @@ public class ConnectDB {
 		uidDoc.set(erabiltzaileDatuak);
 	}
 
-	public Boolean handleLogin(JTextField textFieldUser, JPasswordField passwordField) {
+	public String handleLogin(JTextField textFieldUser, JPasswordField passwordField) {
 		String email = textFieldUser.getText().trim();
 		String password = new String(passwordField.getPassword());
 		if (email.isEmpty() || password.isEmpty()) {
 			JOptionPane.showMessageDialog(null, "Bete Erabiltzailea eta Pasahitza.", "Login",
 					JOptionPane.INFORMATION_MESSAGE);
-			return false;
+			return null;
 		}
 		try {
 			String uid = checkLogin(email, password);
 			if (uid == null) {
 				JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.", "Errorea",
 						JOptionPane.ERROR_MESSAGE);
-				return false;
+				return null;
 			}
 			DocumentSnapshot erabiltzaileDoc = db.collection("users").document(uid).get().get();
 			if (!erabiltzaileDoc.exists()) {
 				JOptionPane.showMessageDialog(null, "Ez dira erabiltzailearen datuak aurkitu.", "Error",
 						JOptionPane.ERROR_MESSAGE);
-				return false;
+				return null;
 			}
 			Boolean entrenatzaileaDa = erabiltzaileDoc.getBoolean("isTrainer");
 			if (entrenatzaileaDa == null) {
@@ -93,10 +93,12 @@ public class ConnectDB {
 			}
 			Inter inter = new Inter(entrenatzaileaDa);
 			inter.setVisible(true);
-			return true;
+			CreateUserBackup createUserBackup = new CreateUserBackup();
+			createUserBackup.saveEmail(email);
+			return textFieldUser.getText().trim();
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(null, "Errorea login prozesuan.", "Errorea", JOptionPane.ERROR_MESSAGE);
-			return false;
+			return null;
 		}
 	}
 
@@ -117,4 +119,5 @@ public class ConnectDB {
 			return responseJson.get("localId").getAsString();
 		}
 	}
+
 }

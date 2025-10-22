@@ -87,6 +87,14 @@ public class CreateBackup {
 				field.appendChild(doc.createTextNode(entry.getValue().toString()));
 				documentElement.appendChild(field);
 			}
+
+			Iterable<CollectionReference> subcollections = document.getReference().listCollections();
+			for (CollectionReference subcollection : subcollections) {
+				Element subcollectionElement = doc.createElement("subcollection");
+				subcollectionElement.setAttribute("name", subcollection.getId());
+				documentElement.appendChild(subcollectionElement);
+				addDocumentsToXML(subcollection, subcollectionElement, doc);
+			}
 		}
 	}
 }

@@ -6,6 +6,8 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.DefaultListModel;
 
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
@@ -404,7 +406,8 @@ public class Hariak implements Runnable {
 			for (int i = 5; i >= 0; i--) {
 				final int countdownValue = i; // Use a final variable for thread-safe operations
 				System.out.println("Cuenta regresiva: " + countdownValue);
-				javax.swing.SwingUtilities.invokeLater(() -> listModel.addElement("Cuenta regresiva: " + countdownValue));
+				javax.swing.SwingUtilities
+						.invokeLater(() -> listModel.addElement("Cuenta regresiva: " + countdownValue));
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -511,6 +514,21 @@ public class Hariak implements Runnable {
 		totalElapsedTimeThread.start();
 		seriesTimeThread.start();
 		restTimeThread.start();
+	}
+
+	public String historyLog() {
+		CreateUserBackup createUserBackup = new CreateUserBackup();
+		String email = createUserBackup.loadEmail();
+		try {
+			CollectionReference usersCollection = db.collection("users");
+			ApiFuture<QuerySnapshot> query = usersCollection.whereEqualTo("email", email).get();
+			List<QueryDocumentSnapshot> documents = query.get().getDocuments();
+			System.out.println("Número de documentos encontrados para el email " + email + ": " + documents.size());
+			return documents.isEmpty() ? null : documents.get(0).getId();
+		} catch (Exception e) {
+			System.out.println("Malo malo");
+			return null;
+		}
 	}
 
 	public int getSec() {

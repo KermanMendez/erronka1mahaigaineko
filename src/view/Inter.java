@@ -9,7 +9,6 @@ import java.awt.event.MouseEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
@@ -50,7 +49,7 @@ public class Inter extends JFrame {
 			dispose();
 			profile.setVisible(true);
 		});
-		btnProfile.setBounds(38, 32, 117, 84);
+		btnProfile.setBounds(64, 76, 117, 84);
 		contentPane.add(btnProfile);
 
 		JButton btnWorkouts = new JButton("Workouts");
@@ -73,7 +72,7 @@ public class Inter extends JFrame {
 			dispose();
 			workouts.setVisible(true);
 		});
-		btnWorkouts.setBounds(38, 143, 117, 84);
+		btnWorkouts.setBounds(258, 76, 117, 84);
 		contentPane.add(btnWorkouts);
 
 		JButton btnAdmin = new JButton("ADMIN");
@@ -91,7 +90,7 @@ public class Inter extends JFrame {
 				btnAdmin.setForeground(UIStyle.BUTTON_FG);
 			}
 		});
-		btnAdmin.setBounds(307, 32, 117, 84);
+		btnAdmin.setBounds(359, 203, 65, 47);
 		contentPane.add(btnAdmin);
 		if (isTrainer) {
 			btnAdmin.setVisible(true);
@@ -99,21 +98,19 @@ public class Inter extends JFrame {
 			btnAdmin.setVisible(false);
 		}
 
-		JLabel lblProfile = new JLabel("");
-		lblProfile.setBounds(165, 32, 99, 84);
-		ImageIcon profileIcon = new ImageIcon(getClass().getResource("/img/profile_icon.png"));
-		Image scaledProfileImage = profileIcon.getImage().getScaledInstance(117, 84, Image.SCALE_SMOOTH);
-		lblProfile.setIcon(new ImageIcon(scaledProfileImage));
-		lblProfile.setHorizontalAlignment(SwingConstants.CENTER);
-		contentPane.add(lblProfile);
 
-		JLabel lblWorkout = new JLabel("");
-		lblWorkout.setBounds(165, 143, 94, 84);
+		ImageIcon profileIcon = new ImageIcon(getClass().getResource("/img/profile_icon.png"));
+		Image scaledProfileImage = profileIcon.getImage().getScaledInstance(97, 64, Image.SCALE_SMOOTH);
+		btnProfile.setIcon(new ImageIcon(scaledProfileImage));
+		btnProfile.setHorizontalAlignment(SwingConstants.CENTER);
+		contentPane.add(btnProfile);
+
+
 		ImageIcon workoutIcon = new ImageIcon(getClass().getResource("/img/workout_icon.png"));
-		Image scaledWorkoutImage = workoutIcon.getImage().getScaledInstance(117, 84, Image.SCALE_SMOOTH);
-		lblWorkout.setIcon(new ImageIcon(scaledWorkoutImage));
-		lblWorkout.setHorizontalAlignment(SwingConstants.CENTER);
-		contentPane.add(lblWorkout);
+		Image scaledWorkoutImage = workoutIcon.getImage().getScaledInstance(97, 64, Image.SCALE_SMOOTH);
+		btnWorkouts.setIcon(new ImageIcon(scaledWorkoutImage));
+		btnWorkouts.setHorizontalAlignment(SwingConstants.CENTER);
+		contentPane.add(btnWorkouts);
 
 		getContentPane().setBackground(UIStyle.BACKGROUND);
 	}
