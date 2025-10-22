@@ -119,7 +119,7 @@ public class Workouts extends JFrame {
 		scrollPane.setViewportView(listaWorkout);
 
 		Runnable listaEguneratu = () -> {
-			int nivelSeleccionado = comboMaila.getSelectedIndex() + 1;
+			int aukeratutakoMaila = comboMaila.getSelectedIndex() + 1;
 			Object selectedItem = comboMailaRutinakLevel.getSelectedItem();
 
 			if (selectedItem == null) {
@@ -130,7 +130,7 @@ public class Workouts extends JFrame {
 
 			new Thread(() -> {
 				try {
-					String[] ariketak = routines.getLevels(nivelSeleccionado, nivelText);
+					String[] ariketak = routines.getLevels(aukeratutakoMaila, nivelText);
 					SwingUtilities.invokeLater(() -> {
 						listaWorkout.setModel(new AbstractListModel<String>() {
 							private static final long serialVersionUID = 1L;
@@ -213,7 +213,7 @@ public class Workouts extends JFrame {
 		});
 		btnHasiWorkout.addActionListener(e -> {
 			ThreadFrame threadFrame = new ThreadFrame(comboMaila.getSelectedIndex() + 1,
-					comboMailaRutinakLevel.getSelectedItem().toString());
+					comboMailaRutinakLevel.getSelectedItem().toString(), isTrainer);
 			threadFrame.setVisible(true);
 			dispose();
 		});
