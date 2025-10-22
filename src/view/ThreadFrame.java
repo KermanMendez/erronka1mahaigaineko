@@ -15,75 +15,70 @@ public class ThreadFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private Hariak hariak;
 	private final Object pauseLock = new Object();
-	private boolean pausatua = false;
-	private boolean atsedenSaltatuEskaera = false;
-	private boolean geldituEskaera = false;
-	private Workouts workouts;
+	private boolean paused = false;
+	private boolean skipRestRequested = false;
+	private boolean stopRequested = false;
 
 	private DefaultListModel<String> modelTotal = new DefaultListModel<>();
 	private DefaultListModel<String> modelSeries = new DefaultListModel<>();
-	private DefaultListModel<String> modelatsedens = new DefaultListModel<>();
+	private DefaultListModel<String> modelDescansos = new DefaultListModel<>();
 
-	public ThreadFrame(int maila, String rutinaIzena, Boolean entrenatzaileaDa) {
-		setTitle("Ariketa Kontrol Mahaia - " + rutinaIzena);
+	public ThreadFrame(int level, String routineName, Boolean isTrainer) {
+		setTitle("Workout Dashboard - " + routineName);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(900, 600);
 		setLayout(new BorderLayout(10, 10));
 
-		JPanel goikoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
-		JButton btnPausa = new JButton("Pausatu / Berreskuratu");
-		btnPausa.addActionListener(e -> {
-			pausatua = !pausatua;
-			if (!pausatua) {
+		JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
+		JButton btnPause = new JButton("Pausa / Reanudar");
+		btnPause.addActionListener(e -> {
+			paused = !paused;
+			if (!paused) {
 				synchronized (pauseLock) {
 					pauseLock.notifyAll();
 				}
 			}
 		});
 
-		JButton btnSaltatuatseden = new JButton("atseden Saltatu");
-		btnSaltatuatseden.addActionListener(e -> atsedenSaltatuEskaera = true);
+		JButton btnSkip = new JButton("Saltar atseden");
+		btnSkip.addActionListener(e -> skipRestRequested = true);
 
-		goikoPanel.add(btnPausa);
-		goikoPanel.add(btnSaltatuatseden);
-		add(goikoPanel, BorderLayout.NORTH);
+		topPanel.add(btnPause);
+		topPanel.add(btnSkip);
+		add(topPanel, BorderLayout.NORTH);
 
-		JPanel erdikoPanel = new JPanel();
-		erdikoPanel.setLayout(new BoxLayout(erdikoPanel, BoxLayout.X_AXIS));
+		JPanel centerPanel = new JPanel();
+		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.X_AXIS));
+		centerPanel.add(createListPanel("⏱ Denbora totala", modelTotal));
+		centerPanel.add(createListPanel("💪 Serieak", modelSeries));
+		centerPanel.add(createListPanel("😴 Atsedenak", modelDescansos));
+		add(centerPanel, BorderLayout.CENTER);
 
-		erdikoPanel.add(createListPanel("⏱ Denbora Totala", modelTotal));
-		erdikoPanel.add(createListPanel("💪 Serieak", modelSeries));
-		erdikoPanel.add(createListPanel("😴 atsedenak", modelatsedens));
-
-		add(erdikoPanel, BorderLayout.CENTER);
-
-		JButton btnAmaitu = new JButton("Rutina Amaitu");
+		JButton btnAmaitu = new JButton("Amaitu rutina");
 		btnAmaitu.addActionListener(e -> {
-			geldituEskaera = true;
-			hariak.historyLog(rutinaIzena);
-			JOptionPane.showMessageDialog(this, "Rutina amaitu eta historialean gordeta");
-			workouts = new Workouts(entrenatzaileaDa);
-			workouts.setVisible(true);
+			stopRequested = true;
+			hariak.historyLog(routineName);
+			JOptionPane.showMessageDialog(this, "Rutina amaitu da! Denbora totala: " + hariak.getSec() + " seg");
 			dispose();
 		});
-		JPanel behekoPanel = new JPanel();
-		behekoPanel.add(btnAmaitu);
-		add(behekoPanel, BorderLayout.SOUTH);
+
+		JPanel bottomPanel = new JPanel();
+		bottomPanel.add(btnAmaitu);
+		add(bottomPanel, BorderLayout.SOUTH);
 
 		hariak = new Hariak();
 
 		new Thread(() -> {
 			try {
-				List<Exercise> ariketak = hariak.start(maila, rutinaIzena);
-				hariak.startExerciseThreads(ariketak, modelTotal, modelSeries, modelatsedens, () -> geldituEskaera,
+				List<Exercise> exercises = hariak.start(level, routineName);
+				hariak.startExerciseThreads(exercises, modelTotal, modelSeries, modelDescansos, () -> stopRequested,
 						() -> {
-							if (atsedenSaltatuEskaera) {
-								atsedenSaltatuEskaera = false;
+							if (skipRestRequested) {
+								skipRestRequested = false;
 								return true;
 							}
 							return false;
-						}, () -> pausatua, pauseLock, false, true, true);
-
+						}, () -> paused, pauseLock, false, true, true);
 			} catch (InterruptedException | ExecutionException ex) {
 				ex.printStackTrace();
 			}
@@ -104,7 +99,7 @@ public class ThreadFrame extends JFrame {
 
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(() -> {
-			ThreadFrame frame = new ThreadFrame(1, "Nire Rutina", Boolean.FALSE);
+			ThreadFrame frame = new ThreadFrame(1, "Nire rutina", Boolean.FALSE);
 			frame.setVisible(true);
 		});
 	}

@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import com.google.cloud.firestore.CollectionReference;
@@ -39,17 +40,14 @@ public class Hariak {
 
 	private List<Exercise> getExercises(int level, String routineName) throws InterruptedException, ExecutionException {
 		List<Exercise> exercises = new ArrayList<>();
-
 		QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", level)
 				.whereEqualTo("name", routineName).get().get();
-
 		if (querySnapshot.isEmpty())
 			return exercises;
 
 		DocumentSnapshot routineDoc = querySnapshot.getDocuments().get(0);
 		List<QueryDocumentSnapshot> exerciseDocs = routineDoc.getReference().collection("exercise").get().get()
 				.getDocuments();
-
 		for (QueryDocumentSnapshot doc : exerciseDocs) {
 			Exercise ex = new Exercise();
 			ex.setReps(doc.get("reps"));
@@ -60,6 +58,8 @@ public class Hariak {
 		}
 		return exercises;
 	}
+
+	private volatile boolean skipRestNow = false;
 
 	private void runExerciseThread(List<Exercise> exercises, DefaultListModel<String> listModel, String hiloTag,
 			Supplier<Boolean> stopSupplier, Supplier<Boolean> skipRest, Supplier<Boolean> pauseSupplier,
@@ -89,7 +89,7 @@ public class Hariak {
 					final int currentSet = s;
 					SwingUtilities.invokeLater(() -> {
 						if (mode == 0)
-							listModel.addElement("Denbora total: " + totalTime + " seg");
+							listModel.addElement("Denbora totala: " + totalTime + " seg");
 						else if (mode == 1)
 							listModel.addElement("Sets " + currentSet + " - " + currentSec + "/" + serieTime + " seg");
 					});
@@ -98,11 +98,16 @@ public class Hariak {
 				}
 
 				if (s < sets) {
+					skipRestNow = false;
 					for (int t = 1; t <= restTime; t++) {
 						if (stopSupplier != null && stopSupplier.get())
 							return;
 
-						if (skipRest != null && skipRest.get())
+						if (skipRest != null && skipRest.get()) {
+							skipRestNow = true;
+						}
+
+						if (skipRestNow)
 							break;
 
 						if (canPause)
@@ -116,7 +121,7 @@ public class Hariak {
 						final int currentSec = t;
 						SwingUtilities.invokeLater(() -> {
 							if (mode == 0)
-								listModel.addElement("Denbora total: " + totalTime + " seg");
+								listModel.addElement("Denbora totala: " + totalTime + " seg");
 							else if (mode == 2)
 								listModel.addElement("Atsedena " + currentSec + "/" + restTime + " seg");
 						});
@@ -124,15 +129,15 @@ public class Hariak {
 						sleep(1000);
 					}
 				}
-
 			}
 		}
 
-		if (mode == 0)
+		if (mode == 0) {
 			totalSeconds = totalTime;
-
-		SwingUtilities
-				.invokeLater(() -> listModel.addElement("[" + hiloTag + "] Completado! Total: " + totalTime + " seg"));
+			SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
+					"Rutina amaituta! Denbora totala: " + totalTime + " seg"));
+			amaituta = true;
+		}
 	}
 
 	private void waitIfPaused(Supplier<Boolean> pauseSupplier, Object pauseLock) {
@@ -160,20 +165,18 @@ public class Hariak {
 
 		new Thread(() -> runExerciseThread(exercises, modelTotal, "⏱ TOTAL", stopSupplier, skipSupplier, pauseSupplier,
 				lock, 0, thread1)).start();
-		new Thread(() -> runExerciseThread(exercises, modelSeries, "💪 SERIES", stopSupplier, skipSupplier,
+		new Thread(() -> runExerciseThread(exercises, modelSeries, "💪 SERIEAK", stopSupplier, skipSupplier,
 				pauseSupplier, lock, 1, thread2)).start();
-		new Thread(() -> runExerciseThread(exercises, modelDescansos, "😴 DESCANSOS", stopSupplier, skipSupplier,
+		new Thread(() -> runExerciseThread(exercises, modelDescansos, "😴 ATSEDENAK", stopSupplier, skipSupplier,
 				pauseSupplier, lock, 2, thread3)).start();
 	}
 
 	public void historyLog(String routineName) {
 		CreateUserBackup backup = new CreateUserBackup();
 		String email = backup.loadEmail();
-
 		try {
 			DocumentSnapshot routineDoc = db.collection("workouts").whereEqualTo("name", routineName).get().get()
 					.getDocuments().get(0);
-
 			List<QueryDocumentSnapshot> exercises = routineDoc.getReference().collection("exercise").get().get()
 					.getDocuments();
 			for (QueryDocumentSnapshot doc : exercises)
@@ -195,9 +198,8 @@ public class Hariak {
 			data.put("workoutId", routineDoc.getId());
 
 			history.add(data);
-			System.out.println("Historial actualizado correctamente.");
 		} catch (Exception e) {
-			System.out.println("Error al actualizar historial: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 

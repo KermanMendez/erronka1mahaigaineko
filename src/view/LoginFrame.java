@@ -91,8 +91,10 @@ public class LoginFrame extends JFrame {
 		});
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				connectDB.handleLogin(textFieldUser, passwordField);
-				dispose();
+				String user = connectDB.handleLogin(textFieldUser, passwordField);
+				if (user != null) {
+					dispose();
+				}
 			}
 		});
 		btnLogin.setBounds(40, 180, 136, 30);
