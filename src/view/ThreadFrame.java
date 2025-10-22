@@ -125,7 +125,7 @@ public class ThreadFrame extends JFrame {
 		btnFinish.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				hariakInstance.stopWorkout();
-				Workouts workoutsFrame = new Workouts();
+				Workouts workoutsFrame = new Workouts(Boolean.FALSE);
 				workoutsFrame.setVisible(true);
 				dispose();
 			}

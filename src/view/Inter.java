@@ -46,7 +46,7 @@ public class Inter extends JFrame {
 			}
 		});
 		btnProfile.addActionListener(e -> {
-			Profile profile = new Profile();
+			Profile profile = new Profile(isTrainer);
 			dispose();
 			profile.setVisible(true);
 		});
@@ -69,7 +69,7 @@ public class Inter extends JFrame {
 			}
 		});
 		btnWorkouts.addActionListener(e -> {
-			Workouts workouts = new Workouts();
+			Workouts workouts = new Workouts(isTrainer);
 			dispose();
 			workouts.setVisible(true);
 		});

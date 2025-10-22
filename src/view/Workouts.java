@@ -2,12 +2,14 @@ package view;
 
 import java.awt.Cursor;
 import java.awt.EventQueue;
+import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -20,6 +22,8 @@ import javax.swing.SwingUtilities;
 import controller.AppState;
 import model.Routines;
 import model.UIStyle;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class Workouts extends JFrame {
 
@@ -34,7 +38,7 @@ public class Workouts extends JFrame {
 	private Routines routines = new Routines();
 	private LoginFrame login = new LoginFrame();
 
-	public Workouts() {
+	public Workouts(Boolean isTrainer) {
 		setTitle("Workouts");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 600, 400);
@@ -44,6 +48,26 @@ public class Workouts extends JFrame {
 		UIStyle.stylePanel(edukiontzia);
 		setContentPane(edukiontzia);
 		edukiontzia.setLayout(null);
+
+		ImageIcon icon = new ImageIcon(getClass().getResource("/img/atzera.png"));
+
+		Image scaledImage = icon.getImage().getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH);
+		ImageIcon scaledIcon = new ImageIcon(scaledImage);
+
+		JButton btnAtzera = new JButton(scaledIcon);
+		btnAtzera.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Inter inter = new Inter(isTrainer);
+				inter.setVisible(true);
+				dispose();
+			}
+		});
+		btnAtzera.setBounds(10, 10, 40, 40);
+		btnAtzera.setBorderPainted(false);
+		btnAtzera.setContentAreaFilled(false);
+		btnAtzera.setFocusPainted(false);
+		btnAtzera.setOpaque(false);
+		edukiontzia.add(btnAtzera);
 
 		JLabel lblTitulua = new JLabel("Workouts");
 		lblTitulua.setFont(UIStyle.TITLE_FONT);
@@ -66,7 +90,7 @@ public class Workouts extends JFrame {
 				new String[] { "1. maila", "2. maila", "3. maila", "4. maila", "5. maila" }));
 		comboMaila.setBounds(180, 100, 120, 22);
 		UIStyle.styleField(comboMaila);
-		comboMaila.setToolTipText("Selecciona tu nivel");
+		comboMaila.setToolTipText("Zure maila aukeratu");
 		edukiontzia.add(comboMaila);
 
 		JComboBox<String> comboMailaRutinakLevel = new JComboBox<String>();
@@ -78,7 +102,7 @@ public class Workouts extends JFrame {
 		}
 		comboMailaRutinakLevel.setBounds(337, 99, 120, 22);
 		UIStyle.styleField(comboMailaRutinakLevel);
-		comboMailaRutinakLevel.setToolTipText("Selecciona rutina");
+		comboMailaRutinakLevel.setToolTipText("Entrenamendu mota aukeratu");
 		edukiontzia.add(comboMailaRutinakLevel);
 
 		JLabel lblZerrenda = new JLabel("Workouts zerrenda:");
@@ -151,8 +175,12 @@ public class Workouts extends JFrame {
 		});
 
 		btnIkusiHistoria = new JButton("Ikusi historia");
+		btnIkusiHistoria.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
 		UIStyle.styleButton(btnIkusiHistoria);
-		btnIkusiHistoria.setToolTipText("Ver historial de entrenamientos");
+		btnIkusiHistoria.setToolTipText("Entrenamenduen historiala ikusi");
 		btnIkusiHistoria.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		btnIkusiHistoria.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
@@ -170,7 +198,7 @@ public class Workouts extends JFrame {
 
 		btnHasiWorkout = new JButton("Hasi Workout-a");
 		UIStyle.styleButton(btnHasiWorkout);
-		btnHasiWorkout.setToolTipText("Comenzar entrenamiento");
+		btnHasiWorkout.setToolTipText("Entrenamendua hasi");
 		btnHasiWorkout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		btnHasiWorkout.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
@@ -241,7 +269,7 @@ public class Workouts extends JFrame {
 		}
 		EventQueue.invokeLater(() -> {
 			try {
-				Workouts frame = new Workouts();
+				Workouts frame = new Workouts(Boolean.FALSE);
 				frame.setVisible(true);
 			} catch (Exception e) {
 				e.printStackTrace();

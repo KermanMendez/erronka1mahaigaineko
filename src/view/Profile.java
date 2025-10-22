@@ -2,9 +2,13 @@ package view;
 
 import java.awt.Cursor;
 import java.awt.EventQueue;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -22,7 +26,7 @@ public class Profile extends JFrame {
 	private JTextField txtSurname1;
 	private JTextField txtSurname2;
 
-	public Profile() {
+	public Profile(Boolean isTrainer) {
 		setTitle("Zure Profila");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -30,6 +34,26 @@ public class Profile extends JFrame {
 		UIStyle.stylePanel(contentPane);
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
+		
+		ImageIcon icon = new ImageIcon(getClass().getResource("/img/atzera.png"));
+
+		Image scaledImage = icon.getImage().getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH);
+		ImageIcon scaledIcon = new ImageIcon(scaledImage);
+
+		JButton btnAtzera = new JButton(scaledIcon);
+		btnAtzera.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Inter inter = new Inter(isTrainer);
+				inter.setVisible(true);
+				dispose();
+			}
+		});
+		btnAtzera.setBounds(10, 10, 40, 40);
+		btnAtzera.setBorderPainted(false);
+		btnAtzera.setContentAreaFilled(false);
+		btnAtzera.setFocusPainted(false);
+		btnAtzera.setOpaque(false);
+		contentPane.add(btnAtzera);
 
 		JLabel lblIzenaP = new JLabel("Izena");
 		lblIzenaP.setBounds(89, 33, 92, 14);
@@ -130,7 +154,7 @@ public class Profile extends JFrame {
 		}
 		EventQueue.invokeLater(() -> {
 			try {
-				Profile frame = new Profile();
+				Profile frame = new Profile(Boolean.FALSE);
 				frame.setVisible(true);
 			} catch (Exception e) {
 				e.printStackTrace();
