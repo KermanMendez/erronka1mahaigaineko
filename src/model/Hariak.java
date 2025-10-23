@@ -31,6 +31,8 @@ public class Hariak {
 	private int sec;
 	private int totalTime = 0;
 
+	private volatile boolean skipNow = false;
+
 	public Hariak() {
 	}
 
@@ -59,15 +61,14 @@ public class Hariak {
 		return exercises;
 	}
 
-	private volatile boolean skipRestNow = false;
-
 	private void runExerciseThread(List<Exercise> exercises, DefaultListModel<String> listModel, String hiloTag,
 			Supplier<Boolean> stopSupplier, Supplier<Boolean> skipRest, Supplier<Boolean> pauseSupplier,
 			Object pauseLock, int mode, boolean canPause) {
 
 		int hiloTotalCounter = 0;
 
-		for (Exercise ex : exercises) {
+		for (int exIdx = 0; exIdx < exercises.size(); exIdx++) {
+			Exercise ex = exercises.get(exIdx);
 			int sets = ex.getSets();
 			int serieTime = ex.getSerieTime();
 			int restTime = ex.getRestTimeSec();
@@ -75,8 +76,11 @@ public class Hariak {
 			for (int s = 1; s <= sets; s++) {
 
 				for (int t = 1; t <= serieTime; t++) {
-					if (stopSupplier != null && stopSupplier.get())
+					if (stopSupplier != null && stopSupplier.get()) {
+						if (mode == 0)
+							totalSeconds = hiloTotalCounter;
 						return;
+					}
 					if (canPause)
 						waitIfPaused(pauseSupplier, pauseLock);
 
@@ -98,27 +102,30 @@ public class Hariak {
 				}
 
 				if (s < sets) {
-					skipRestNow = false;
-					for (int t = 1; t <= restTime; t++) {
-						if (stopSupplier != null && stopSupplier.get())
+					skipNow = false;
+					int elapsed = 0;
+					while (elapsed < restTime && !skipNow) {
+						if (stopSupplier != null && stopSupplier.get()) {
+							if (mode == 0)
+								totalSeconds = hiloTotalCounter;
 							return;
-
-						if (skipRest != null && skipRest.get()) {
-							skipRestNow = true;
 						}
 
-						if (skipRestNow)
+						if (skipRest != null && skipRest.get()) {
+							skipNow = true;
 							break;
+						}
 
 						if (canPause)
 							waitIfPaused(pauseSupplier, pauseLock);
 
 						if (mode == 0) {
 							hiloTotalCounter++;
+							totalSeconds = hiloTotalCounter;
 							totalTime = hiloTotalCounter;
 						}
 
-						final int currentSec = t;
+						final int currentSec = ++elapsed;
 						SwingUtilities.invokeLater(() -> {
 							if (mode == 0)
 								listModel.addElement("Denbora totala: " + totalTime + " seg");
@@ -126,17 +133,60 @@ public class Hariak {
 								listModel.addElement("Atsedena " + currentSec + "/" + restTime + " seg");
 						});
 
-						sleep(1000);
+						for (int i = 0; i < 5; i++) {
+							if (skipRest != null && skipRest.get()) {
+								skipNow = true;
+								break;
+							}
+							sleep(200);
+						}
+					}
+				}
+
+			}
+
+			if (exIdx < exercises.size() - 1) {
+				int interExerciseRest = restTime;
+				skipNow = false;
+				int elapsed = 0;
+				while (elapsed < interExerciseRest && !skipNow) {
+					if (stopSupplier != null && stopSupplier.get()) {
+						if (mode == 0)
+							totalSeconds = hiloTotalCounter;
+						return;
+					}
+
+					if (skipRest != null && skipRest.get()) {
+						skipNow = true;
+						break;
+					}
+
+					if (canPause)
+						waitIfPaused(pauseSupplier, pauseLock);
+
+					if (mode == 0) {
+						hiloTotalCounter++;
+						totalSeconds = hiloTotalCounter;
+						totalTime = hiloTotalCounter;
+					}
+
+					final int currentSec = ++elapsed;
+					SwingUtilities.invokeLater(() -> {
+						if (mode == 0)
+							listModel.addElement("Denbora totala: " + totalTime + " seg");
+						else if (mode == 2)
+							listModel.addElement("Atsedena " + currentSec + "/" + interExerciseRest + " seg");
+					});
+
+					for (int i = 0; i < 5; i++) {
+						if (skipRest != null && skipRest.get()) {
+							skipNow = true;
+							break;
+						}
+						sleep(200);
 					}
 				}
 			}
-		}
-
-		if (mode == 0) {
-			totalSeconds = totalTime;
-			SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
-					"Rutina amaituta! Denbora totala: " + totalTime + " seg"));
-			amaituta = true;
 		}
 	}
 
@@ -163,17 +213,55 @@ public class Hariak {
 			Supplier<Boolean> stopSupplier, Supplier<Boolean> skipSupplier, Supplier<Boolean> pauseSupplier,
 			Object lock, boolean thread1, boolean thread2, boolean thread3) {
 
-		new Thread(() -> runExerciseThread(exercises, modelTotal, "⏱ TOTAL", stopSupplier, skipSupplier, pauseSupplier,
-				lock, 0, thread1)).start();
-		new Thread(() -> runExerciseThread(exercises, modelSeries, "💪 SERIEAK", stopSupplier, skipSupplier,
-				pauseSupplier, lock, 1, thread2)).start();
-		new Thread(() -> runExerciseThread(exercises, modelDescansos, "😴 ATSEDENAK", stopSupplier, skipSupplier,
-				pauseSupplier, lock, 2, thread3)).start();
+		// 🔥 Cuenta atrás de 5 segundos visible antes de empezar
+		new Thread(() -> {
+			try {
+				for (int i = 5; i > 0; i--) {
+					int countdown = i;
+					SwingUtilities.invokeLater(() -> {
+						modelTotal.clear();
+						modelSeries.clear();
+						modelDescansos.clear();
+						modelTotal.addElement("Prest! Hasiera " + countdown + "...");
+						modelSeries.addElement("Prest! Hasiera " + countdown + "...");
+						modelDescansos.addElement("Prest! Hasiera " + countdown + "...");
+					});
+					Thread.sleep(1000);
+				}
+
+				SwingUtilities.invokeLater(() -> {
+					modelTotal.clear();
+					modelSeries.clear();
+					modelDescansos.clear();
+					modelTotal.addElement("Hasi da entrenamendua!");
+					modelSeries.addElement("Hasi da entrenamendua!");
+					modelDescansos.addElement("Hasi da entrenamendua!");
+				});
+
+				Thread.sleep(1000);
+
+				new Thread(() -> runExerciseThread(exercises, modelTotal, "⏱ TOTAL", stopSupplier, skipSupplier,
+						pauseSupplier, lock, 0, thread1)).start();
+
+				new Thread(() -> runExerciseThread(exercises, modelSeries, "💪 SERIEAK", stopSupplier, skipSupplier,
+						pauseSupplier, lock, 1, thread2)).start();
+
+				new Thread(() -> runExerciseThread(exercises, modelDescansos, "😴 ATSEDENAK", stopSupplier,
+						skipSupplier, pauseSupplier, lock, 2, thread3)).start();
+
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}).start();
 	}
 
 	public void historyLog(String routineName) {
 		CreateUserBackup backup = new CreateUserBackup();
 		String email = backup.loadEmail();
+
+		SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
+				"Rutina amaitu da! Denbora totala: " + totalSeconds + " seg"));
+
 		try {
 			DocumentSnapshot routineDoc = db.collection("workouts").whereEqualTo("name", routineName).get().get()
 					.getDocuments().get(0);

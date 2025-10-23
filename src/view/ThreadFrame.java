@@ -58,7 +58,6 @@ public class ThreadFrame extends JFrame {
 		btnAmaitu.addActionListener(e -> {
 			stopRequested = true;
 			hariak.historyLog(routineName);
-			JOptionPane.showMessageDialog(this, "Rutina amaitu da! Denbora totala: " + hariak.getSec() + " seg");
 			dispose();
 		});
 
