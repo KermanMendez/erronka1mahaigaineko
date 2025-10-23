@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.Cursor;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -9,23 +10,24 @@ import java.util.Properties;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.JPanel;
 
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
 import controller.AppState;
+import controller.MainApp;
 import model.ConnectDB;
 import model.DateFormater;
 import model.UIStyle;
 
-public class RegisterDialog extends JDialog {
+public class RegisterDialog extends JFrame {
+
 	private static final long serialVersionUID = 1L;
 	private JTextField textFieldEmail;
 	private JPasswordField passwordField;
@@ -36,13 +38,9 @@ public class RegisterDialog extends JDialog {
 	private JCheckBox checkboxIsTrainer;
 	private ConnectDB connectDB = new ConnectDB();
 
-	public RegisterDialog(JFrame parent) {
-		super(parent, "Erabiltzailearen Registroa", true);
-		if (!AppState.isAppStarted()) {
-			System.exit(0);
-		}
+	public RegisterDialog() {
+		setTitle("Erabiltzailearen Registroa");
 		setSize(399, 388);
-		setLocationRelativeTo(parent);
 		getContentPane().setLayout(null);
 		if (getContentPane() instanceof JPanel) {
 			UIStyle.stylePanel((JPanel) getContentPane());
@@ -176,5 +174,22 @@ public class RegisterDialog extends JDialog {
 		getContentPane().add(btnCancelar);
 
 		getContentPane().setBackground(UIStyle.BACKGROUND);
+	}
+
+	public static void main(String[] args) {
+		if (!AppState.isAppStarted()) {
+			MainApp.main(args);
+			return;
+		}
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					RegisterDialog frame = new RegisterDialog();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 }

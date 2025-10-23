@@ -38,7 +38,6 @@ public class Controller {
 	private static Firestore getFirestore() {
 		try {
 			if (firestoreInstantzia == null) {
-				// Solo intentar obtener Firestore si FirebaseApp está inicializado
 				if (com.google.firebase.FirebaseApp.getApps().isEmpty()) {
 					System.out.println("[ERROR] FirebaseApp no está inicializado. Firestore no disponible.");
 					return null;

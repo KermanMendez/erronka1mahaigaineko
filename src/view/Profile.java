@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import controller.AppState;
+import controller.MainApp;
 import model.UIStyle;
 
 public class Profile extends JFrame {
@@ -150,7 +151,8 @@ public class Profile extends JFrame {
 
 	public static void main(String[] args) {
 		if (!AppState.isAppStarted()) {
-			System.exit(0);
+			MainApp.main(args);
+			return;
 		}
 		EventQueue.invokeLater(() -> {
 			try {

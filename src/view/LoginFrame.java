@@ -22,11 +22,12 @@ import com.google.cloud.firestore.Firestore;
 
 import controller.AppState;
 import controller.Controller;
+import controller.MainApp;
 import model.ConnectDB;
 import model.UIStyle;
 
 public class LoginFrame extends JFrame {
-	private static final long serialVersionUID = 1L;
+	public static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextField textFieldUser;
 	private JPasswordField passwordField;
@@ -35,11 +36,6 @@ public class LoginFrame extends JFrame {
 	private ConnectDB connectDB = new ConnectDB();
 
 	public LoginFrame() {
-		if (!AppState.isAppStarted()) {
-			new FirstView().setVisible(true);
-			dispose();
-			return;
-		}
 		setIconImage(Toolkit.getDefaultToolkit().getImage("img/logo.png"));
 		setTitle("LOGIN");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -115,7 +111,7 @@ public class LoginFrame extends JFrame {
 			}
 		});
 		btnRegister.addActionListener(e -> {
-			RegisterDialog registerDialog = new RegisterDialog(this);
+			RegisterDialog registerDialog = new RegisterDialog();
 			registerDialog.setVisible(true);
 		});
 		btnRegister.setBounds(40, 220, 136, 30);
@@ -125,7 +121,8 @@ public class LoginFrame extends JFrame {
 
 	public static void main(String[] args) {
 		if (!AppState.isAppStarted()) {
-			System.exit(0);
+			MainApp.main(args);
+			return;
 		}
 		EventQueue.invokeLater(() -> {
 			try {

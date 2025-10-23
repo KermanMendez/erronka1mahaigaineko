@@ -61,9 +61,9 @@ public class Hariak {
 		return exercises;
 	}
 
-    private void runExerciseThread(List<Exercise> exercises, JLabel label, String hiloTag,
-	    Supplier<Boolean> stopSupplier, Supplier<Boolean> skipRest, Supplier<Boolean> pauseSupplier,
-	    Object pauseLock, int mode, boolean canPause) {
+	private void runExerciseThread(List<Exercise> exercises, JLabel label, String hiloTag,
+			Supplier<Boolean> stopSupplier, Supplier<Boolean> skipRest, Supplier<Boolean> pauseSupplier,
+			Object pauseLock, int mode, boolean canPause) {
 
 		int hiloTotalCounter = 0;
 
@@ -214,49 +214,39 @@ public class Hariak {
 		}
 	}
 
-    public void startExerciseThreads(List<Exercise> exercises, JLabel labelTotal, JLabel labelSeries,
-	    JLabel labelDescansos, Supplier<Boolean> stopSupplier, Supplier<Boolean> skipSupplier,
-	    Supplier<Boolean> pauseSupplier, Object lock, boolean thread1, boolean thread2, boolean thread3) {
-
-		// 🔥 Cuenta atrás de 5 segundos visible antes de empezar
+	public void startExerciseThreads(List<Exercise> exercises, JLabel labelTotal, JLabel labelSeries,
+			JLabel labelDescansos, JLabel labelHasiera, Supplier<Boolean> stopSupplier, Supplier<Boolean> skipSupplier,
+			Supplier<Boolean> pauseSupplier, Object lock, boolean thread1, boolean thread2, boolean thread3) {
 		new Thread(() -> {
 			try {
 				for (int i = 5; i > 0; i--) {
 					int countdown = i;
 					SwingUtilities.invokeLater(() -> {
-						if (labelTotal != null)
-							labelTotal.setText("Prest! Hasiera " + countdown + "...");
-						if (labelSeries != null)
-							labelSeries.setText("Prest! Hasiera " + countdown + "...");
-						if (labelDescansos != null)
-							labelDescansos.setText("Prest! Hasiera " + countdown + "...");
+						if (labelHasiera != null)
+							labelHasiera.setText("Prest! Hasiera " + countdown + "...");
 					});
 					Thread.sleep(1000);
 				}
 
 				SwingUtilities.invokeLater(() -> {
-					if (labelTotal != null)
-						labelTotal.setText("Hasi da entrenamendua!");
-					if (labelSeries != null)
-						labelSeries.setText("Hasi da entrenamendua!");
-					if (labelDescansos != null)
-						labelDescansos.setText("Hasi da entrenamendua!");
+					if (labelHasiera != null)
+						labelHasiera.setText("Hasi da entrenamendua!");
 				});
 
 				Thread.sleep(1000);
 
-				// If there are no exercises, show a clear message and don't start threads
 				if (exercises == null || exercises.isEmpty()) {
 					SwingUtilities.invokeLater(() -> {
-						if (labelTotal != null)
-							labelTotal.setText("Ez da entrenamendurik aurkitu");
-						if (labelSeries != null)
-							labelSeries.setText("Ez da entrenamendurik aurkitu");
-						if (labelDescansos != null)
-							labelDescansos.setText("Ez da entrenamendurik aurkitu");
+						if (labelHasiera != null)
+							labelHasiera.setText("Ez da entrenamendurik aurkitu!");
 					});
 					return;
 				}
+
+				labelTotal.setVisible(true);
+				labelSeries.setVisible(true);
+				labelDescansos.setVisible(true);
+				labelHasiera.setVisible(false);
 
 				new Thread(() -> runExerciseThread(exercises, labelTotal, "⏱ TOTAL", stopSupplier, skipSupplier,
 						pauseSupplier, lock, 0, thread1)).start();

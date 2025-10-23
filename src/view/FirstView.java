@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.Cursor;
+import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
@@ -14,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import controller.AppState;
+import controller.MainApp;
 import model.UIStyle;
 
 public class FirstView extends JFrame {
@@ -24,7 +26,7 @@ public class FirstView extends JFrame {
 
 	public FirstView() {
 		if (!AppState.isAppStarted()) {
-			System.exit(0);
+			controller.MainApp.main(null);
 		}
 		setTitle("LONG RING LONG LAND GYM");
 		setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/img/logo.png")));
@@ -71,5 +73,22 @@ public class FirstView extends JFrame {
 			logo = new ImageIcon(irudiaEskalatua);
 		}
 		return logo;
+	}
+
+	public static void main(String[] args) {
+		if (!AppState.isAppStarted()) {
+			MainApp.main(args);
+			return;
+		}
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					FirstView frame = new FirstView();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 }

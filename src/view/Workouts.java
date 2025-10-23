@@ -3,6 +3,8 @@ package view;
 import java.awt.Cursor;
 import java.awt.EventQueue;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.concurrent.ExecutionException;
@@ -20,10 +22,9 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import controller.AppState;
+import controller.MainApp;
 import model.Routines;
 import model.UIStyle;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 public class Workouts extends JFrame {
 
@@ -265,7 +266,8 @@ public class Workouts extends JFrame {
 
 	public static void main(String[] args) {
 		if (!AppState.isAppStarted()) {
-			System.exit(0);
+			MainApp.main(args);
+			return;
 		}
 		EventQueue.invokeLater(() -> {
 			try {
