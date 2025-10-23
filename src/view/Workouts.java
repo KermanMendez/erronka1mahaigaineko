@@ -72,7 +72,7 @@ public class Workouts extends JFrame {
 		JLabel lblTitulua = new JLabel("Workouts");
 		lblTitulua.setFont(UIStyle.TITLE_FONT);
 		lblTitulua.setForeground(UIStyle.PRIMARY);
-		lblTitulua.setBounds(240, 10, 200, 30);
+		lblTitulua.setBounds(240, 10, 111, 30);
 		edukiontzia.add(lblTitulua);
 
 		lblMailaAktuala = new JLabel("Maila: 1");
@@ -100,7 +100,7 @@ public class Workouts extends JFrame {
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
-		comboMailaRutinakLevel.setBounds(337, 99, 120, 22);
+		comboMailaRutinakLevel.setBounds(345, 99, 210, 22);
 		UIStyle.styleField(comboMailaRutinakLevel);
 		comboMailaRutinakLevel.setToolTipText("Entrenamendu mota aukeratu");
 		edukiontzia.add(comboMailaRutinakLevel);
@@ -111,7 +111,7 @@ public class Workouts extends JFrame {
 		edukiontzia.add(lblZerrenda);
 
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(30, 160, 250, 150);
+		scrollPane.setBounds(30, 160, 525, 150);
 		edukiontzia.add(scrollPane);
 
 		listaWorkout = new JList<>();
@@ -193,7 +193,7 @@ public class Workouts extends JFrame {
 				btnIkusiHistoria.setForeground(UIStyle.BUTTON_FG);
 			}
 		});
-		btnIkusiHistoria.setBounds(350, 160, 180, 30);
+		btnIkusiHistoria.setBounds(30, 321, 160, 30);
 		edukiontzia.add(btnIkusiHistoria);
 
 		btnHasiWorkout = new JButton("Hasi Workout-a");
@@ -217,7 +217,7 @@ public class Workouts extends JFrame {
 			threadFrame.setVisible(true);
 			dispose();
 		});
-		btnHasiWorkout.setBounds(350, 200, 180, 30);
+		btnHasiWorkout.setBounds(212, 321, 160, 30);
 		edukiontzia.add(btnHasiWorkout);
 
 		btnIkusiAriketak = new JButton("Ikusi ariketak");
@@ -235,7 +235,7 @@ public class Workouts extends JFrame {
 				btnIkusiAriketak.setForeground(UIStyle.BUTTON_FG);
 			}
 		});
-		btnIkusiAriketak.setBounds(350, 240, 180, 30);
+		btnIkusiAriketak.setBounds(395, 321, 160, 30);
 		edukiontzia.add(btnIkusiAriketak);
 
 		JButton btnLogout = new JButton("Logout");
