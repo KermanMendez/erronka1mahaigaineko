@@ -19,9 +19,9 @@ public class ThreadFrame extends JFrame {
 	private boolean skipRestRequested = false;
 	private boolean stopRequested = false;
 
-	private DefaultListModel<String> modelTotal = new DefaultListModel<>();
-	private DefaultListModel<String> modelSeries = new DefaultListModel<>();
-	private DefaultListModel<String> modelDescansos = new DefaultListModel<>();
+	private JLabel labelTotal = new JLabel("");
+	private JLabel labelSeries = new JLabel("");
+	private JLabel labelDescansos = new JLabel("");
 
 	public ThreadFrame(int level, String routineName, Boolean isTrainer) {
 		setTitle("Workout Dashboard - " + routineName);
@@ -47,11 +47,11 @@ public class ThreadFrame extends JFrame {
 		topPanel.add(btnSkip);
 		add(topPanel, BorderLayout.NORTH);
 
-		JPanel centerPanel = new JPanel();
-		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.X_AXIS));
-		centerPanel.add(createListPanel("⏱ Denbora totala", modelTotal));
-		centerPanel.add(createListPanel("💪 Serieak", modelSeries));
-		centerPanel.add(createListPanel("😴 Atsedenak", modelDescansos));
+	JPanel centerPanel = new JPanel();
+	centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.X_AXIS));
+	centerPanel.add(createLabelPanel("⏱ Denbora totala", labelTotal));
+	centerPanel.add(createLabelPanel("💪 Serieak", labelSeries));
+	centerPanel.add(createLabelPanel("😴 Atsedenak", labelDescansos));
 		add(centerPanel, BorderLayout.CENTER);
 
 		JButton btnAmaitu = new JButton("Amaitu rutina");
@@ -70,7 +70,7 @@ public class ThreadFrame extends JFrame {
 		new Thread(() -> {
 			try {
 				List<Exercise> exercises = hariak.start(level, routineName);
-				hariak.startExerciseThreads(exercises, modelTotal, modelSeries, modelDescansos, () -> stopRequested,
+				hariak.startExerciseThreads(exercises, labelTotal, labelSeries, labelDescansos, () -> stopRequested,
 						() -> {
 							if (skipRestRequested) {
 								skipRestRequested = false;
@@ -84,15 +84,14 @@ public class ThreadFrame extends JFrame {
 		}).start();
 	}
 
-	private JPanel createListPanel(String title, DefaultListModel<String> model) {
+	private JPanel createLabelPanel(String title, JLabel content) {
 		JPanel panel = new JPanel(new BorderLayout(5, 5));
 		JLabel label = new JLabel(title, SwingConstants.CENTER);
 		panel.add(label, BorderLayout.NORTH);
 
-		JList<String> list = new JList<>(model);
-		JScrollPane scroll = new JScrollPane(list);
-		scroll.setPreferredSize(new Dimension(280, 400));
-		panel.add(scroll, BorderLayout.CENTER);
+		content.setHorizontalAlignment(SwingConstants.CENTER);
+		content.setPreferredSize(new Dimension(280, 400));
+		panel.add(content, BorderLayout.CENTER);
 		return panel;
 	}
 

@@ -1,6 +1,11 @@
 package model;
 
-import java.io.FileWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +34,17 @@ import controller.Controller;
 public class CreateBackup {
 	private Controller controller = new Controller();
 	Firestore db = controller.getDb();
+
+	private final String FICHERO = "backup.xml";
+	private final byte CLAVE = 0x5A;
+
+	private byte[] xorBytes(byte[] data) {
+		byte[] result = new byte[data.length];
+		for (int i = 0; i < data.length; i++) {
+			result[i] = (byte) (data[i] ^ CLAVE);
+		}
+		return result;
+	}
 
 	public void saveBackupToXML() {
 		if (com.google.firebase.FirebaseApp.getApps().isEmpty()) {
@@ -65,9 +81,40 @@ public class CreateBackup {
 			Transformer transformer = transformerFactory.newTransformer();
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 			DOMSource source = new DOMSource(doc);
-			StreamResult result = new StreamResult(new FileWriter("backup.xml"));
+
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			StreamResult result = new StreamResult(baos);
 			transformer.transform(source, result);
-			System.out.println("Backup saved to backup.xml");
+
+			byte[] encryptedData = xorBytes(baos.toByteArray());
+
+			try (FileOutputStream fos = new FileOutputStream(FICHERO)) {
+				fos.write(encryptedData);
+			}
+
+			System.out.println("Backup saved to " + FICHERO);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void loadBackupFromXML() {
+		File file = new File(FICHERO);
+		if (!file.exists() || file.length() == 0) {
+			System.err.println("[ERROR] No backup file found or file is empty.");
+			return;
+		}
+
+		try {
+			byte[] fileBytes = Files.readAllBytes(Paths.get(FICHERO));
+			byte[] decryptedData = xorBytes(fileBytes);
+
+			ByteArrayInputStream bais = new ByteArrayInputStream(decryptedData);
+			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+			docBuilder.parse(bais);
+			
+			System.out.println("Backup loaded successfully from " + FICHERO);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

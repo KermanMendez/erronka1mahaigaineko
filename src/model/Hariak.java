@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 
-import javax.swing.DefaultListModel;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
@@ -48,7 +48,7 @@ public class Hariak {
 			return exercises;
 
 		DocumentSnapshot routineDoc = querySnapshot.getDocuments().get(0);
-		List<QueryDocumentSnapshot> exerciseDocs = routineDoc.getReference().collection("exercise").get().get()
+		List<QueryDocumentSnapshot> exerciseDocs = routineDoc.getReference().collection("exercises").get().get()
 				.getDocuments();
 		for (QueryDocumentSnapshot doc : exerciseDocs) {
 			Exercise ex = new Exercise();
@@ -61,9 +61,9 @@ public class Hariak {
 		return exercises;
 	}
 
-	private void runExerciseThread(List<Exercise> exercises, DefaultListModel<String> listModel, String hiloTag,
-			Supplier<Boolean> stopSupplier, Supplier<Boolean> skipRest, Supplier<Boolean> pauseSupplier,
-			Object pauseLock, int mode, boolean canPause) {
+    private void runExerciseThread(List<Exercise> exercises, JLabel label, String hiloTag,
+	    Supplier<Boolean> stopSupplier, Supplier<Boolean> skipRest, Supplier<Boolean> pauseSupplier,
+	    Object pauseLock, int mode, boolean canPause) {
 
 		int hiloTotalCounter = 0;
 
@@ -92,10 +92,12 @@ public class Hariak {
 					final int currentSec = t;
 					final int currentSet = s;
 					SwingUtilities.invokeLater(() -> {
-						if (mode == 0)
-							listModel.addElement("Denbora totala: " + totalTime + " seg");
-						else if (mode == 1)
-							listModel.addElement("Sets " + currentSet + " - " + currentSec + "/" + serieTime + " seg");
+						if (label != null) {
+							if (mode == 0)
+								label.setText("Denbora totala: " + totalTime + " seg");
+							else if (mode == 1)
+								label.setText("Sets " + currentSet + " - " + currentSec + "/" + serieTime + " seg");
+						}
 					});
 
 					sleep(1000);
@@ -127,10 +129,12 @@ public class Hariak {
 
 						final int currentSec = ++elapsed;
 						SwingUtilities.invokeLater(() -> {
-							if (mode == 0)
-								listModel.addElement("Denbora totala: " + totalTime + " seg");
-							else if (mode == 2)
-								listModel.addElement("Atsedena " + currentSec + "/" + restTime + " seg");
+							if (label != null) {
+								if (mode == 0)
+									label.setText("Denbora totala: " + totalTime + " seg");
+								else if (mode == 2)
+									label.setText("Atsedena " + currentSec + "/" + restTime + " seg");
+							}
 						});
 
 						for (int i = 0; i < 5; i++) {
@@ -172,10 +176,12 @@ public class Hariak {
 
 					final int currentSec = ++elapsed;
 					SwingUtilities.invokeLater(() -> {
-						if (mode == 0)
-							listModel.addElement("Denbora totala: " + totalTime + " seg");
-						else if (mode == 2)
-							listModel.addElement("Atsedena " + currentSec + "/" + interExerciseRest + " seg");
+						if (label != null) {
+							if (mode == 0)
+								label.setText("Denbora totala: " + totalTime + " seg");
+							else if (mode == 2)
+								label.setText("Atsedena " + currentSec + "/" + interExerciseRest + " seg");
+						}
 					});
 
 					for (int i = 0; i < 5; i++) {
@@ -208,10 +214,9 @@ public class Hariak {
 		}
 	}
 
-	public void startExerciseThreads(List<Exercise> exercises, DefaultListModel<String> modelTotal,
-			DefaultListModel<String> modelSeries, DefaultListModel<String> modelDescansos,
-			Supplier<Boolean> stopSupplier, Supplier<Boolean> skipSupplier, Supplier<Boolean> pauseSupplier,
-			Object lock, boolean thread1, boolean thread2, boolean thread3) {
+    public void startExerciseThreads(List<Exercise> exercises, JLabel labelTotal, JLabel labelSeries,
+	    JLabel labelDescansos, Supplier<Boolean> stopSupplier, Supplier<Boolean> skipSupplier,
+	    Supplier<Boolean> pauseSupplier, Object lock, boolean thread1, boolean thread2, boolean thread3) {
 
 		// 🔥 Cuenta atrás de 5 segundos visible antes de empezar
 		new Thread(() -> {
@@ -219,34 +224,47 @@ public class Hariak {
 				for (int i = 5; i > 0; i--) {
 					int countdown = i;
 					SwingUtilities.invokeLater(() -> {
-						modelTotal.clear();
-						modelSeries.clear();
-						modelDescansos.clear();
-						modelTotal.addElement("Prest! Hasiera " + countdown + "...");
-						modelSeries.addElement("Prest! Hasiera " + countdown + "...");
-						modelDescansos.addElement("Prest! Hasiera " + countdown + "...");
+						if (labelTotal != null)
+							labelTotal.setText("Prest! Hasiera " + countdown + "...");
+						if (labelSeries != null)
+							labelSeries.setText("Prest! Hasiera " + countdown + "...");
+						if (labelDescansos != null)
+							labelDescansos.setText("Prest! Hasiera " + countdown + "...");
 					});
 					Thread.sleep(1000);
 				}
 
 				SwingUtilities.invokeLater(() -> {
-					modelTotal.clear();
-					modelSeries.clear();
-					modelDescansos.clear();
-					modelTotal.addElement("Hasi da entrenamendua!");
-					modelSeries.addElement("Hasi da entrenamendua!");
-					modelDescansos.addElement("Hasi da entrenamendua!");
+					if (labelTotal != null)
+						labelTotal.setText("Hasi da entrenamendua!");
+					if (labelSeries != null)
+						labelSeries.setText("Hasi da entrenamendua!");
+					if (labelDescansos != null)
+						labelDescansos.setText("Hasi da entrenamendua!");
 				});
 
 				Thread.sleep(1000);
 
-				new Thread(() -> runExerciseThread(exercises, modelTotal, "⏱ TOTAL", stopSupplier, skipSupplier,
+				// If there are no exercises, show a clear message and don't start threads
+				if (exercises == null || exercises.isEmpty()) {
+					SwingUtilities.invokeLater(() -> {
+						if (labelTotal != null)
+							labelTotal.setText("Ez da entrenamendurik aurkitu");
+						if (labelSeries != null)
+							labelSeries.setText("Ez da entrenamendurik aurkitu");
+						if (labelDescansos != null)
+							labelDescansos.setText("Ez da entrenamendurik aurkitu");
+					});
+					return;
+				}
+
+				new Thread(() -> runExerciseThread(exercises, labelTotal, "⏱ TOTAL", stopSupplier, skipSupplier,
 						pauseSupplier, lock, 0, thread1)).start();
 
-				new Thread(() -> runExerciseThread(exercises, modelSeries, "💪 SERIEAK", stopSupplier, skipSupplier,
+				new Thread(() -> runExerciseThread(exercises, labelSeries, "💪 SERIEAK", stopSupplier, skipSupplier,
 						pauseSupplier, lock, 1, thread2)).start();
 
-				new Thread(() -> runExerciseThread(exercises, modelDescansos, "😴 ATSEDENAK", stopSupplier,
+				new Thread(() -> runExerciseThread(exercises, labelDescansos, "😴 ATSEDENAK", stopSupplier,
 						skipSupplier, pauseSupplier, lock, 2, thread3)).start();
 
 			} catch (InterruptedException e) {
