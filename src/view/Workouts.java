@@ -23,6 +23,7 @@ import javax.swing.SwingUtilities;
 
 import controller.AppState;
 import controller.MainApp;
+import model.ReadBackup;
 import model.Routines;
 import model.UIStyle;
 
@@ -178,6 +179,8 @@ public class Workouts extends JFrame {
 		btnIkusiHistoria = new JButton("Ikusi historia");
 		btnIkusiHistoria.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				ReadBackup backup = new ReadBackup();
+				backup.loadBackupData();
 			}
 		});
 		UIStyle.styleButton(btnIkusiHistoria);
