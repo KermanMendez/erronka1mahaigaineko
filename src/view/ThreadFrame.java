@@ -106,7 +106,7 @@ public class ThreadFrame extends JFrame {
 		hariak = new Hariak();
 		new Thread(() -> {
 			try {
-				List<Exercise> exercises = hariak.start(level, routineName);
+				List<Exercise> exercises = hariak.start(level, routineName, connect);
 				hariak.startExerciseThreads(exercises, labelTotala, labelSerieak, labelAtsedenak, labelHasiera,
 						() -> stopRequested, () -> {
 							if (skipRestRequested) {

@@ -37,10 +37,10 @@ public class Workouts extends JFrame {
 	private JButton btnHasiWorkout;
 	private JButton btnIkusiAriketak;
 	private JLabel lblMailaAktuala;
-	private Routines routines = new Routines();
 	private LoginFrame login = new LoginFrame(Boolean.TRUE);
 
 	public Workouts(Boolean isTrainer, Boolean connect) {
+		Routines routines = new Routines(connect);
 		setTitle("Workouts");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 600, 400);

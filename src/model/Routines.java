@@ -19,8 +19,8 @@ public class Routines {
 	private final Firestore db;
 	private final DefaultListModel<String> listModel = new DefaultListModel<>();
 
-	public Routines() {
-		this.db = new Controller().getDb();
+	public Routines(Boolean connect) {
+		this.db = new Controller(connect).getDb();
 	}
 
 	public void ariketak(int aukera) {

@@ -9,11 +9,13 @@ public class Controller {
 	private DBConnection dbConnection;
 	private Firestore db;
 	private FirstView firstView;
+	private DBConnection DBConnection = new DBConnection();
 
-	public Controller() {
-		DBConnection.initialize();
+	public Controller(Boolean connect) {
+
+		DBConnection.initialize(connect);
 		db = getFirestore();
-		setDbConnection(new DBConnection(this));
+		setDbConnection(new DBConnection());
 	}
 
 	public DBConnection getDbConnection() {

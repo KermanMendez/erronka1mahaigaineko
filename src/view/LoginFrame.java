@@ -18,10 +18,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import com.google.cloud.firestore.Firestore;
-
 import controller.AppState;
-import controller.Controller;
 import controller.MainApp;
 import model.ConnectDB;
 import model.UIStyle;
@@ -31,8 +28,6 @@ public class LoginFrame extends JFrame {
 	private JPanel contentPane;
 	private JTextField textFieldUser;
 	private JPasswordField passwordField;
-	private Controller controller = new Controller();
-	Firestore db = controller.getDb();
 	private ConnectDB connectDB = new ConnectDB();
 
 	public LoginFrame(Boolean connect) {
@@ -111,7 +106,7 @@ public class LoginFrame extends JFrame {
 			}
 		});
 		btnRegister.addActionListener(e -> {
-			RegisterDialog registerDialog = new RegisterDialog();
+			RegisterDialog registerDialog = new RegisterDialog(connect);
 			registerDialog.setVisible(true);
 		});
 		btnRegister.setBounds(40, 220, 136, 30);

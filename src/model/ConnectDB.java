@@ -35,14 +35,9 @@ public class ConnectDB {
 	private static final OkHttpClient HTTP_BEZEROA = new OkHttpClient();
 	private static final MediaType JSON_MEDIA = MediaType.parse("application/json; charset=utf-8");
 	private static final java.text.SimpleDateFormat DATA_FORMATUA = new java.text.SimpleDateFormat("dd/MM/yyyy");
-	private Controller controller = new Controller();
-	Firestore db = controller.getDb();
-
-	public ConnectDB() {
-	}
 
 	public Boolean eskaeraRegistratu(String izena, String abizena1, String abizena2, String email, String password,
-			Date birthdate, Boolean isTrainer) {
+			Date birthdate, Boolean isTrainer, Boolean connect) {
 		if (email.isEmpty() || password.isEmpty() || izena.isEmpty() || abizena1.isEmpty() || abizena2.isEmpty()
 				|| birthdate == null) {
 			JOptionPane.showMessageDialog(null, "Datu Guztiak Bete.", "Errorea", JOptionPane.INFORMATION_MESSAGE);
@@ -50,7 +45,7 @@ public class ConnectDB {
 		}
 		String birthdateString = DATA_FORMATUA.format(birthdate);
 		try {
-			createUser(izena, abizena1, abizena2, email, password, birthdateString, isTrainer);
+			createUser(izena, abizena1, abizena2, email, password, birthdateString, isTrainer, connect);
 			JOptionPane.showMessageDialog(null, "Registratu zara", "Login", JOptionPane.INFORMATION_MESSAGE);
 			return true;
 		} catch (Exception ex) {
@@ -76,7 +71,10 @@ public class ConnectDB {
 	}
 
 	public void createUser(String name, String surname1, String surname2, String email, String password,
-			String birthdate, Boolean isTrainer) throws Exception {
+			String birthdate, Boolean isTrainer, Boolean connect) throws Exception {
+
+		Controller controller = new Controller(connect);
+		Firestore db = controller.getDb();
 
 		String hashedPassword = hashPassword(password);
 
@@ -95,6 +93,9 @@ public class ConnectDB {
 	public String handleLogin(JTextField textFieldUser, JPasswordField passwordField, Boolean connect) {
 		String email = textFieldUser.getText().trim();
 		String password = new String(passwordField.getPassword());
+
+		Controller controller = new Controller(connect);
+		Firestore db = controller.getDb();
 
 		if (email.isEmpty() || password.isEmpty()) {
 			JOptionPane.showMessageDialog(null, "Bete Erabiltzailea eta Pasahitza.", "Login",

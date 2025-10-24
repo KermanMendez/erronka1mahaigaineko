@@ -28,11 +28,10 @@ import com.google.firebase.auth.ListUsersPage;
 import controller.Controller;
 
 public class CreateBackup {
-	private Controller controller = new Controller();
-	Firestore db = controller.getDb();
 
 	private final String FICHERO = "backup.xml";
 	private final byte CLAVE = 0x5A;
+	private Firestore db;
 
 	private String xorEncrypt(String text) {
 		byte[] data = text.getBytes();
@@ -43,61 +42,66 @@ public class CreateBackup {
 		return Base64.getEncoder().encodeToString(result);
 	}
 
-	public void saveBackupToXML() {
-		if (com.google.firebase.FirebaseApp.getApps().isEmpty()) {
-			System.err.println("[ERROR] FirebaseApp no está inicializado. No se puede hacer backup a XML.");
-			return;
-		}
+	public void saveBackupToXML(Boolean connect) {
 
-		try {
-			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-			Document doc = docBuilder.newDocument();
-
-			Element rootElement = doc.createElement("backup");
-			doc.appendChild(rootElement);
-
-			// === USUARIOS ===
-			Element usersElement = doc.createElement("users");
-			rootElement.appendChild(usersElement);
-
-			ListUsersPage page = FirebaseAuth.getInstance().listUsers(null);
-			for (ExportedUserRecord user : page.getValues()) {
-				Element userElement = doc.createElement("user");
-				usersElement.appendChild(userElement);
-
-				Element uid = doc.createElement("uid");
-				uid.appendChild(doc.createTextNode(xorEncrypt(user.getUid())));
-				userElement.appendChild(uid);
-
-				Element email = doc.createElement("email");
-				email.appendChild(doc.createTextNode(xorEncrypt(user.getEmail() != null ? user.getEmail() : "")));
-				userElement.appendChild(email);
+		if (connect) {
+			if (com.google.firebase.FirebaseApp.getApps().isEmpty()) {
+				System.err.println("[ERROR] FirebaseApp no está inicializado. No se puede hacer backup a XML.");
+				return;
 			}
+			
+			Controller controller = new Controller(connect);
+			db = controller.getDb();
 
-			// === COLECCIONES FIRESTORE ===
-			Iterable<CollectionReference> collections = db.listCollections();
-			for (CollectionReference collection : collections) {
-				Element collectionElement = doc.createElement("collection");
-				collectionElement.setAttribute("name", collection.getId());
-				rootElement.appendChild(collectionElement);
-				addDocumentsToXML(collection, collectionElement, doc);
+			try {
+				DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+				DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+				Document doc = docBuilder.newDocument();
+
+				Element rootElement = doc.createElement("backup");
+				doc.appendChild(rootElement);
+
+				Element usersElement = doc.createElement("users");
+				rootElement.appendChild(usersElement);
+
+				ListUsersPage page = FirebaseAuth.getInstance().listUsers(null);
+				for (ExportedUserRecord user : page.getValues()) {
+					Element userElement = doc.createElement("user");
+					usersElement.appendChild(userElement);
+
+					Element uid = doc.createElement("uid");
+					uid.appendChild(doc.createTextNode(xorEncrypt(user.getUid())));
+					userElement.appendChild(uid);
+
+					Element email = doc.createElement("email");
+					email.appendChild(doc.createTextNode(xorEncrypt(user.getEmail() != null ? user.getEmail() : "")));
+					userElement.appendChild(email);
+				}
+
+				// === COLECCIONES FIRESTORE ===
+				Iterable<CollectionReference> collections = db.listCollections();
+				for (CollectionReference collection : collections) {
+					Element collectionElement = doc.createElement("collection");
+					collectionElement.setAttribute("name", collection.getId());
+					rootElement.appendChild(collectionElement);
+					addDocumentsToXML(collection, collectionElement, doc);
+				}
+
+				// === GUARDADO ===
+				TransformerFactory transformerFactory = TransformerFactory.newInstance();
+				Transformer transformer = transformerFactory.newTransformer();
+				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+				transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+				transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+
+				DOMSource source = new DOMSource(doc);
+				StreamResult result = new StreamResult(new FileOutputStream(FICHERO));
+				transformer.transform(source, result);
+
+				System.out.println("Backup guardado en " + FICHERO);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-
-			// === GUARDADO ===
-			TransformerFactory transformerFactory = TransformerFactory.newInstance();
-			Transformer transformer = transformerFactory.newTransformer();
-			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-
-			DOMSource source = new DOMSource(doc);
-			StreamResult result = new StreamResult(new FileOutputStream(FICHERO));
-			transformer.transform(source, result);
-
-			System.out.println("Backup guardado en " + FICHERO);
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 

@@ -22,25 +22,28 @@ import controller.Controller;
 
 public class Hariak {
 
-	private final Controller controller = new Controller();
-	private final Firestore db = controller.getDb();
-
 	private boolean amaituta = false;
 	private long totalSeconds;
 	private int totalSets;
 	private int sec;
 	private int totalTime = 0;
+	private Firestore db;
 
 	private volatile boolean skipNow = false;
 
 	public Hariak() {
 	}
 
-	public List<Exercise> start(int level, String routineName) throws InterruptedException, ExecutionException {
-		return getExercises(level, routineName);
+	public List<Exercise> start(int level, String routineName, Boolean connect)
+			throws InterruptedException, ExecutionException {
+		return getExercises(level, routineName, connect);
 	}
 
-	private List<Exercise> getExercises(int level, String routineName) throws InterruptedException, ExecutionException {
+	private List<Exercise> getExercises(int level, String routineName, Boolean connect)
+			throws InterruptedException, ExecutionException {
+
+		Controller controller = new Controller(connect);
+		db = controller.getDb();
 		List<Exercise> exercises = new ArrayList<>();
 		QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", level)
 				.whereEqualTo("name", routineName).get().get();

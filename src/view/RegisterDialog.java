@@ -38,7 +38,7 @@ public class RegisterDialog extends JFrame {
 	private JCheckBox checkboxIsTrainer;
 	private ConnectDB connectDB = new ConnectDB();
 
-	public RegisterDialog() {
+	public RegisterDialog(Boolean connect) {
 		setTitle("Erabiltzailearen Registroa");
 		setSize(399, 388);
 		getContentPane().setLayout(null);
@@ -145,7 +145,7 @@ public class RegisterDialog extends JFrame {
 				Boolean registroa = connectDB.eskaeraRegistratu(textFieldIzena.getText().trim(),
 						abizena1Field.getText().trim(), abizena2Field.getText().trim(), textFieldEmail.getText().trim(),
 						new String(passwordField.getPassword()), (java.util.Date) datePicker.getModel().getValue(),
-						checkboxIsTrainer.isSelected());
+						checkboxIsTrainer.isSelected(), connect);
 				if (registroa) {
 					dispose();
 				}
@@ -184,7 +184,7 @@ public class RegisterDialog extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					RegisterDialog frame = new RegisterDialog();
+					RegisterDialog frame = new RegisterDialog(Boolean.TRUE);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();

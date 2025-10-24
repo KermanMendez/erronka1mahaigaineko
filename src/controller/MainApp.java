@@ -3,17 +3,24 @@ package controller;
 import model.CreateBackup;
 
 public class MainApp {
+
+	private static Boolean connect = true;
+
 	public static void main(String[] args) {
-		Boolean connect = false;
-		CreateBackup backup = new CreateBackup();
 		controller.AppState.setAppStarted(true);
-		Controller controller = new Controller();
-		if (DBConnection.initialize()) {
-			connect = true;
+		DBConnection dbConnection = new DBConnection();
+		connect = dbConnection.initialize(connect);
+		System.out.println(connect);
+		Controller controller = new Controller(connect);
+
+		if (connect) {
+			CreateBackup backup = new CreateBackup();
+			System.out.println(connect);
+			new Thread(() -> {
+				backup.saveBackupToXML(connect);
+			}).start();
 		}
-		new Thread(() -> {
-			backup.saveBackupToXML();
-		}).start();
+
 		controller.getFirstView(connect).setVisible(true);
 	}
 }
