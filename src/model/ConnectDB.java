@@ -104,7 +104,7 @@ public class ConnectDB {
 
 		try {
 			if (connect) {
-				// Modo online (Firebase)
+				// Online
 				String uid = checkLogin(email, password);
 				if (uid == null) {
 					JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.", "Errorea",
@@ -132,7 +132,7 @@ public class ConnectDB {
 				return email;
 
 			} else {
-				// Modo offline (XML backup)
+				// Offline
 				ReadBackup reader = new ReadBackup();
 				ReadBackup.BackupData backup = reader.loadBackupData();
 				if (backup == null)
@@ -150,7 +150,6 @@ public class ConnectDB {
 							continue;
 						}
 
-						// Separamos salt y hash
 						String[] parts = storedPassword.split("\\$");
 						if (parts.length != 2)
 							continue;
@@ -162,7 +161,6 @@ public class ConnectDB {
 						SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
 						byte[] hashAttempt = skf.generateSecret(spec).getEncoded();
 
-						// Comparación segura (simple)
 						boolean valid = hashStored.length == hashAttempt.length;
 						for (int i = 0; i < hashStored.length && valid; i++) {
 							if (hashStored[i] != hashAttempt[i])
