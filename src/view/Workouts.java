@@ -21,6 +21,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
+import controller.AppState;
+import controller.MainApp;
 import model.ReadBackup;
 import model.Routines;
 import model.UIStyle;
@@ -37,7 +39,7 @@ public class Workouts extends JFrame {
 	private JLabel lblMailaAktuala;
 	private Routines routines = new Routines();
 	private LoginFrame login = new LoginFrame(Boolean.TRUE);
-	
+
 	public Workouts(Boolean isTrainer, Boolean connect) {
 		setTitle("Workouts");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -95,8 +97,8 @@ public class Workouts extends JFrame {
 
 		JComboBox<String> comboMailaRutinakLevel = new JComboBox<String>();
 		try {
-			comboMailaRutinakLevel
-					.setModel(new DefaultComboBoxModel<>(routines.getRoutines(comboMaila.getSelectedIndex() + 1, connect)));
+			comboMailaRutinakLevel.setModel(
+					new DefaultComboBoxModel<>(routines.getRoutines(comboMaila.getSelectedIndex() + 1, connect)));
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
@@ -267,10 +269,10 @@ public class Workouts extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		/*if (!AppState.isAppStarted()) {
+		if (!AppState.isAppStarted()) {
 			MainApp.main(args);
 			return;
-		}*/
+		}
 		EventQueue.invokeLater(() -> {
 			try {
 				Workouts frame = new Workouts(Boolean.FALSE, Boolean.TRUE);

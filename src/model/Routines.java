@@ -75,7 +75,7 @@ public class Routines {
 
 		List<String> workoutNames = new ArrayList<>();
 
-		if (!connect) {
+		if (connect) {
 			QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", selectedLevel).get().get();
 
 			if (querySnapshot.isEmpty())
@@ -115,7 +115,7 @@ public class Routines {
 	public String[] getLevels(int nivelSeleccionado, String nivelText, Boolean connect)
 			throws InterruptedException, ExecutionException {
 
-		if (!connect) {
+		if (connect) {
 
 			QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", nivelSeleccionado)
 					.whereEqualTo("name", nivelText).get().get();

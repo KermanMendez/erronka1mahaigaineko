@@ -1,8 +1,14 @@
 package model;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -55,49 +61,144 @@ public class ConnectDB {
 		}
 	}
 
+	public String hashPassword(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+		int iterations = 65536;
+		int keyLength = 256;
+		byte[] salt = new byte[16];
+		SecureRandom sr = new SecureRandom();
+		sr.nextBytes(salt);
+
+		PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations, keyLength);
+		SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+		byte[] hash = skf.generateSecret(spec).getEncoded();
+
+		return Base64.getEncoder().encodeToString(salt) + "$" + Base64.getEncoder().encodeToString(hash);
+	}
+
 	public void createUser(String name, String surname1, String surname2, String email, String password,
 			String birthdate, Boolean isTrainer) throws Exception {
+
+		String hashedPassword = hashPassword(password);
+
 		CreateRequest request = new CreateRequest().setEmail(email).setEmailVerified(false).setPassword(password)
 				.setDisabled(false);
+
 		UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
+
 		DocumentReference uidDoc = db.collection("users").document(userRecord.getUid());
-		Map<String, Object> erabiltzaileDatuak = Map.of("name", name, "email", email, "surname", surname1, "surname2",
-				surname2, "birthdate", birthdate, "isTrainer", isTrainer);
+		Map<String, Object> erabiltzaileDatuak = Map.of("name", name, "surname", surname1, "surname2", surname2,
+				"email", email, "birthdate", birthdate, "isTrainer", isTrainer, "password", hashedPassword);
+
 		uidDoc.set(erabiltzaileDatuak);
 	}
 
 	public String handleLogin(JTextField textFieldUser, JPasswordField passwordField, Boolean connect) {
 		String email = textFieldUser.getText().trim();
 		String password = new String(passwordField.getPassword());
+
 		if (email.isEmpty() || password.isEmpty()) {
 			JOptionPane.showMessageDialog(null, "Bete Erabiltzailea eta Pasahitza.", "Login",
 					JOptionPane.INFORMATION_MESSAGE);
 			return null;
 		}
+
 		try {
-			String uid = checkLogin(email, password);
-			if (uid == null) {
-				JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.", "Errorea",
+			if (connect) {
+				// Modo online (Firebase)
+				String uid = checkLogin(email, password);
+				if (uid == null) {
+					JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.", "Errorea",
+							JOptionPane.ERROR_MESSAGE);
+					return null;
+				}
+
+				DocumentSnapshot userDoc = db.collection("users").document(uid).get().get();
+				if (!userDoc.exists()) {
+					JOptionPane.showMessageDialog(null, "Ez dira erabiltzailearen datuak aurkitu.", "Error",
+							JOptionPane.ERROR_MESSAGE);
+					return null;
+				}
+
+				Boolean entrenatzaileaDa = userDoc.getBoolean("isTrainer");
+				if (entrenatzaileaDa == null)
+					entrenatzaileaDa = false;
+
+				Inter inter = new Inter(entrenatzaileaDa, connect);
+				inter.setVisible(true);
+
+				CreateUserBackup createUserBackup = new CreateUserBackup();
+				createUserBackup.saveEmail(email);
+
+				return email;
+
+			} else {
+				// Modo offline (XML backup)
+				ReadBackup reader = new ReadBackup();
+				ReadBackup.BackupData backup = reader.loadBackupData();
+				if (backup == null)
+					return null;
+
+				for (var entry : backup.collections.entrySet()) {
+					for (ReadBackup.DocumentData doc : entry.getValue()) {
+						String userEmail = doc.fields.get("email");
+						if (userEmail == null || !userEmail.equals(email)) {
+							continue;
+						}
+
+						String storedPassword = doc.fields.get("password");
+						if (storedPassword == null || !storedPassword.contains("$")) {
+							continue;
+						}
+
+						// Separamos salt y hash
+						String[] parts = storedPassword.split("\\$");
+						if (parts.length != 2)
+							continue;
+
+						byte[] salt = Base64.getDecoder().decode(parts[0]);
+						byte[] hashStored = Base64.getDecoder().decode(parts[1]);
+
+						PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 256);
+						SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+						byte[] hashAttempt = skf.generateSecret(spec).getEncoded();
+
+						// Comparación segura (simple)
+						boolean valid = hashStored.length == hashAttempt.length;
+						for (int i = 0; i < hashStored.length && valid; i++) {
+							if (hashStored[i] != hashAttempt[i])
+								valid = false;
+						}
+
+						if (!valid) {
+							JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.", "Errorea",
+									JOptionPane.ERROR_MESSAGE);
+							return null;
+						}
+
+						boolean entrenatzaileaDa = false;
+						String isTrainerField = doc.fields.get("isTrainer");
+						if (isTrainerField != null) {
+							entrenatzaileaDa = Boolean.parseBoolean(isTrainerField);
+						}
+
+						Inter inter = new Inter(entrenatzaileaDa, connect);
+						inter.setVisible(true);
+
+						CreateUserBackup createUserBackup = new CreateUserBackup();
+						createUserBackup.saveEmail(email);
+
+						return email;
+					}
+				}
+
+				JOptionPane.showMessageDialog(null, "Erabiltzailea ez da aurkitu.", "Errorea",
 						JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
-			DocumentSnapshot erabiltzaileDoc = db.collection("users").document(uid).get().get();
-			if (!erabiltzaileDoc.exists()) {
-				JOptionPane.showMessageDialog(null, "Ez dira erabiltzailearen datuak aurkitu.", "Error",
-						JOptionPane.ERROR_MESSAGE);
-				return null;
-			}
-			Boolean entrenatzaileaDa = erabiltzaileDoc.getBoolean("isTrainer");
-			if (entrenatzaileaDa == null) {
-				entrenatzaileaDa = false;
-			}
-			Inter inter = new Inter(entrenatzaileaDa, connect);
-			inter.setVisible(true);
-			CreateUserBackup createUserBackup = new CreateUserBackup();
-			createUserBackup.saveEmail(email);
-			return textFieldUser.getText().trim();
+
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(null, "Errorea login prozesuan.", "Errorea", JOptionPane.ERROR_MESSAGE);
+			ex.printStackTrace();
 			return null;
 		}
 	}
