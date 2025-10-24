@@ -40,7 +40,6 @@ public class CreateBackup {
 		for (int i = 0; i < data.length; i++) {
 			result[i] = (byte) (data[i] ^ CLAVE);
 		}
-		// Lo pasamos a Base64 para que siga siendo texto XML válido
 		return Base64.getEncoder().encodeToString(result);
 	}
 

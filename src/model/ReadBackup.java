@@ -20,7 +20,6 @@ public class ReadBackup {
 	private final String FICHERO = "backup.xml";
 	private final byte CLAVE = 0x5A;
 
-	// ======== Clases internas de estructura ========
 	public static class UserData {
 		public String uid;
 		public String email;
@@ -57,8 +56,6 @@ public class ReadBackup {
 		}
 	}
 
-	// ======== Métodos de desencriptado ========
-
 	private String xorDecrypt(String base64Text) {
 		if (base64Text == null || base64Text.isEmpty())
 			return "";
@@ -79,8 +76,7 @@ public class ReadBackup {
 		}
 		return "";
 	}
-
-	// ======== MÉTODO PRINCIPAL ========
+	
 	public BackupData loadBackupData() {
 		File file = new File(FICHERO);
 		if (!file.exists() || file.length() == 0) {
@@ -96,7 +92,6 @@ public class ReadBackup {
 			Document doc = builder.parse(FICHERO);
 			doc.getDocumentElement().normalize();
 
-			// === Usuarios ===
 			NodeList users = doc.getElementsByTagName("user");
 			for (int i = 0; i < users.getLength(); i++) {
 				Node userNode = users.item(i);
@@ -108,7 +103,6 @@ public class ReadBackup {
 				}
 			}
 
-			// === Colecciones Firestore ===
 			NodeList collections = doc.getElementsByTagName("collection");
 			for (int i = 0; i < collections.getLength(); i++) {
 				Element collectionElement = (Element) collections.item(i);
@@ -125,7 +119,6 @@ public class ReadBackup {
 		return backup;
 	}
 
-	// ======== Función recursiva para documentos ========
 	private List<DocumentData> parseDocuments(Element parentElement) {
 		List<DocumentData> documentsList = new ArrayList<>();
 		NodeList documents = parentElement.getElementsByTagName("document");
@@ -133,7 +126,6 @@ public class ReadBackup {
 		for (int i = 0; i < documents.getLength(); i++) {
 			Node docNode = documents.item(i);
 
-			// Evitar leer documentos de niveles inferiores repetidos
 			if (docNode.getParentNode() != parentElement)
 				continue;
 
@@ -142,7 +134,6 @@ public class ReadBackup {
 				DocumentData documentData = new DocumentData();
 				documentData.id = docElement.getAttribute("id");
 
-				// Campos simples
 				NodeList children = docElement.getChildNodes();
 				for (int j = 0; j < children.getLength(); j++) {
 					Node child = children.item(j);
@@ -163,4 +154,33 @@ public class ReadBackup {
 		}
 		return documentsList;
 	}
+	
+	public void readBackup() {
+	    ReadBackup reader = new ReadBackup();
+	    ReadBackup.BackupData backup = reader.loadBackupData();
+
+	    if (backup != null) {
+	        System.out.println("Usuarios:");
+	        for (ReadBackup.UserData u : backup.users) {
+	            System.out.println("  UID: " + u.uid + ", Email: " + u.email);
+	        }
+
+	        System.out.println("\nColecciones:");
+	        backup.collections.forEach((name, docs) -> {
+	            System.out.println("📂 " + name);
+	            for (ReadBackup.DocumentData d : docs) {
+	                System.out.println("  📝 Doc ID: " + d.id);
+	                d.fields.forEach((k, v) -> System.out.println("     - " + k + ": " + v));
+
+	                d.subcollections.forEach((subname, subdocs) -> {
+	                    System.out.println("     🔁 Subcolección: " + subname);
+	                    for (ReadBackup.DocumentData subDoc : subdocs) {
+	                        System.out.println("        🧩 " + subDoc.id + " → " + subDoc.fields);
+	                    }
+	                });
+	            }
+	        });
+	    }
+	}
+
 }

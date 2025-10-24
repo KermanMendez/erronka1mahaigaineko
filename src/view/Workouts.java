@@ -181,6 +181,7 @@ public class Workouts extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				ReadBackup backup = new ReadBackup();
 				backup.loadBackupData();
+				backup.readBackup();
 			}
 		});
 		UIStyle.styleButton(btnIkusiHistoria);
