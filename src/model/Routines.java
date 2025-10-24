@@ -71,62 +71,123 @@ public class Routines {
 		return exercises;
 	}
 
-	public String[] getRoutines(int selectedLevel) throws InterruptedException, ExecutionException {
-
-		QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", selectedLevel).get().get();
-
-		if (querySnapshot.isEmpty())
-			return new String[] { "Ez daude workout-ak maila honetarako" };
+	public String[] getRoutines(int selectedLevel, Boolean connect) throws InterruptedException, ExecutionException {
 
 		List<String> workoutNames = new ArrayList<>();
 
-		for (DocumentSnapshot routineDoc : querySnapshot.getDocuments()) {
-			String name = routineDoc.getString("name");
-			if (name != null) {
-				workoutNames.add(name);
-			}
-		}
+		if (!connect) {
+			QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", selectedLevel).get().get();
 
-		return workoutNames.toArray(new String[0]);
+			if (querySnapshot.isEmpty())
+				return new String[] { "Ez daude workout-ak maila honetarako" };
+
+			for (DocumentSnapshot routineDoc : querySnapshot.getDocuments()) {
+				String name = routineDoc.getString("name");
+				if (name != null) {
+					workoutNames.add(name);
+				}
+			}
+
+			return workoutNames.toArray(new String[0]);
+		} else {
+			ReadBackup reader = new ReadBackup();
+			ReadBackup.BackupData backup = reader.loadBackupData();
+
+			if (backup != null) {
+				backup.collections.forEach((name, docs) -> {
+					for (ReadBackup.DocumentData d : docs) {
+						String levelValue = d.fields.get("level");
+						if (levelValue != null && levelValue.equals(String.valueOf(selectedLevel))) {
+							String workoutName = d.fields.get("name");
+							if (workoutName != null) {
+								workoutNames.add(workoutName);
+							}
+						}
+					}
+				});
+			}
+
+			return workoutNames.toArray(new String[0]);
+		}
 
 	}
 
-	public String[] getLevels(int nivelSeleccionado, String nivelText) throws InterruptedException, ExecutionException {
+	public String[] getLevels(int nivelSeleccionado, String nivelText, Boolean connect)
+			throws InterruptedException, ExecutionException {
 
-		QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", nivelSeleccionado)
-				.whereEqualTo("name", nivelText).get().get();
+		if (!connect) {
 
-		if (querySnapshot.isEmpty()) {
-			return new String[] { "Ez daude workout-ak maila honetarako" };
-		}
+			QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", nivelSeleccionado)
+					.whereEqualTo("name", nivelText).get().get();
 
-		List<String> levels = new ArrayList<>();
+			if (querySnapshot.isEmpty()) {
+				return new String[] { "Ez daude workout-ak maila honetarako" };
+			}
 
-		for (DocumentSnapshot routineDoc : querySnapshot.getDocuments()) {
-			List<QueryDocumentSnapshot> exerciseDocs = routineDoc.getReference().collection("exercises").get().get()
-					.getDocuments();
+			List<String> levels = new ArrayList<>();
 
-			for (DocumentSnapshot exerciseDoc : exerciseDocs) {
-				String exerciseName = exerciseDoc.getString("name");
-				String exerciseDesc = exerciseDoc.getString("description");
-				
-				Object setsObj = exerciseDoc.get("sets");
-				int sets = 0;
-				if (setsObj != null) {
-					sets = Integer.parseInt(setsObj.toString());
-				}
+			for (DocumentSnapshot routineDoc : querySnapshot.getDocuments()) {
+				List<QueryDocumentSnapshot> exerciseDocs = routineDoc.getReference().collection("exercises").get().get()
+						.getDocuments();
 
-				if (exerciseName != null && exerciseDesc != null) {
-					levels.add(exerciseName + " – " + exerciseDesc + " (Total Sets: " + sets + ")");
+				for (DocumentSnapshot exerciseDoc : exerciseDocs) {
+					String exerciseName = exerciseDoc.getString("name");
+					String exerciseDesc = exerciseDoc.getString("description");
+
+					Object setsObj = exerciseDoc.get("sets");
+					int sets = 0;
+					if (setsObj != null) {
+						sets = Integer.parseInt(setsObj.toString());
+					}
+
+					if (exerciseName != null && exerciseDesc != null) {
+						levels.add(exerciseName + " – " + exerciseDesc + " (Total Sets: " + sets + ")");
+					}
 				}
 			}
-		}
 
-		if (levels.isEmpty()) {
-			return new String[] { "Ez daude ariketarik workout honetan" };
-		}
+			if (levels.isEmpty()) {
+				return new String[] { "Ez daude ariketarik workout honetan" };
+			}
 
-		return levels.toArray(new String[0]);
+			return levels.toArray(new String[0]);
+		} else {
+			ReadBackup reader = new ReadBackup();
+			ReadBackup.BackupData backup = reader.loadBackupData();
+
+			List<String> levels = new ArrayList<>();
+
+			if (backup != null) {
+				backup.collections.forEach((name, docs) -> {
+					for (ReadBackup.DocumentData d : docs) {
+						String levelValue = d.fields.get("level");
+						String nameValue = d.fields.get("name");
+						if (levelValue != null && levelValue.equals(String.valueOf(nivelSeleccionado))
+								&& nameValue != null && nameValue.equals(nivelText)) {
+							List<ReadBackup.DocumentData> exerciseDocs = d.subcollections.get("exercises");
+							if (exerciseDocs != null) {
+								for (ReadBackup.DocumentData exDoc : exerciseDocs) {
+									String exerciseName = exDoc.fields.get("name");
+									String exerciseDesc = exDoc.fields.get("description");
+									String setsStr = exDoc.fields.get("sets");
+									int sets = setsStr != null ? Integer.parseInt(setsStr) : 0;
+
+									if (exerciseName != null && exerciseDesc != null) {
+										levels.add(exerciseName + " – " + exerciseDesc + " (Total Sets: " + sets + ")");
+									}
+								}
+							}
+						}
+					}
+				});
+			}
+
+			if (levels.isEmpty()) {
+				return new String[] { "Ez daude ariketarik workout honetan" };
+			}
+
+			return levels.toArray(new String[0]);
+		}
 	}
 
 	public DefaultListModel<String> getListModel() {

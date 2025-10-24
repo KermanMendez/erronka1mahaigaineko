@@ -21,8 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
-import controller.AppState;
-import controller.MainApp;
 import model.ReadBackup;
 import model.Routines;
 import model.UIStyle;
@@ -38,9 +36,9 @@ public class Workouts extends JFrame {
 	private JButton btnIkusiAriketak;
 	private JLabel lblMailaAktuala;
 	private Routines routines = new Routines();
-	private LoginFrame login = new LoginFrame();
-
-	public Workouts(Boolean isTrainer) {
+	private LoginFrame login = new LoginFrame(Boolean.TRUE);
+	
+	public Workouts(Boolean isTrainer, Boolean connect) {
 		setTitle("Workouts");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 600, 400);
@@ -59,7 +57,7 @@ public class Workouts extends JFrame {
 		JButton btnAtzera = new JButton(scaledIcon);
 		btnAtzera.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Inter inter = new Inter(isTrainer);
+				Inter inter = new Inter(isTrainer, connect);
 				inter.setVisible(true);
 				dispose();
 			}
@@ -98,7 +96,7 @@ public class Workouts extends JFrame {
 		JComboBox<String> comboMailaRutinakLevel = new JComboBox<String>();
 		try {
 			comboMailaRutinakLevel
-					.setModel(new DefaultComboBoxModel<>(routines.getRoutines(comboMaila.getSelectedIndex() + 1)));
+					.setModel(new DefaultComboBoxModel<>(routines.getRoutines(comboMaila.getSelectedIndex() + 1, connect)));
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
@@ -132,7 +130,7 @@ public class Workouts extends JFrame {
 
 			new Thread(() -> {
 				try {
-					String[] ariketak = routines.getLevels(aukeratutakoMaila, nivelText);
+					String[] ariketak = routines.getLevels(aukeratutakoMaila, nivelText, connect);
 					SwingUtilities.invokeLater(() -> {
 						listaWorkout.setModel(new AbstractListModel<String>() {
 							private static final long serialVersionUID = 1L;
@@ -161,7 +159,7 @@ public class Workouts extends JFrame {
 
 			new Thread(() -> {
 				try {
-					String[] workouts = routines.getRoutines(nivelSeleccionado);
+					String[] workouts = routines.getRoutines(nivelSeleccionado, connect);
 					SwingUtilities.invokeLater(() -> {
 						comboMailaRutinakLevel.setModel(new DefaultComboBoxModel<>(workouts));
 						listaEguneratu.run();
@@ -218,7 +216,7 @@ public class Workouts extends JFrame {
 		});
 		btnHasiWorkout.addActionListener(e -> {
 			ThreadFrame threadFrame = new ThreadFrame(comboMaila.getSelectedIndex() + 1,
-					comboMailaRutinakLevel.getSelectedItem().toString(), isTrainer);
+					comboMailaRutinakLevel.getSelectedItem().toString(), isTrainer, connect);
 			threadFrame.setVisible(true);
 			dispose();
 		});
@@ -269,13 +267,13 @@ public class Workouts extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		if (!AppState.isAppStarted()) {
+		/*if (!AppState.isAppStarted()) {
 			MainApp.main(args);
 			return;
-		}
+		}*/
 		EventQueue.invokeLater(() -> {
 			try {
-				Workouts frame = new Workouts(Boolean.FALSE);
+				Workouts frame = new Workouts(Boolean.FALSE, Boolean.TRUE);
 				frame.setVisible(true);
 			} catch (Exception e) {
 				e.printStackTrace();

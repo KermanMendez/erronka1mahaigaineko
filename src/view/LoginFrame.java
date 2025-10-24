@@ -35,7 +35,7 @@ public class LoginFrame extends JFrame {
 	Firestore db = controller.getDb();
 	private ConnectDB connectDB = new ConnectDB();
 
-	public LoginFrame() {
+	public LoginFrame(Boolean connect) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage("img/logo.png"));
 		setTitle("LOGIN");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -87,7 +87,7 @@ public class LoginFrame extends JFrame {
 		});
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String user = connectDB.handleLogin(textFieldUser, passwordField);
+				String user = connectDB.handleLogin(textFieldUser, passwordField, connect);
 				if (user != null) {
 					dispose();
 				}
@@ -126,7 +126,7 @@ public class LoginFrame extends JFrame {
 		}
 		EventQueue.invokeLater(() -> {
 			try {
-				LoginFrame frame = new LoginFrame();
+				LoginFrame frame = new LoginFrame(Boolean.TRUE);
 				frame.setVisible(true);
 			} catch (Exception e) {
 				e.printStackTrace();

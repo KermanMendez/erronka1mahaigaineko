@@ -27,7 +27,7 @@ public class Profile extends JFrame {
 	private JTextField txtSurname1;
 	private JTextField txtSurname2;
 
-	public Profile(Boolean isTrainer) {
+	public Profile(Boolean isTrainer, Boolean connect) {
 		setTitle("Zure Profila");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -44,7 +44,7 @@ public class Profile extends JFrame {
 		JButton btnAtzera = new JButton(scaledIcon);
 		btnAtzera.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Inter inter = new Inter(isTrainer);
+				Inter inter = new Inter(isTrainer, connect);
 				inter.setVisible(true);
 				dispose();
 			}
@@ -156,7 +156,7 @@ public class Profile extends JFrame {
 		}
 		EventQueue.invokeLater(() -> {
 			try {
-				Profile frame = new Profile(Boolean.FALSE);
+				Profile frame = new Profile(Boolean.FALSE, Boolean.TRUE);
 				frame.setVisible(true);
 			} catch (Exception e) {
 				e.printStackTrace();

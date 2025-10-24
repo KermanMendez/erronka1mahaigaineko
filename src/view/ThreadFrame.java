@@ -33,7 +33,7 @@ public class ThreadFrame extends JFrame {
 	private JLabel labelAtsedenak = new JLabel("");
 	private JLabel labelHasiera = new JLabel("");
 
-	public ThreadFrame(int level, String routineName, Boolean isTrainer) {
+	public ThreadFrame(int level, String routineName, Boolean isTrainer, Boolean connect) {
 		setTitle(" Workout - " + routineName);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(693, 490);
@@ -95,7 +95,7 @@ public class ThreadFrame extends JFrame {
 		btnAmaitu.addActionListener(e -> {
 			stopRequested = true;
 			hariak.historyLog(routineName);
-			Workouts workoutsView = new Workouts(isTrainer);
+			Workouts workoutsView = new Workouts(isTrainer, connect);
 			workoutsView.setVisible(true);
 			dispose();
 		});
@@ -128,7 +128,7 @@ public class ThreadFrame extends JFrame {
 				return;
 			}
 			try {
-				ThreadFrame frame = new ThreadFrame(1, "Nire rutina", Boolean.FALSE);
+				ThreadFrame frame = new ThreadFrame(1, "Nire rutina", Boolean.FALSE, Boolean.TRUE);
 				frame.setVisible(true);
 			} catch (Exception e) {
 				e.printStackTrace();

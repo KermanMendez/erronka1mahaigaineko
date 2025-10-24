@@ -24,7 +24,7 @@ public class FirstView extends JFrame {
 	private static ImageIcon logo;
 	private JPanel contentPane;
 
-	public FirstView() {
+	public FirstView(Boolean connect) {
 		if (!AppState.isAppStarted()) {
 			controller.MainApp.main(null);
 		}
@@ -51,7 +51,7 @@ public class FirstView extends JFrame {
 			}
 		});
 		btnEnter.addActionListener(e -> {
-			LoginFrame loginFrame = new LoginFrame();
+			LoginFrame loginFrame = new LoginFrame(connect);
 			loginFrame.setVisible(true);
 			dispose();
 		});
@@ -83,7 +83,7 @@ public class FirstView extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					FirstView frame = new FirstView();
+					FirstView frame = new FirstView(Boolean.TRUE);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();

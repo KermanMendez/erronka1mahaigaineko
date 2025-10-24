@@ -24,9 +24,9 @@ public class Controller {
 		return db;
 	}
 
-	public FirstView getFirstView() {
+	public FirstView getFirstView(Boolean connect) {
 		if (firstView == null) {
-			firstView = new FirstView();
+			firstView = new FirstView(connect);
 		}
 		return firstView;
 	}

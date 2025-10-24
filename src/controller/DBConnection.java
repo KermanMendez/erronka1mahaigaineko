@@ -11,13 +11,13 @@ public class DBConnection {
 	public DBConnection(Controller controller) {
 	}
 
-	public static void initialize() {
+	public static Boolean initialize() {
 		try {
 			File keyFile = new File("serviceAccountKey.json");
 			if (!keyFile.exists()) {
 				System.out.println(
 						"[ERROR] No se encuentra el archivo serviceAccountKey.json. Firebase no se inicializará.");
-				return;
+				return false;
 			}
 			FileInputStream serviceAccount = new FileInputStream(keyFile);
 
@@ -26,11 +26,13 @@ public class DBConnection {
 
 			if (options == null) {
 				System.out.println("Error al cargar las credenciales de Firebase");
-				return;
+				return false;
 			}
 
 			FirebaseApp.initializeApp(options);
+			return true;
 		} catch (Exception e) {
 		}
+		return true;
 	}
 }

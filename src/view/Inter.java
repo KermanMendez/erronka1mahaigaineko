@@ -21,7 +21,7 @@ public class Inter extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 
-	public Inter(Boolean isTrainer) {
+	public Inter(Boolean isTrainer, Boolean connect) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 
@@ -46,7 +46,7 @@ public class Inter extends JFrame {
 			}
 		});
 		btnProfile.addActionListener(e -> {
-			Profile profile = new Profile(isTrainer);
+			Profile profile = new Profile(isTrainer, connect);
 			dispose();
 			profile.setVisible(true);
 		});
@@ -69,7 +69,7 @@ public class Inter extends JFrame {
 			}
 		});
 		btnWorkouts.addActionListener(e -> {
-			Workouts workouts = new Workouts(isTrainer);
+			Workouts workouts = new Workouts(isTrainer, connect);
 			dispose();
 			workouts.setVisible(true);
 		});
@@ -123,7 +123,7 @@ public class Inter extends JFrame {
 		}
 		EventQueue.invokeLater(() -> {
 			try {
-				Inter frame = new Inter(Boolean.FALSE);
+				Inter frame = new Inter(Boolean.FALSE, Boolean.TRUE);
 				frame.setVisible(true);
 			} catch (Exception e) {
 				e.printStackTrace();

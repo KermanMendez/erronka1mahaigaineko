@@ -66,7 +66,7 @@ public class ConnectDB {
 		uidDoc.set(erabiltzaileDatuak);
 	}
 
-	public String handleLogin(JTextField textFieldUser, JPasswordField passwordField) {
+	public String handleLogin(JTextField textFieldUser, JPasswordField passwordField, Boolean connect) {
 		String email = textFieldUser.getText().trim();
 		String password = new String(passwordField.getPassword());
 		if (email.isEmpty() || password.isEmpty()) {
@@ -91,7 +91,7 @@ public class ConnectDB {
 			if (entrenatzaileaDa == null) {
 				entrenatzaileaDa = false;
 			}
-			Inter inter = new Inter(entrenatzaileaDa);
+			Inter inter = new Inter(entrenatzaileaDa, connect);
 			inter.setVisible(true);
 			CreateUserBackup createUserBackup = new CreateUserBackup();
 			createUserBackup.saveEmail(email);
