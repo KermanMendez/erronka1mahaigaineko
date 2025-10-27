@@ -18,6 +18,7 @@ import controller.AppState;
 import controller.MainApp;
 import model.Exercise;
 import model.Hariak;
+import java.awt.Toolkit;
 
 public class ThreadFrame extends JFrame {
 
@@ -34,6 +35,7 @@ public class ThreadFrame extends JFrame {
 	private JLabel labelHasiera = new JLabel("");
 
 	public ThreadFrame(int level, String routineName, Boolean isTrainer, Boolean connect) {
+		setIconImage(Toolkit.getDefaultToolkit().getImage(ThreadFrame.class.getResource("/img/logo.png")));
 		setTitle(" Workout - " + routineName);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(693, 490);
@@ -94,7 +96,6 @@ public class ThreadFrame extends JFrame {
 		btnAmaitu.setFocusPainted(false);
 		btnAmaitu.addActionListener(e -> {
 			stopRequested = true;
-			hariak.historyLog(routineName);
 			Workouts workoutsView = new Workouts(isTrainer, connect);
 			workoutsView.setVisible(true);
 			dispose();
@@ -114,7 +115,7 @@ public class ThreadFrame extends JFrame {
 								return true;
 							}
 							return false;
-						}, () -> paused, pauseLock, true, true, true);
+						}, () -> paused, pauseLock, routineName, true, true, true);
 			} catch (InterruptedException | ExecutionException ex) {
 				ex.printStackTrace();
 			}

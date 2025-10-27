@@ -18,6 +18,7 @@ import javax.swing.JTextField;
 import controller.AppState;
 import controller.MainApp;
 import model.UIStyle;
+import java.awt.Toolkit;
 
 public class Profile extends JFrame {
 
@@ -28,6 +29,7 @@ public class Profile extends JFrame {
 	private JTextField txtSurname2;
 
 	public Profile(Boolean isTrainer, Boolean connect) {
+		setIconImage(Toolkit.getDefaultToolkit().getImage(Profile.class.getResource("/img/logo.png")));
 		setTitle("Zure Profila");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);

@@ -16,7 +16,6 @@ public class DBConnection {
 		try {
 			File keyFile = new File("serviceAccountKey.json");
 			if (!keyFile.exists()) {
-				System.out.println("[ERROR] No se encuentra el archivo serviceAccountKey.json.");
 				return false;
 			}
 
@@ -27,7 +26,6 @@ public class DBConnection {
 			try (Socket s = new Socket()) {
 				s.connect(new InetSocketAddress("firestore.googleapis.com", 443), 3000);
 			} catch (IOException ex) {
-				System.out.println("[INFO] Sin conexión a Firebase.");
 				return false;
 			}
 

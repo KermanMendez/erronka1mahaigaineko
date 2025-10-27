@@ -26,6 +26,7 @@ import controller.MainApp;
 import model.ReadBackup;
 import model.Routines;
 import model.UIStyle;
+import java.awt.Toolkit;
 
 public class Workouts extends JFrame {
 
@@ -40,6 +41,7 @@ public class Workouts extends JFrame {
 	private LoginFrame login = new LoginFrame(Boolean.TRUE);
 
 	public Workouts(Boolean isTrainer, Boolean connect) {
+		setIconImage(Toolkit.getDefaultToolkit().getImage(Workouts.class.getResource("/img/logo.png")));
 		Routines routines = new Routines(connect);
 		setTitle("Workouts");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -24,7 +24,8 @@ public class Hariak {
 
 	private boolean amaituta = false;
 	private long totalSeconds;
-	private int totalSets;
+	private int completedSets = 0;
+	private int expectedTotalSets = 0;
 	private int sec;
 	private int totalTime = 0;
 	private Firestore db;
@@ -104,6 +105,12 @@ public class Hariak {
 					});
 
 					sleep(1000);
+				}
+
+				// After finishing a full serie (all seconds), count it as a completed set in
+				// the mode 0 thread
+				if (mode == 0) {
+					completedSets++;
 				}
 
 				if (s < sets) {
@@ -219,7 +226,8 @@ public class Hariak {
 
 	public void startExerciseThreads(List<Exercise> exercises, JLabel labelTotal, JLabel labelSeries,
 			JLabel labelDescansos, JLabel labelHasiera, Supplier<Boolean> stopSupplier, Supplier<Boolean> skipSupplier,
-			Supplier<Boolean> pauseSupplier, Object lock, boolean thread1, boolean thread2, boolean thread3) {
+			Supplier<Boolean> pauseSupplier, Object lock, String routineName, boolean thread1, boolean thread2,
+			boolean thread3) {
 		new Thread(() -> {
 			try {
 				for (int i = 5; i > 0; i--) {
@@ -251,35 +259,70 @@ public class Hariak {
 				labelDescansos.setVisible(true);
 				labelHasiera.setVisible(false);
 
-				new Thread(() -> runExerciseThread(exercises, labelTotal, "⏱ TOTAL", stopSupplier, skipSupplier,
-						pauseSupplier, lock, 0, thread1)).start();
+				// Pre-calculate expected total sets (sum of sets per exercise) and reset
+				// completedSets
+				int computedTotalSets = 0;
+				this.completedSets = 0;
+				if (exercises != null) {
+					for (Exercise e : exercises) {
+						computedTotalSets += e.getSets();
+					}
+				}
+				// store expected total sets so we can show expected vs completed later
+				this.expectedTotalSets = computedTotalSets;
 
-				new Thread(() -> runExerciseThread(exercises, labelSeries, "💪 SERIEAK", stopSupplier, skipSupplier,
-						pauseSupplier, lock, 1, thread2)).start();
+				// Create named threads so we can join and detect normal completion
+				Thread tTotal = new Thread(() -> runExerciseThread(exercises, labelTotal, "⏱ TOTAL", stopSupplier,
+						skipSupplier, pauseSupplier, lock, 0, thread1));
+				Thread tSeries = new Thread(() -> runExerciseThread(exercises, labelSeries, "💪 SERIEAK", stopSupplier,
+						skipSupplier, pauseSupplier, lock, 1, thread2));
+				Thread tRest = new Thread(() -> runExerciseThread(exercises, labelDescansos, "😴 ATSEDENAK",
+						stopSupplier, skipSupplier, pauseSupplier, lock, 2, thread3));
 
-				new Thread(() -> runExerciseThread(exercises, labelDescansos, "😴 ATSEDENAK", stopSupplier,
-						skipSupplier, pauseSupplier, lock, 2, thread3)).start();
+				tTotal.start();
+				tSeries.start();
+				tRest.start();
 
+				// Wait for all three threads to finish. If stopSupplier becomes true, the
+				// runExerciseThread
+				// implementations return early; in that case we won't mark amaituta as true.
+				tTotal.join();
+				tSeries.join();
+				tRest.join();
+
+				// If stop was not requested, then the routine completed normally
+				if (stopSupplier == null || !stopSupplier.get()) {
+					amaituta = true;
+					// Ensure totalSeconds reflects the totalTime accumulated by mode 0 thread
+					totalSeconds = totalTime;
+					// Log history automatically when finished normally
+				}
+
+				// Show a popup with the total time and sets completed only if at least one set
+				// was completed
+				final long popupTime = totalSeconds;
+				final int popupCompletedSets = this.completedSets;
+				final int popupExpectedSets = this.expectedTotalSets;
+				if (popupCompletedSets > 0) {
+					SwingUtilities.invokeLater(
+							() -> JOptionPane.showMessageDialog(null, "Rutina amaitu da! Denbora totala: " + popupTime
+									+ " seg\nSeries egindakoak: " + popupCompletedSets + " / " + popupExpectedSets));
+					historyLog(routineName);
+				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
 		}).start();
+
 	}
 
 	public void historyLog(String routineName) {
 		CreateUserBackup backup = new CreateUserBackup();
 		String email = backup.loadEmail();
 
-		SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
-				"Rutina amaitu da! Denbora totala: " + totalSeconds + " seg"));
-
 		try {
 			DocumentSnapshot routineDoc = db.collection("workouts").whereEqualTo("name", routineName).get().get()
 					.getDocuments().get(0);
-			List<QueryDocumentSnapshot> exercises = routineDoc.getReference().collection("exercise").get().get()
-					.getDocuments();
-			for (QueryDocumentSnapshot doc : exercises)
-				totalSets += new Exercise().setSets(doc.get("sets"));
 
 			QuerySnapshot userQuery = db.collection("users").whereEqualTo("email", email).get().get();
 			if (userQuery.isEmpty())
@@ -292,7 +335,9 @@ public class Hariak {
 			Map<String, Object> data = new HashMap<>();
 			data.put("completed", amaituta);
 			data.put("date", today);
-			data.put("totalReps", totalSets);
+			// Store the actual number of completed sets (if stopped early this will be less
+			// than expected)
+			data.put("totalSets", completedSets);
 			data.put("totalTime", totalSeconds);
 			data.put("workoutId", routineDoc.getId());
 
@@ -308,9 +353,5 @@ public class Hariak {
 
 	public void setSec(int sec) {
 		this.sec = sec;
-	}
-
-	public void amaituta() {
-		Thread.currentThread().interrupt();
 	}
 }

@@ -25,6 +25,7 @@ import controller.MainApp;
 import model.ConnectDB;
 import model.DateFormater;
 import model.UIStyle;
+import java.awt.Toolkit;
 
 public class RegisterDialog extends JFrame {
 
@@ -39,6 +40,7 @@ public class RegisterDialog extends JFrame {
 	private ConnectDB connectDB = new ConnectDB();
 
 	public RegisterDialog(Boolean connect) {
+		setIconImage(Toolkit.getDefaultToolkit().getImage(RegisterDialog.class.getResource("/img/logo.png")));
 		setTitle("Erabiltzailearen Registroa");
 		setSize(399, 388);
 		getContentPane().setLayout(null);

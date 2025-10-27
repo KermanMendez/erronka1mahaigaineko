@@ -15,6 +15,7 @@ import javax.swing.SwingConstants;
 import controller.AppState;
 import controller.MainApp;
 import model.UIStyle;
+import java.awt.Toolkit;
 
 public class Inter extends JFrame {
 
@@ -22,6 +23,8 @@ public class Inter extends JFrame {
 	private JPanel contentPane;
 
 	public Inter(Boolean isTrainer, Boolean connect) {
+		setTitle("Ongi Etorri LRLL");
+		setIconImage(Toolkit.getDefaultToolkit().getImage(Inter.class.getResource("/img/logo.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 

@@ -31,7 +31,7 @@ public class LoginFrame extends JFrame {
 	private ConnectDB connectDB = new ConnectDB();
 
 	public LoginFrame(Boolean connect) {
-		setIconImage(Toolkit.getDefaultToolkit().getImage("img/logo.png"));
+		setIconImage(Toolkit.getDefaultToolkit().getImage(LoginFrame.class.getResource("/img/logo.png")));
 		setTitle("LOGIN");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
