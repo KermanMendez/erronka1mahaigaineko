@@ -20,20 +20,17 @@ public class DBConnection {
 				return false;
 			}
 
-			// Solo carga el JSON, NO inicializa FirebaseApp todavía
 			FileInputStream serviceAccount = new FileInputStream(keyFile);
 			FirebaseOptions options = FirebaseOptions.builder()
 					.setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
 
-			// Ping rápido a Google antes de inicializar
 			try (Socket s = new Socket()) {
-				s.connect(new InetSocketAddress("firestore.googleapis.com", 443), 3000); // 3s timeout
+				s.connect(new InetSocketAddress("firestore.googleapis.com", 443), 3000);
 			} catch (IOException ex) {
 				System.out.println("[INFO] Sin conexión a Firebase.");
-				return false; // no internet, no inicializamos
+				return false;
 			}
 
-			// Si llegamos aquí, sí hay internet
 			FirebaseApp.initializeApp(options);
 			return true;
 

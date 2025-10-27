@@ -60,7 +60,7 @@ public class ThreadFrame extends JFrame {
 		labelAtsedenak.setVisible(false);
 
 		labelHasiera.setFont(new Font("SansSerif", Font.BOLD, 12));
-		labelHasiera.setBounds(238, 128, 159, 42);
+		labelHasiera.setBounds(260, 100, 159, 42);
 
 		infoPanel.add(labelTotala);
 		infoPanel.add(labelSerieak);

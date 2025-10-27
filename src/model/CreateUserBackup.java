@@ -38,7 +38,7 @@ public class CreateUserBackup {
 	public String loadEmail() {
 		File file = new File(FICHERO);
 		if (!file.exists() || file.length() == 0) {
-			return null; // No email saved
+			return null;
 		}
 
 		try {

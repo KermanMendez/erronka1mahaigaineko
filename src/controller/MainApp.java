@@ -10,12 +10,10 @@ public class MainApp {
 		controller.AppState.setAppStarted(true);
 		DBConnection dbConnection = new DBConnection();
 		connect = dbConnection.initialize(connect);
-		System.out.println(connect);
 		Controller controller = new Controller(connect);
 
 		if (connect) {
 			CreateBackup backup = new CreateBackup();
-			System.out.println(connect);
 			new Thread(() -> {
 				backup.saveBackupToXML(connect);
 			}).start();

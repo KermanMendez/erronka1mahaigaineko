@@ -125,7 +125,7 @@ public class RegisterDialog extends JFrame {
 		checkboxIsTrainer.setBounds(170, 230, 200, 25);
 		getContentPane().add(checkboxIsTrainer);
 
-		JButton btnRegistrar = new JButton("Eskaera Registratu");
+		JButton btnRegistrar = new JButton("Registratu");
 		UIStyle.styleButton(btnRegistrar);
 		btnRegistrar.setToolTipText("Erabiltzailea registratu");
 		btnRegistrar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));

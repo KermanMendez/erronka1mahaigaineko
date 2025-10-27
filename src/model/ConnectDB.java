@@ -75,6 +75,13 @@ public class ConnectDB {
 
 		Controller controller = new Controller(connect);
 		Firestore db = controller.getDb();
+		int level = 1;
+
+		if (isTrainer) {
+			level = 5;
+		} else {
+			level = 1;
+		}
 
 		String hashedPassword = hashPassword(password);
 
@@ -85,7 +92,8 @@ public class ConnectDB {
 
 		DocumentReference uidDoc = db.collection("users").document(userRecord.getUid());
 		Map<String, Object> erabiltzaileDatuak = Map.of("name", name, "surname", surname1, "surname2", surname2,
-				"email", email, "birthdate", birthdate, "isTrainer", isTrainer, "password", hashedPassword);
+				"email", email, "birthdate", birthdate, "isTrainer", isTrainer, "password", hashedPassword, "level",
+				level);
 
 		uidDoc.set(erabiltzaileDatuak);
 	}
@@ -219,5 +227,4 @@ public class ConnectDB {
 			return responseJson.get("localId").getAsString();
 		}
 	}
-
 }

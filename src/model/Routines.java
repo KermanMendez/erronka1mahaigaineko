@@ -18,9 +18,36 @@ public class Routines {
 
 	private final Firestore db;
 	private final DefaultListModel<String> listModel = new DefaultListModel<>();
+	CreateUserBackup createUserBackup = new CreateUserBackup();
 
 	public Routines(Boolean connect) {
 		this.db = new Controller(connect).getDb();
+	}
+
+	public String[] levels() {
+
+		String emaila = createUserBackup.loadEmail();
+		int level = 1;
+
+		try {
+			QuerySnapshot querySnapshot = db.collection("users").whereEqualTo("email", emaila).get().get();
+			if (querySnapshot.isEmpty()) {
+				return new String[] { "No levels available" };
+			}
+
+			DocumentSnapshot userDoc = querySnapshot.getDocuments().get(0);
+			level = userDoc.getLong("level").intValue();
+
+			String[] levelsArray = new String[level];
+			for (int i = 1; i <= level; i++) {
+				levelsArray[i - 1] = "Level " + i;
+			}
+
+			return levelsArray;
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+			return new String[] { "Error retrieving levels" };
+		}
 	}
 
 	public void ariketak(int aukera) {
@@ -94,8 +121,9 @@ public class Routines {
 			ReadBackup.BackupData backup = reader.loadBackupData();
 
 			if (backup != null) {
-				backup.collections.forEach((name, docs) -> {
-					for (ReadBackup.DocumentData d : docs) {
+				List<ReadBackup.DocumentData> workoutDocs = backup.collections.get("workouts");
+				if (workoutDocs != null) {
+					for (ReadBackup.DocumentData d : workoutDocs) {
 						String levelValue = d.fields.get("level");
 						if (levelValue != null && levelValue.equals(String.valueOf(selectedLevel))) {
 							String workoutName = d.fields.get("name");
@@ -104,7 +132,7 @@ public class Routines {
 							}
 						}
 					}
-				});
+				}
 			}
 
 			return workoutNames.toArray(new String[0]);

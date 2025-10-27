@@ -88,8 +88,7 @@ public class Workouts extends JFrame {
 		edukiontzia.add(lblIragazi);
 
 		comboMaila = new JComboBox<>();
-		comboMaila.setModel(new DefaultComboBoxModel<>(
-				new String[] { "1. maila", "2. maila", "3. maila", "4. maila", "5. maila" }));
+		comboMaila.setModel(new DefaultComboBoxModel<>(routines.levels()));
 		comboMaila.setBounds(180, 100, 120, 22);
 		UIStyle.styleField(comboMaila);
 		comboMaila.setToolTipText("Zure maila aukeratu");
