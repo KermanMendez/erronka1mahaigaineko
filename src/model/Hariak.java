@@ -29,8 +29,11 @@ public class Hariak {
 	private int sec;
 	private int totalTime = 0;
 	private Firestore db;
+	private CreateUserBackup createUserBackup = new CreateUserBackup();
 
 	private volatile boolean skipNow = false;
+
+	private int level;
 
 	public Hariak() {
 	}
@@ -42,6 +45,8 @@ public class Hariak {
 
 	private List<Exercise> getExercises(int level, String routineName, Boolean connect)
 			throws InterruptedException, ExecutionException {
+
+		this.level = level;
 
 		Controller controller = new Controller(connect);
 		db = controller.getDb();
@@ -259,8 +264,6 @@ public class Hariak {
 				labelDescansos.setVisible(true);
 				labelHasiera.setVisible(false);
 
-				// Pre-calculate expected total sets (sum of sets per exercise) and reset
-				// completedSets
 				int computedTotalSets = 0;
 				this.completedSets = 0;
 				if (exercises != null) {
@@ -268,10 +271,8 @@ public class Hariak {
 						computedTotalSets += e.getSets();
 					}
 				}
-				// store expected total sets so we can show expected vs completed later
 				this.expectedTotalSets = computedTotalSets;
 
-				// Create named threads so we can join and detect normal completion
 				Thread tTotal = new Thread(() -> runExerciseThread(exercises, labelTotal, "⏱ TOTAL", stopSupplier,
 						skipSupplier, pauseSupplier, lock, 0, thread1));
 				Thread tSeries = new Thread(() -> runExerciseThread(exercises, labelSeries, "💪 SERIEAK", stopSupplier,
@@ -283,23 +284,15 @@ public class Hariak {
 				tSeries.start();
 				tRest.start();
 
-				// Wait for all three threads to finish. If stopSupplier becomes true, the
-				// runExerciseThread
-				// implementations return early; in that case we won't mark amaituta as true.
 				tTotal.join();
 				tSeries.join();
 				tRest.join();
 
-				// If stop was not requested, then the routine completed normally
 				if (stopSupplier == null || !stopSupplier.get()) {
 					amaituta = true;
-					// Ensure totalSeconds reflects the totalTime accumulated by mode 0 thread
 					totalSeconds = totalTime;
-					// Log history automatically when finished normally
 				}
 
-				// Show a popup with the total time and sets completed only if at least one set
-				// was completed
 				final long popupTime = totalSeconds;
 				final int popupCompletedSets = this.completedSets;
 				final int popupExpectedSets = this.expectedTotalSets;
@@ -316,9 +309,33 @@ public class Hariak {
 
 	}
 
+	public void sumLevel() {
+
+		String emaila = createUserBackup.loadEmail();
+
+		try {
+			QuerySnapshot querySnapshot = db.collection("users").whereEqualTo("email", emaila).get().get();
+
+			DocumentSnapshot userDoc = querySnapshot.getDocuments().get(0);
+
+			if (amaituta == true) {
+				if (level == 5) {
+					level = 5;
+				} else {
+					level++;
+					Map<String, Object> data = new HashMap<>();
+					data.put("level", level);
+					db.collection("users").document(userDoc.getId()).update(data);
+				}
+			}
+
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void historyLog(String routineName) {
-		CreateUserBackup backup = new CreateUserBackup();
-		String email = backup.loadEmail();
+		String email = createUserBackup.loadEmail();
 
 		try {
 			DocumentSnapshot routineDoc = db.collection("workouts").whereEqualTo("name", routineName).get().get()
@@ -335,13 +352,15 @@ public class Hariak {
 			Map<String, Object> data = new HashMap<>();
 			data.put("completed", amaituta);
 			data.put("date", today);
-			// Store the actual number of completed sets (if stopped early this will be less
-			// than expected)
 			data.put("totalSets", completedSets);
 			data.put("totalTime", totalSeconds);
 			data.put("workoutId", routineDoc.getId());
+			data.put("level", level);
 
 			history.add(data);
+
+			sumLevel();
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
