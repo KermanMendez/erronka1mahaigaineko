@@ -19,7 +19,7 @@ public class ReadHistoric {
 		this.db = new Controller(connect).getDb();
 	}
 
-	public String[] getHistoric(int nivelSeleccionado, Boolean connect)
+	public String[] getHistoric(int aukeratutakoMaila, String rutinarenIzena, Boolean connect)
 			throws InterruptedException, ExecutionException {
 
 		if (connect) {
@@ -36,7 +36,7 @@ public class ReadHistoric {
 
 			for (DocumentSnapshot routineDoc : querySnapshot.getDocuments()) {
 				List<QueryDocumentSnapshot> exerciseDocs = routineDoc.getReference().collection("historic")
-						.whereEqualTo("level", nivelSeleccionado).get().get().getDocuments();
+						.whereEqualTo("level", aukeratutakoMaila).get().get().getDocuments();
 
 				for (DocumentSnapshot exerciseDoc : exerciseDocs) {
 					String exerciseCompleted = exerciseDoc.getBoolean("completed") != null
@@ -57,9 +57,14 @@ public class ReadHistoric {
 						}
 					}
 					if (workoutName != null && exerciseDate != null) {
-						levels.add("Workout: " + workoutName + " | Data: " + exerciseDate + " | Bukatuta: "
-								+ exerciseCompleted + " | Total Sets: " + totalSets + " | Total Time: " + totalTime
-								+ " segundu");
+						boolean matchesRoutine = true;
+						if (rutinarenIzena != null && !rutinarenIzena.trim().isEmpty()) {
+							matchesRoutine = workoutName.equalsIgnoreCase(rutinarenIzena.trim());
+						}
+						if (matchesRoutine) {
+							levels.add("Data: " + exerciseDate + " | Bukatuta: " + exerciseCompleted + " | Total Sets: "
+									+ totalSets + " | Total Time: " + totalTime + " segundu");
+						}
 					}
 				}
 			}

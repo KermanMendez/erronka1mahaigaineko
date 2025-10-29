@@ -267,10 +267,9 @@ public class Workouts extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		/*if (!AppState.isAppStarted()) {
-			MainApp.main(args);
-			return;
-		}*/
+		/*
+		 * if (!AppState.isAppStarted()) { MainApp.main(args); return; }
+		 */
 		EventQueue.invokeLater(() -> {
 			try {
 				Workouts frame = new Workouts(Boolean.FALSE, Boolean.TRUE);
