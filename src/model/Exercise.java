@@ -68,8 +68,8 @@ public class Exercise {
 		this.name = name;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
+	public String setDescription(String description) {
+		return this.description = description;
 	}
 
 	public void setImg(String img) {

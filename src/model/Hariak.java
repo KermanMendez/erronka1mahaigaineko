@@ -45,6 +45,104 @@ public class Hariak {
 		return getExercises(level, routineName, connect);
 	}
 
+	/**
+	 * Loads routine data (exercises, routine-level description and total sets).
+	 * Prefers reading the routine document's description when online; falls back to exercise descriptions or backup.
+	 */
+	public RoutineData loadRoutine(int level, String routineName, Boolean connect)
+			throws InterruptedException, ExecutionException {
+
+		this.level = level;
+
+		List<Exercise> exercises = new ArrayList<>();
+		String routineDescription = null;
+		int totalSets = 0;
+
+		if (connect == null || !connect) {
+			ReadBackup reader = new ReadBackup();
+			ReadBackup.BackupData backup = reader.loadBackupData();
+			if (backup == null)
+				return new RoutineData(exercises, "", 0);
+
+			List<ReadBackup.DocumentData> workoutDocs = backup.collections.get("workouts");
+			if (workoutDocs == null)
+				return new RoutineData(exercises, "", 0);
+
+			for (ReadBackup.DocumentData d : workoutDocs) {
+				String levelValue = d.fields.get("level");
+				String nameValue = d.fields.get("name");
+				if (levelValue != null && nameValue != null && levelValue.equals(String.valueOf(level))
+						&& nameValue.equals(routineName)) {
+					// routine-level description if present
+					routineDescription = d.fields.get("description");
+
+					List<ReadBackup.DocumentData> exerciseDocs = d.subcollections.get("exercises");
+					if (exerciseDocs == null)
+						exerciseDocs = d.subcollections.get("exercise");
+					if (exerciseDocs != null) {
+						for (ReadBackup.DocumentData exDoc : exerciseDocs) {
+							Exercise ex = new Exercise();
+							ex.setName(exDoc.fields.get("name"));
+							ex.setDescription(exDoc.fields.get("description"));
+							ex.setReps(exDoc.fields.get("reps"));
+							ex.setSets(exDoc.fields.get("sets"));
+							ex.setSerieTime(exDoc.fields.get("timeSets"));
+							ex.setRestTimeSec(exDoc.fields.get("timePauseSec"));
+							exercises.add(ex);
+							totalSets += ex.getSets();
+						}
+					}
+					break;
+				}
+			}
+
+			if (routineDescription == null || routineDescription.trim().isEmpty()) {
+				// fallback to first exercise description if available
+				if (!exercises.isEmpty() && exercises.get(0).getDescription() != null)
+					routineDescription = exercises.get(0).getDescription();
+			}
+
+			return new RoutineData(exercises, routineDescription == null ? "" : routineDescription, totalSets);
+		}
+
+		Controller controller = new Controller(connect);
+		db = controller.getDb();
+		QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", level)
+				.whereEqualTo("name", routineName).get().get();
+		if (querySnapshot.isEmpty())
+			return new RoutineData(exercises, "", 0);
+
+		DocumentSnapshot routineDoc = querySnapshot.getDocuments().get(0);
+		// prefer routine-level description
+		routineDescription = routineDoc.getString("description");
+
+		List<QueryDocumentSnapshot> exerciseDocs = routineDoc.getReference().collection("exercises").get().get()
+				.getDocuments();
+		for (QueryDocumentSnapshot doc : exerciseDocs) {
+			Exercise ex = new Exercise();
+			String name = doc.getString("name");
+			String description = doc.getString("description");
+			if (name != null)
+				ex.setName(name);
+			if (description != null)
+				ex.setDescription(description);
+
+			ex.setReps(doc.get("reps"));
+			ex.setSets(doc.get("sets"));
+			ex.setSerieTime(doc.get("timeSets"));
+			ex.setRestTimeSec(doc.get("timePauseSec"));
+			exercises.add(ex);
+			totalSets += ex.getSets();
+		}
+
+		if (routineDescription == null || routineDescription.trim().isEmpty()) {
+			if (!exercises.isEmpty() && exercises.get(0).getDescription() != null)
+				routineDescription = exercises.get(0).getDescription();
+		}
+
+		return new RoutineData(exercises, routineDescription == null ? "" : routineDescription, totalSets);
+	}
+
 	private List<Exercise> getExercises(int level, String routineName, Boolean connect)
 			throws InterruptedException, ExecutionException {
 
@@ -100,6 +198,13 @@ public class Hariak {
 				.getDocuments();
 		for (QueryDocumentSnapshot doc : exerciseDocs) {
 			Exercise ex = new Exercise();
+			String name = doc.getString("name");
+			String description = doc.getString("description");
+			if (name != null)
+				ex.setName(name);
+			if (description != null)
+				ex.setDescription(description);
+
 			ex.setReps(doc.get("reps"));
 			ex.setSets(doc.get("sets"));
 			ex.setSerieTime(doc.get("timeSets"));

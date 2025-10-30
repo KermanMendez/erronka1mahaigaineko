@@ -16,6 +16,8 @@ import javax.swing.border.EmptyBorder;
 
 import model.Exercise;
 import model.Hariak;
+import model.RoutineData;
+import model.UIStyle;
 
 public class ThreadFrame extends JFrame {
 
@@ -31,6 +33,10 @@ public class ThreadFrame extends JFrame {
 	private JLabel labelAtsedenak = new JLabel("");
 	private JLabel labelHasiera = new JLabel("");
 
+	private JLabel lblRutinaIzena;
+	private JLabel lblRutinaDeskribapena;
+	private JLabel lblRutinaSets;
+
 	public ThreadFrame(int level, String routineName, Boolean isTrainer, Boolean connect) {
 
 		setIconImage(Toolkit.getDefaultToolkit().getImage(ThreadFrame.class.getResource("/img/logo.png")));
@@ -43,6 +49,17 @@ public class ThreadFrame extends JFrame {
 		contentPane.setBorder(new EmptyBorder(15, 15, 15, 15));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
+
+		lblRutinaIzena = new JLabel(routineName);
+		lblRutinaIzena.setBounds(54, 40, 150, 20);
+		UIStyle.styleLabel(lblRutinaIzena, false);
+		lblRutinaDeskribapena = new JLabel(" ");
+		lblRutinaDeskribapena.setBounds(54, 70, 150, 20);
+		UIStyle.styleLabel(lblRutinaDeskribapena, false);
+
+		lblRutinaSets = new JLabel("Serieak");
+		lblRutinaSets.setBounds(54, 100, 150, 20);
+		UIStyle.styleLabel(lblRutinaSets, false);
 
 		JPanel infoPanel = new JPanel(new GridLayout(1, 3, 15, 15));
 		infoPanel.setBounds(54, 181, 554, 68);
@@ -69,6 +86,10 @@ public class ThreadFrame extends JFrame {
 		contentPane.add(labelHasiera);
 
 		contentPane.add(infoPanel);
+
+		contentPane.add(lblRutinaIzena);
+		contentPane.add(lblRutinaDeskribapena);
+		contentPane.add(lblRutinaSets);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
 		buttonPanel.setBounds(54, 380, 554, 42);
@@ -106,7 +127,17 @@ public class ThreadFrame extends JFrame {
 		hariak = new Hariak();
 		new Thread(() -> {
 			try {
-				List<Exercise> exercises = hariak.start(level, routineName, connect);
+				RoutineData result = hariak.loadRoutine(level, routineName, connect);
+				List<Exercise> exercises = result.getExercises();
+				String desc = result.getDescription();
+				int totalSets = result.getTotalSets();
+
+				final String description = (desc == null || desc.trim().isEmpty()) ? "Ez da deskripziorik aurkitu" : desc;
+				final int finalTotalSets = totalSets;
+				javax.swing.SwingUtilities.invokeLater(() -> {
+					lblRutinaDeskribapena.setText(description);
+					lblRutinaSets.setText("Serieak: " + finalTotalSets);
+				});
 				hariak.startExerciseThreads(exercises, labelTotala, labelSerieak, labelAtsedenak, labelHasiera,
 						() -> stopRequested, () -> {
 							if (skipRestRequested) {
