@@ -9,13 +9,26 @@ public class Controller {
 	private DBConnection dbConnection;
 	private Firestore db;
 	private FirstView firstView;
-	private DBConnection DBConnection = new DBConnection();
 
 	public Controller(Boolean connect) {
 
-		DBConnection.initialize(connect);
+		this.dbConnection = new DBConnection();
 		db = getFirestore();
-		setDbConnection(new DBConnection());
+		setDbConnection(this.dbConnection);
+	}
+
+	public void onOnline() {
+		try {
+			if (this.dbConnection == null) {
+				this.dbConnection = new DBConnection();
+			}
+			boolean ok = this.dbConnection.initialize(true);
+			if (ok) {
+				this.db = getFirestore();
+			}
+			setDbConnection(this.dbConnection);
+		} catch (Exception ignored) {
+		}
 	}
 
 	public DBConnection getDbConnection() {

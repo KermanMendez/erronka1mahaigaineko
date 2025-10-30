@@ -1,10 +1,7 @@
 package view;
 
-import java.awt.Cursor;
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -34,18 +31,7 @@ public class Inter extends JFrame {
 		JButton btnProfile = new JButton("Profila");
 		UIStyle.styleButton(btnProfile);
 		btnProfile.setToolTipText("Zure profila ikusi");
-		btnProfile.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnProfile.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) {
-				btnProfile.setBackground(UIStyle.ACCENT);
-				btnProfile.setForeground(UIStyle.SECONDARY);
-			}
-
-			public void mouseExited(MouseEvent e) {
-				btnProfile.setBackground(UIStyle.BUTTON_BG);
-				btnProfile.setForeground(UIStyle.BUTTON_FG);
-			}
-		});
+		UIStyle.addHoverEffect(btnProfile);
 
 		btnProfile.addActionListener(e -> {
 			Profile profile = new Profile(isTrainer, connect);
@@ -59,18 +45,7 @@ public class Inter extends JFrame {
 		JButton btnWorkouts = new JButton("Workouts");
 		UIStyle.styleButton(btnWorkouts);
 		btnWorkouts.setToolTipText("zure ariketak ikusi");
-		btnWorkouts.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnWorkouts.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) {
-				btnWorkouts.setBackground(UIStyle.ACCENT);
-				btnWorkouts.setForeground(UIStyle.SECONDARY);
-			}
-
-			public void mouseExited(MouseEvent e) {
-				btnWorkouts.setBackground(UIStyle.BUTTON_BG);
-				btnWorkouts.setForeground(UIStyle.BUTTON_FG);
-			}
-		});
+		UIStyle.addHoverEffect(btnWorkouts);
 
 		btnWorkouts.addActionListener(e -> {
 			Workouts workouts = new Workouts(isTrainer, connect);
@@ -84,18 +59,7 @@ public class Inter extends JFrame {
 		JButton btnAdmin = new JButton("ADMIN");
 		UIStyle.styleButton(btnAdmin);
 		btnAdmin.setToolTipText("Administrazio panela");
-		btnAdmin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnAdmin.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) {
-				btnAdmin.setBackground(UIStyle.ACCENT);
-				btnAdmin.setForeground(UIStyle.SECONDARY);
-			}
-
-			public void mouseExited(MouseEvent e) {
-				btnAdmin.setBackground(UIStyle.BUTTON_BG);
-				btnAdmin.setForeground(UIStyle.BUTTON_FG);
-			}
-		});
+		UIStyle.addHoverEffect(btnAdmin);
 
 		btnAdmin.setBounds(359, 203, 65, 47);
 		contentPane.add(btnAdmin);

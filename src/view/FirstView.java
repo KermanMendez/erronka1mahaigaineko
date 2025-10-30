@@ -1,10 +1,7 @@
 package view;
 
-import java.awt.Cursor;
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -22,7 +19,7 @@ public class FirstView extends JFrame {
 	private JPanel contentPane;
 
 	public FirstView(Boolean connect) {
-		
+
 		setTitle("LONG RING LONG LAND GYM");
 		setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/img/logo.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -33,25 +30,14 @@ public class FirstView extends JFrame {
 		contentPane.setLayout(null);
 		JButton btnEnter = new JButton("Sartu");
 		UIStyle.styleButton(btnEnter);
-		btnEnter.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnEnter.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) {
-				btnEnter.setBackground(UIStyle.ACCENT);
-				btnEnter.setForeground(UIStyle.SECONDARY);
-			}
+		UIStyle.addHoverEffect(btnEnter);
 
-			public void mouseExited(MouseEvent e) {
-				btnEnter.setBackground(UIStyle.BUTTON_BG);
-				btnEnter.setForeground(UIStyle.BUTTON_FG);
-			}
-		});
-		
 		btnEnter.addActionListener(e -> {
 			LoginFrame loginFrame = new LoginFrame(connect);
 			loginFrame.setVisible(true);
 			dispose();
 		});
-		
+
 		btnEnter.setBounds(207, 255, 120, 35);
 		contentPane.add(btnEnter);
 		JLabel labelLogo = new JLabel("");

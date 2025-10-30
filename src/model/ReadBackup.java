@@ -134,88 +134,88 @@ public class ReadBackup {
 		try {
 			byte[] fileBytes = Files.readAllBytes(Paths.get("backup.dat"));
 			byte[] decrypted = xorBytes(fileBytes);
-			ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decrypted));
-			Object obj = ois.readObject();
-			ois.close();
+			try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decrypted))) {
+				Object obj = ois.readObject();
 
-			if (!(obj instanceof List)) {
-				System.err.println("Formato de backup inesperado");
-				return null;
-			}
+				if (!(obj instanceof List)) {
+					System.err.println("Formato de backup inesperado");
+					return null;
+				}
 
-			@SuppressWarnings("unchecked")
-			List<String> lines = (List<String>) obj;
-			BackupData backup = new BackupData();
+				@SuppressWarnings("unchecked")
+				List<String> lines = (List<String>) obj;
+				BackupData backup = new BackupData();
 
-			String currentCollection = null;
-			ReadBackup.DocumentData currentDoc = null;
-			for (int i = 0; i < lines.size(); i++) {
-				String raw = lines.get(i);
-				String line = raw.replaceAll("^\\s+", "");
-				if (line.startsWith("USER_UID:")) {
-					String v = line.substring("USER_UID:".length());
-					String uid = xorDecrypt(v);
-					String email = "";
-					if (i + 1 < lines.size()) {
-						String next = lines.get(i + 1).replaceAll("^\\s+", "");
-						if (next.startsWith("USER_EMAIL:")) {
-							i++;
-							email = xorDecrypt(next.substring("USER_EMAIL:".length()));
+				String currentCollection = null;
+				ReadBackup.DocumentData currentDoc = null;
+				for (int i = 0; i < lines.size(); i++) {
+					String raw = lines.get(i);
+					String line = raw.replaceAll("^\\s+", "");
+					if (line.startsWith("USER_UID:")) {
+						String v = line.substring("USER_UID:".length());
+						String uid = xorDecrypt(v);
+						String email = "";
+						if (i + 1 < lines.size()) {
+							String next = lines.get(i + 1).replaceAll("^\\s+", "");
+							if (next.startsWith("USER_EMAIL:")) {
+								i++;
+								email = xorDecrypt(next.substring("USER_EMAIL:".length()));
+							}
 						}
+						backup.users.add(new UserData(uid, email));
+						continue;
 					}
-					backup.users.add(new UserData(uid, email));
-					continue;
+
+					if (line.startsWith("COLLECTION:")) {
+						currentCollection = line.substring("COLLECTION:".length());
+						backup.collections.putIfAbsent(currentCollection, new ArrayList<>());
+						currentDoc = null;
+						continue;
+					}
+
+					if (line.startsWith("DOCUMENT_ID:")) {
+						String id = line.substring("DOCUMENT_ID:".length());
+						currentDoc = new DocumentData();
+						currentDoc.id = id;
+						backup.collections.get(currentCollection).add(currentDoc);
+						continue;
+					}
+
+					if (line.startsWith("FIELD:") && currentDoc != null) {
+						String kv = line.substring("FIELD:".length());
+						int eq = kv.indexOf('=');
+						if (eq > 0) {
+							String key = kv.substring(0, eq);
+							String valEnc = kv.substring(eq + 1);
+							String val = xorDecrypt(valEnc);
+							currentDoc.fields.put(key, val);
+						}
+						continue;
+					}
+
+					if (line.startsWith("SUBCOLLECTION:")) {
+						String subName = line.substring("SUBCOLLECTION:".length());
+						int baseIndent = raw.indexOf(line);
+						int j = i + 1;
+						List<String> subLines = new ArrayList<>();
+						for (; j < lines.size(); j++) {
+							String r2 = lines.get(j);
+							int ind2 = r2.indexOf(r2.replaceAll("^\\s+", ""));
+							if (ind2 <= baseIndent)
+								break;
+							subLines.add(r2.substring(baseIndent + 2));
+						}
+						List<DocumentData> subDocs = parseDocumentsFromLines(subLines);
+						if (currentDoc != null) {
+							currentDoc.subcollections.put(subName, subDocs);
+						}
+						i = j - 1;
+						continue;
+					}
 				}
 
-				if (line.startsWith("COLLECTION:")) {
-					currentCollection = line.substring("COLLECTION:".length());
-					backup.collections.putIfAbsent(currentCollection, new ArrayList<>());
-					currentDoc = null;
-					continue;
-				}
-
-				if (line.startsWith("DOCUMENT_ID:")) {
-					String id = line.substring("DOCUMENT_ID:".length());
-					currentDoc = new DocumentData();
-					currentDoc.id = id;
-					backup.collections.get(currentCollection).add(currentDoc);
-					continue;
-				}
-
-				if (line.startsWith("FIELD:") && currentDoc != null) {
-					String kv = line.substring("FIELD:".length());
-					int eq = kv.indexOf('=');
-					if (eq > 0) {
-						String key = kv.substring(0, eq);
-						String valEnc = kv.substring(eq + 1);
-						String val = xorDecrypt(valEnc);
-						currentDoc.fields.put(key, val);
-					}
-					continue;
-				}
-
-				if (line.startsWith("SUBCOLLECTION:")) {
-					String subName = line.substring("SUBCOLLECTION:".length());
-					int baseIndent = raw.indexOf(line);
-					int j = i + 1;
-					List<String> subLines = new ArrayList<>();
-					for (; j < lines.size(); j++) {
-						String r2 = lines.get(j);
-						int ind2 = r2.indexOf(r2.replaceAll("^\\s+", ""));
-						if (ind2 <= baseIndent)
-							break;
-						subLines.add(r2.substring(baseIndent + 2));
-					}
-					List<DocumentData> subDocs = parseDocumentsFromLines(subLines);
-					if (currentDoc != null) {
-						currentDoc.subcollections.put(subName, subDocs);
-					}
-					i = j - 1;
-					continue;
-				}
+				return backup;
 			}
-
-			return backup;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

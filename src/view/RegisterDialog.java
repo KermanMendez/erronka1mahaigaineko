@@ -1,11 +1,8 @@
 package view;
 
-import java.awt.Cursor;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Properties;
 
 import javax.swing.JButton;
@@ -128,18 +125,7 @@ public class RegisterDialog extends JFrame {
 		JButton btnRegistrar = new JButton("Registratu");
 		UIStyle.styleButton(btnRegistrar);
 		btnRegistrar.setToolTipText("Erabiltzailea registratu");
-		btnRegistrar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnRegistrar.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) {
-				btnRegistrar.setBackground(UIStyle.ACCENT);
-				btnRegistrar.setForeground(UIStyle.SECONDARY);
-			}
-
-			public void mouseExited(MouseEvent e) {
-				btnRegistrar.setBackground(UIStyle.BUTTON_BG);
-				btnRegistrar.setForeground(UIStyle.BUTTON_FG);
-			}
-		});
+		UIStyle.addHoverEffect(btnRegistrar);
 
 		btnRegistrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -159,18 +145,7 @@ public class RegisterDialog extends JFrame {
 		JButton btnCancelar = new JButton("Utzi");
 		UIStyle.styleButton(btnCancelar);
 		btnCancelar.setToolTipText("Saiakera utzi");
-		btnCancelar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnCancelar.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) {
-				btnCancelar.setBackground(UIStyle.ACCENT);
-				btnCancelar.setForeground(UIStyle.SECONDARY);
-			}
-
-			public void mouseExited(MouseEvent e) {
-				btnCancelar.setBackground(UIStyle.BUTTON_BG);
-				btnCancelar.setForeground(UIStyle.BUTTON_FG);
-			}
-		});
+		UIStyle.addHoverEffect(btnCancelar);
 
 		btnCancelar.setBounds(170, 290, 160, 30);
 		btnCancelar.addActionListener(e -> dispose());

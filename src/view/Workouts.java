@@ -1,12 +1,9 @@
 package view;
 
-import java.awt.Cursor;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractListModel;
@@ -113,6 +110,7 @@ public class Workouts extends JFrame {
 
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(30, 160, 525, 150);
+		UIStyle.styleScrollPane(scrollPane);
 		edukiontzia.add(scrollPane);
 
 		listaWorkout = new JList<>();
@@ -186,18 +184,7 @@ public class Workouts extends JFrame {
 
 		UIStyle.styleButton(btnIkusiHistoria);
 		btnIkusiHistoria.setToolTipText("Entrenamenduen historiala ikusi");
-		btnIkusiHistoria.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnIkusiHistoria.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) {
-				btnIkusiHistoria.setBackground(UIStyle.ACCENT);
-				btnIkusiHistoria.setForeground(UIStyle.SECONDARY);
-			}
-
-			public void mouseExited(MouseEvent e) {
-				btnIkusiHistoria.setBackground(UIStyle.BUTTON_BG);
-				btnIkusiHistoria.setForeground(UIStyle.BUTTON_FG);
-			}
-		});
+		UIStyle.addHoverEffect(btnIkusiHistoria);
 
 		btnIkusiHistoria.setBounds(100, 321, 160, 30);
 		edukiontzia.add(btnIkusiHistoria);
@@ -205,18 +192,7 @@ public class Workouts extends JFrame {
 		btnHasiWorkout = new JButton("Hasi Workout-a");
 		UIStyle.styleButton(btnHasiWorkout);
 		btnHasiWorkout.setToolTipText("Entrenamendua hasi");
-		btnHasiWorkout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnHasiWorkout.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) {
-				btnHasiWorkout.setBackground(UIStyle.ACCENT);
-				btnHasiWorkout.setForeground(UIStyle.SECONDARY);
-			}
-
-			public void mouseExited(MouseEvent e) {
-				btnHasiWorkout.setBackground(UIStyle.BUTTON_BG);
-				btnHasiWorkout.setForeground(UIStyle.BUTTON_FG);
-			}
-		});
+		UIStyle.addHoverEffect(btnHasiWorkout);
 
 		btnHasiWorkout.addActionListener(e -> {
 			ThreadFrame threadFrame = new ThreadFrame(comboMaila.getSelectedIndex() + 1,
@@ -231,18 +207,7 @@ public class Workouts extends JFrame {
 		JButton btnLogout = new JButton("Logout");
 		UIStyle.styleButton(btnLogout);
 		btnLogout.setToolTipText("Saioa itxi");
-		btnLogout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnLogout.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) {
-				btnLogout.setBackground(UIStyle.ACCENT);
-				btnLogout.setForeground(UIStyle.SECONDARY);
-			}
-
-			public void mouseExited(MouseEvent e) {
-				btnLogout.setBackground(UIStyle.BUTTON_BG);
-				btnLogout.setForeground(UIStyle.BUTTON_FG);
-			}
-		});
+		UIStyle.addHoverEffect(btnLogout);
 
 		btnLogout.addActionListener(e -> {
 			dispose();

@@ -16,23 +16,29 @@ public class DBConnection {
 		try {
 			File keyFile = new File("serviceAccountKey.json");
 			if (!keyFile.exists()) {
+				System.err.println("[DBConnection] serviceAccountKey.json aurkitu ezina");
 				return false;
 			}
 
-			FileInputStream serviceAccount = new FileInputStream(keyFile);
-			FirebaseOptions options = FirebaseOptions.builder()
-					.setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
+			try (FileInputStream serviceAccount = new FileInputStream(keyFile)) {
+				FirebaseOptions options = FirebaseOptions.builder()
+						.setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
 
-			try (Socket s = new Socket()) {
-				s.connect(new InetSocketAddress("firestore.googleapis.com", 443), 3000);
-			} catch (IOException ex) {
-				return false;
+				try (Socket s = new Socket()) {
+					s.connect(new InetSocketAddress("firestore.googleapis.com", 443), 3000);
+				} catch (IOException ex) {
+					System.err.println("[DBConnection] Ezin izan da Firestore-era konektatu: " + ex.getMessage());
+					return false;
+				}
+
+				if (FirebaseApp.getApps().isEmpty()) {
+					FirebaseApp.initializeApp(options);
+				}
+				return true;
 			}
-
-			FirebaseApp.initializeApp(options);
-			return true;
 
 		} catch (Exception e) {
+			System.err.println("[DBConnection] Hasieratzean errorea: " + e.getMessage());
 			return false;
 		}
 	}

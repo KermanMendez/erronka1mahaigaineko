@@ -25,9 +25,10 @@ public class CreateUserBackup {
 
 	public void saveEmail(String email) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ObjectOutputStream oos = new ObjectOutputStream(baos);
-		oos.writeObject(email);
-		oos.close();
+		// ObjectOutputStream-aren itxiera ziurtatzeko try-with-resources erabiltzen dugu
+		try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+			oos.writeObject(email);
+		}
 		byte[] encryptedData = xorBytes(baos.toByteArray());
 
 		try (FileOutputStream fos = new FileOutputStream(FICHERO)) {
@@ -44,13 +45,14 @@ public class CreateUserBackup {
 		try {
 			byte[] fileBytes = Files.readAllBytes(Paths.get(FICHERO));
 			byte[] decryptedData = xorBytes(fileBytes);
-			ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decryptedData));
-			Object obj = ois.readObject();
-			if (obj instanceof String) {
-				return (String) obj;
-			} else {
-				System.err.println("Invalid data format in user.dat");
-				return null;
+			try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decryptedData))) {
+				Object obj = ois.readObject();
+				if (obj instanceof String) {
+					return (String) obj;
+				} else {
+					System.err.println("Invalid data format in user.dat");
+					return null;
+				}
 			}
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();

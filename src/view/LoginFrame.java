@@ -1,12 +1,9 @@
 package view;
 
-import java.awt.Cursor;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -66,18 +63,7 @@ public class LoginFrame extends JFrame {
 		JButton btnLogin = new JButton("Login");
 		UIStyle.styleButton(btnLogin);
 		btnLogin.setToolTipText("Saioa hasi");
-		btnLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnLogin.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) {
-				btnLogin.setBackground(UIStyle.ACCENT);
-				btnLogin.setForeground(UIStyle.SECONDARY);
-			}
-
-			public void mouseExited(MouseEvent e) {
-				btnLogin.setBackground(UIStyle.BUTTON_BG);
-				btnLogin.setForeground(UIStyle.BUTTON_FG);
-			}
-		});
+		UIStyle.addHoverEffect(btnLogin);
 
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -93,18 +79,7 @@ public class LoginFrame extends JFrame {
 		JButton btnRegister = new JButton("Register");
 		UIStyle.styleButton(btnRegister);
 		btnRegister.setToolTipText("Kontu Berria sortu");
-		btnRegister.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnRegister.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) {
-				btnRegister.setBackground(UIStyle.ACCENT);
-				btnRegister.setForeground(UIStyle.SECONDARY);
-			}
-
-			public void mouseExited(MouseEvent e) {
-				btnRegister.setBackground(UIStyle.BUTTON_BG);
-				btnRegister.setForeground(UIStyle.BUTTON_FG);
-			}
-		});
+		UIStyle.addHoverEffect(btnRegister);
 
 		btnRegister.addActionListener(e -> {
 			RegisterDialog registerDialog = new RegisterDialog(connect);

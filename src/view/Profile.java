@@ -1,12 +1,9 @@
 package view;
 
-import java.awt.Cursor;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -96,18 +93,7 @@ public class Profile extends JFrame {
 		JButton btnOnartuP = new JButton("Onartu");
 		UIStyle.styleButton(btnOnartuP);
 		btnOnartuP.setToolTipText("Aldaketak Gorde");
-		btnOnartuP.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnOnartuP.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) {
-				btnOnartuP.setBackground(UIStyle.ACCENT);
-				btnOnartuP.setForeground(UIStyle.SECONDARY);
-			}
-
-			public void mouseExited(MouseEvent e) {
-				btnOnartuP.setBackground(UIStyle.BUTTON_BG);
-				btnOnartuP.setForeground(UIStyle.BUTTON_FG);
-			}
-		});
+		UIStyle.addHoverEffect(btnOnartuP);
 
 		btnOnartuP.setBounds(127, 227, 89, 30);
 		contentPane.add(btnOnartuP);
@@ -115,18 +101,7 @@ public class Profile extends JFrame {
 		JButton btnUtziP = new JButton("Utzi");
 		UIStyle.styleButton(btnUtziP);
 		btnUtziP.setToolTipText("Aldaketak Utzi");
-		btnUtziP.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnUtziP.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) {
-				btnUtziP.setBackground(UIStyle.ACCENT);
-				btnUtziP.setForeground(UIStyle.SECONDARY);
-			}
-
-			public void mouseExited(MouseEvent e) {
-				btnUtziP.setBackground(UIStyle.BUTTON_BG);
-				btnUtziP.setForeground(UIStyle.BUTTON_FG);
-			}
-		});
+		UIStyle.addHoverEffect(btnUtziP);
 
 		btnUtziP.setBounds(226, 227, 89, 30);
 		contentPane.add(btnUtziP);
@@ -134,18 +109,7 @@ public class Profile extends JFrame {
 		JButton btnChangePass = new JButton("Aldatu Pasahitza");
 		UIStyle.styleButton(btnChangePass);
 		btnChangePass.setToolTipText("Pasahitza Aldatu");
-		btnChangePass.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnChangePass.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) {
-				btnChangePass.setBackground(UIStyle.ACCENT);
-				btnChangePass.setForeground(UIStyle.SECONDARY);
-			}
-
-			public void mouseExited(MouseEvent e) {
-				btnChangePass.setBackground(UIStyle.BUTTON_BG);
-				btnChangePass.setForeground(UIStyle.BUTTON_FG);
-			}
-		});
+		UIStyle.addHoverEffect(btnChangePass);
 
 		btnChangePass.setBounds(160, 128, 125, 30);
 		contentPane.add(btnChangePass);

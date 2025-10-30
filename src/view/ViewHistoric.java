@@ -1,12 +1,9 @@
 package view;
 
-import java.awt.Cursor;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractListModel;
@@ -93,6 +90,7 @@ public class ViewHistoric extends JFrame {
 
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(30, 160, 525, 150);
+		UIStyle.styleScrollPane(scrollPane);
 		edukiontzia.add(scrollPane);
 
 		listaWorkout = new JList<>();
@@ -102,18 +100,7 @@ public class ViewHistoric extends JFrame {
 		JButton btnLogout = new JButton("Logout");
 		UIStyle.styleButton(btnLogout);
 		btnLogout.setToolTipText("Saioa itxi");
-		btnLogout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnLogout.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) {
-				btnLogout.setBackground(UIStyle.ACCENT);
-				btnLogout.setForeground(UIStyle.SECONDARY);
-			}
-
-			public void mouseExited(MouseEvent e) {
-				btnLogout.setBackground(UIStyle.BUTTON_BG);
-				btnLogout.setForeground(UIStyle.BUTTON_FG);
-			}
-		});
+		UIStyle.addHoverEffect(btnLogout);
 
 		btnLogout.addActionListener(e -> {
 			dispose();

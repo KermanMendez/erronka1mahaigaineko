@@ -47,12 +47,13 @@ public class ThreadFrame extends JFrame {
 
 		JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(15, 15, 15, 15));
+		UIStyle.stylePanel(contentPane);
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
 		lblRutinaIzena = new JLabel(routineName);
-		lblRutinaIzena.setBounds(54, 40, 150, 20);
-		UIStyle.styleLabel(lblRutinaIzena, false);
+		lblRutinaIzena.setBounds(54, 40, 300, 24);
+		UIStyle.styleLabel(lblRutinaIzena, true);
 		lblRutinaDeskribapena = new JLabel(" ");
 		lblRutinaDeskribapena.setBounds(54, 70, 150, 20);
 		UIStyle.styleLabel(lblRutinaDeskribapena, false);
@@ -63,21 +64,26 @@ public class ThreadFrame extends JFrame {
 
 		JPanel infoPanel = new JPanel(new GridLayout(1, 3, 15, 15));
 		infoPanel.setBounds(54, 181, 554, 68);
+		UIStyle.stylePanel(infoPanel);
 
 		labelTotala.setBorder(BorderFactory.createTitledBorder("⏱️ Total"));
 		labelTotala.setFont(new Font("SansSerif", Font.BOLD, 12));
 		labelTotala.setVisible(false);
+		UIStyle.styleField(labelTotala);
 
 		labelSerieak.setBorder(BorderFactory.createTitledBorder("🏋️ Serieak"));
 		labelSerieak.setFont(new Font("SansSerif", Font.BOLD, 12));
 		labelSerieak.setVisible(false);
+		UIStyle.styleField(labelSerieak);
 
 		labelAtsedenak.setBorder(BorderFactory.createTitledBorder("💤 Atsedenak"));
 		labelAtsedenak.setFont(new Font("SansSerif", Font.BOLD, 12));
 		labelAtsedenak.setVisible(false);
+		UIStyle.styleField(labelAtsedenak);
 
 		labelHasiera.setFont(new Font("SansSerif", Font.BOLD, 12));
-		labelHasiera.setBounds(260, 100, 159, 42);
+		labelHasiera.setBounds(260, 100, 320, 42);
+		UIStyle.styleLabel(labelHasiera, false);
 
 		infoPanel.add(labelTotala);
 		infoPanel.add(labelSerieak);
@@ -93,9 +99,11 @@ public class ThreadFrame extends JFrame {
 
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
 		buttonPanel.setBounds(54, 380, 554, 42);
+		UIStyle.stylePanel(buttonPanel);
 
 		JButton btnPause = new JButton("Pausatu / Jarraitu");
-		btnPause.setFocusPainted(false);
+		UIStyle.styleButton(btnPause);
+		UIStyle.addHoverEffect(btnPause);
 		btnPause.addActionListener(e -> {
 			paused = !paused;
 			if (!paused) {
@@ -108,12 +116,14 @@ public class ThreadFrame extends JFrame {
 		buttonPanel.add(btnPause);
 
 		JButton btnSkip = new JButton("Atsedena saltatu");
-		btnSkip.setFocusPainted(false);
+		UIStyle.styleButton(btnSkip);
+		UIStyle.addHoverEffect(btnSkip);
 		btnSkip.addActionListener(e -> skipRestRequested = true);
 		buttonPanel.add(btnSkip);
 
 		JButton btnAmaitu = new JButton("Amaitu rutina");
-		btnAmaitu.setFocusPainted(false);
+		UIStyle.styleButton(btnAmaitu);
+		UIStyle.addHoverEffect(btnAmaitu);
 		btnAmaitu.addActionListener(e -> {
 			stopRequested = true;
 			Workouts workoutsView = new Workouts(isTrainer, connect);
@@ -132,7 +142,8 @@ public class ThreadFrame extends JFrame {
 				String desc = result.getDescription();
 				int totalSets = result.getTotalSets();
 
-				final String description = (desc == null || desc.trim().isEmpty()) ? "Ez da deskripziorik aurkitu" : desc;
+				final String description = (desc == null || desc.trim().isEmpty()) ? "Ez da deskripziorik aurkitu"
+						: desc;
 				final int finalTotalSets = totalSets;
 				javax.swing.SwingUtilities.invokeLater(() -> {
 					lblRutinaDeskribapena.setText(description);

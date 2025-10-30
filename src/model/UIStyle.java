@@ -6,6 +6,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.awt.Cursor;
 
 public class UIStyle {
 	public static final Color PRIMARY = new Color(33, 150, 243);
@@ -30,7 +31,10 @@ public class UIStyle {
 		button.setFocusPainted(false);
 		button.setBorderPainted(false);
 		button.setOpaque(true);
-		button.setBorder(javax.swing.BorderFactory.createLineBorder(PRIMARY, 2, true));
+		// Padding eta border konposatua
+		button.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+				javax.swing.BorderFactory.createLineBorder(PRIMARY, 2, true),
+				javax.swing.BorderFactory.createEmptyBorder(6, 12, 6, 12)));
 	}
 
 	public static void styleLabel(JLabel label, boolean isTitle) {
@@ -47,5 +51,47 @@ public class UIStyle {
 		comp.setBackground(FIELD_BG);
 		comp.setForeground(FIELD_FG);
 		comp.setFont(FIELD_FONT);
+		// Kasu bereziak: JList hautapena hobetu
+		if (comp instanceof javax.swing.JList) {
+			try {
+				javax.swing.JList<?> list = (javax.swing.JList<?>) comp;
+				list.setSelectionBackground(ACCENT);
+				list.setSelectionForeground(BUTTON_FG);
+			} catch (Throwable t) {
+				// ez moztu exekuzioa
+			}
+		}
+	}
+
+	public static void styleScrollPane(javax.swing.JScrollPane sp) {
+		if (sp == null)
+			return;
+		sp.setBorder(javax.swing.BorderFactory.createLineBorder(BORDER_COLOR, 1, true));
+		if (sp.getViewport() != null) {
+			sp.getViewport().setBackground(FIELD_BG);
+		}
+	}
+
+	/**
+	 * Gehitu botoiari hover efektua eta kursorea zentralizatzeko helper-a.
+	 * Erabilpena: UIStyle.addHoverEffect(myButton);
+	 */
+	public static void addHoverEffect(JButton button) {
+		if (button == null)
+			return;
+		button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		button.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
+			public void mouseEntered(java.awt.event.MouseEvent e) {
+				button.setBackground(ACCENT);
+				button.setForeground(SECONDARY);
+			}
+
+			@Override
+			public void mouseExited(java.awt.event.MouseEvent e) {
+				button.setBackground(BUTTON_BG);
+				button.setForeground(BUTTON_FG);
+			}
+		});
 	}
 }
