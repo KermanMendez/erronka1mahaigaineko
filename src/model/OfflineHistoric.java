@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -19,18 +20,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
+import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.WriteResult;
 
 import controller.Controller;
 
 public class OfflineHistoric {
 
 	private final String FILE = "offlineHistoric.xml";
-
-	public OfflineHistoric() {
-	}
 
 	private synchronized void appendToHistoricXml(String uid, Map<String, Object> data) throws Exception {
 		File f = new File("historic.xml");
@@ -120,19 +121,23 @@ public class OfflineHistoric {
 		}
 	}
 
-	public synchronized void syncOfflineToDb(Boolean connect) {
-		if (connect == null || !connect)
-			return;
+	public synchronized boolean syncOfflineToDb(Boolean connect) {
+		if (connect == null || !connect) {
+			return false;
+		}
 
+		boolean allSynced = true;
 		try {
-			Controller controller = new Controller(connect);
+			Controller controller = Controller.getInstance();
 			Firestore db = controller.getDb();
-			if (db == null)
-				return;
+			if (db == null) {
+				return false;
+			}
 
 			File f = new File(FILE);
-			if (!f.exists() || f.length() == 0)
-				return;
+			if (!f.exists() || f.length() == 0) {
+				return true; // No hay nada que sincronizar
+			}
 
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -144,8 +149,9 @@ public class OfflineHistoric {
 
 			for (int i = 0; i < users.getLength(); i++) {
 				org.w3c.dom.Node userNode = users.item(i);
-				if (userNode.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE)
+				if (userNode.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE) {
 					continue;
+				}
 				Element userElem = (Element) userNode;
 				String emailAttr = userElem.getAttribute("email");
 
@@ -187,14 +193,27 @@ public class OfflineHistoric {
 				}
 
 				if (userDocId != null) {
-					CollectionReference history = db.collection("users").document(userDocId).collection("historic");
-					history.add(data);
 					try {
-						appendToHistoricXml(userDocId, data);
-					} catch (Exception ignore) {
-						System.err.println("Error appending to historic.xml");
+						CollectionReference history = db.collection("users").document(userDocId).collection("historic");
+						DocumentReference newDoc = history.document();
+						ApiFuture<WriteResult> future = newDoc.set(data);
+						future.get(); // Esperar a que la operación se complete
+
+						try {
+							appendToHistoricXml(userDocId, data);
+							syncedIndexes.add(i);
+						} catch (Exception e) {
+							System.err.println("Error appending to historic.xml: " + e.getMessage());
+							allSynced = false;
+						}
+					} catch (InterruptedException | ExecutionException e) {
+						System.err.println("Error al sincronizar con Firestore: " + e.getMessage());
+						allSynced = false;
+						continue;
 					}
-					syncedIndexes.add(i);
+				} else {
+					System.err.println("No se pudo encontrar el usuario para sincronizar");
+					allSynced = false;
 				}
 			}
 
@@ -231,7 +250,10 @@ public class OfflineHistoric {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			return false;
 		}
+
+		return allSynced;
 	}
 
 }

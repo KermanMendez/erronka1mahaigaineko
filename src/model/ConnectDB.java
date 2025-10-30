@@ -31,10 +31,9 @@ import okhttp3.Response;
 import view.Inter;
 
 public class ConnectDB {
-    private static final String DEFAULT_API_KEY = "AIzaSyBhHBYyK1vmvbrbP-tWUfFNxRqbeu2AOu4";
-    private static final String API_KEY = System.getenv("FIREBASE_API_KEY") != null
-	    ? System.getenv("FIREBASE_API_KEY")
-	    : DEFAULT_API_KEY;
+	private static final String DEFAULT_API_KEY = "AIzaSyBhHBYyK1vmvbrbP-tWUfFNxRqbeu2AOu4";
+	private static final String API_KEY = System.getenv("FIREBASE_API_KEY") != null ? System.getenv("FIREBASE_API_KEY")
+			: DEFAULT_API_KEY;
 	private static final OkHttpClient HTTP_BEZEROA = new OkHttpClient();
 	private static final MediaType JSON_MEDIA = MediaType.parse("application/json; charset=utf-8");
 	private static final java.text.SimpleDateFormat DATA_FORMATUA = new java.text.SimpleDateFormat("dd/MM/yyyy");
@@ -227,8 +226,14 @@ public class ConnectDB {
 			}
 			String responseBody = response.body().string();
 			JsonObject responseJson = JsonParser.parseString(responseBody).getAsJsonObject();
+
 			OfflineHistoric offlineHandler = new OfflineHistoric();
-			offlineHandler.syncOfflineToDb(true);
+			try {
+				offlineHandler.syncOfflineToDb(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
 			return responseJson.get("localId").getAsString();
 		}
 	}

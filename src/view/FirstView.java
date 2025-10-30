@@ -12,6 +12,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import controller.Controller;
+import model.Theme;
 import model.UIStyle;
 
 public class FirstView extends JFrame {
@@ -20,8 +22,10 @@ public class FirstView extends JFrame {
 	private static ImageIcon logo;
 	private JPanel contentPane;
 
+	private Controller controller;
+
 	public FirstView(Boolean connect) {
-		// aplicar tema global
+		this.controller = Controller.getInstance();
 		Theme.apply();
 
 		setTitle("LONG RING LONG LAND GYM");
@@ -32,21 +36,19 @@ public class FirstView extends JFrame {
 		UIStyle.stylePanel(contentPane);
 		setContentPane(contentPane);
 
-		// Logo centrado
 		JLabel labelLogo = new JLabel("");
 		labelLogo.setIcon(getLogo());
 		labelLogo.setHorizontalAlignment(SwingConstants.CENTER);
 		UIStyle.styleLabel(labelLogo, true);
 		contentPane.add(labelLogo, BorderLayout.CENTER);
 
-		// Panel inferior con botón
 		JPanel south = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 12));
 		UIStyle.stylePanel(south);
 		JButton btnEnter = new JButton("Sartu");
 		UIStyle.styleButton(btnEnter);
 		UIStyle.addHoverEffect(btnEnter);
 		btnEnter.addActionListener(e -> {
-			LoginFrame loginFrame = new LoginFrame(connect);
+			LoginFrame loginFrame = new LoginFrame(controller.isOnline());
 			loginFrame.setVisible(true);
 			dispose();
 		});

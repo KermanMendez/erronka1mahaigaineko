@@ -9,7 +9,8 @@ public class MainApp {
 	public static void main(String[] args) {
 		controller.AppState.setAppStarted(true);
 
-		Controller controller = new Controller(false);
+		Controller.initialize(false);
+		Controller controller = Controller.getInstance();
 
 		SwingUtilities.invokeLater(() -> {
 			controller.getFirstView(false).setVisible(true);
@@ -18,8 +19,13 @@ public class MainApp {
 		new Thread(() -> {
 			DBConnection dbConnection = new DBConnection();
 			boolean connected = dbConnection.initialize(true);
+
 			if (connected) {
-				controller.onOnline();
+				controller.setOnline(true);
+
+				SwingUtilities.invokeLater(() -> {
+					controller.getFirstView(true);
+				});
 
 				CreateBackup backup = new CreateBackup();
 				new Thread(() -> {

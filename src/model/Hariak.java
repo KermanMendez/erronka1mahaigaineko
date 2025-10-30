@@ -1,10 +1,7 @@
 package model;
 
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 
@@ -32,9 +29,7 @@ public class Hariak {
 	private int expectedTotalSeconds = 0;
 	private Firestore db;
 	private CreateUserBackup createUserBackup = new CreateUserBackup();
-
 	private volatile boolean skipNow = false;
-
 	private int level;
 
 	public Hariak() {
@@ -45,79 +40,127 @@ public class Hariak {
 		return getExercises(level, routineName, connect);
 	}
 
-	/**
-	 * Loads routine data (exercises, routine-level description and total sets).
-	 * Prefers reading the routine document's description when online; falls back to exercise descriptions or backup.
-	 */
 	public RoutineData loadRoutine(int level, String routineName, Boolean connect)
 			throws InterruptedException, ExecutionException {
 
 		this.level = level;
 
-		List<Exercise> exercises = new ArrayList<>();
-		String routineDescription = null;
-		int totalSets = 0;
+		if (connect == null || !connect) {
+			ReadBackup reader = new ReadBackup();
+			ReadBackup.BackupData backup = reader.loadBackupData();
+			if (backup == null)
+				return new RoutineData(Collections.emptyList(), "", 0);
+
+			ExercisesResult res = loadExercisesFromBackup(level, routineName, backup);
+			String description = getDefaultRoutineDescription(res.routineDescription, res.exercises);
+			return new RoutineData(res.exercises, description, res.totalSets);
+		}
+
+		ExercisesResult res = loadExercisesFromFirestore(level, routineName);
+		String description = getDefaultRoutineDescription(res.routineDescription, res.exercises);
+		return new RoutineData(res.exercises, description, res.totalSets);
+	}
+
+	private List<Exercise> getExercises(int level, String routineName, Boolean connect)
+			throws InterruptedException, ExecutionException {
+
+		this.level = level;
 
 		if (connect == null || !connect) {
 			ReadBackup reader = new ReadBackup();
 			ReadBackup.BackupData backup = reader.loadBackupData();
 			if (backup == null)
-				return new RoutineData(exercises, "", 0);
-
-			List<ReadBackup.DocumentData> workoutDocs = backup.collections.get("workouts");
-			if (workoutDocs == null)
-				return new RoutineData(exercises, "", 0);
-
-			for (ReadBackup.DocumentData d : workoutDocs) {
-				String levelValue = d.fields.get("level");
-				String nameValue = d.fields.get("name");
-				if (levelValue != null && nameValue != null && levelValue.equals(String.valueOf(level))
-						&& nameValue.equals(routineName)) {
-					// routine-level description if present
-					routineDescription = d.fields.get("description");
-
-					List<ReadBackup.DocumentData> exerciseDocs = d.subcollections.get("exercises");
-					if (exerciseDocs == null)
-						exerciseDocs = d.subcollections.get("exercise");
-					if (exerciseDocs != null) {
-						for (ReadBackup.DocumentData exDoc : exerciseDocs) {
-							Exercise ex = new Exercise();
-							ex.setName(exDoc.fields.get("name"));
-							ex.setDescription(exDoc.fields.get("description"));
-							ex.setReps(exDoc.fields.get("reps"));
-							ex.setSets(exDoc.fields.get("sets"));
-							ex.setSerieTime(exDoc.fields.get("timeSets"));
-							ex.setRestTimeSec(exDoc.fields.get("timePauseSec"));
-							exercises.add(ex);
-							totalSets += ex.getSets();
-						}
-					}
-					break;
-				}
-			}
-
-			if (routineDescription == null || routineDescription.trim().isEmpty()) {
-				// fallback to first exercise description if available
-				if (!exercises.isEmpty() && exercises.get(0).getDescription() != null)
-					routineDescription = exercises.get(0).getDescription();
-			}
-
-			return new RoutineData(exercises, routineDescription == null ? "" : routineDescription, totalSets);
+				return new ArrayList<>();
+			ExercisesResult res = loadExercisesFromBackup(level, routineName, backup);
+			return res.exercises;
 		}
 
-		Controller controller = new Controller(connect);
-		db = controller.getDb();
+		ExercisesResult res = loadExercisesFromFirestore(level, routineName);
+		return res.exercises;
+	}
+
+	private static class ExercisesResult {
+		final List<Exercise> exercises;
+		final int totalSets;
+		final String routineDescription;
+
+		ExercisesResult(List<Exercise> exercises, int totalSets, String routineDescription) {
+			this.exercises = exercises;
+			this.totalSets = totalSets;
+			this.routineDescription = routineDescription;
+		}
+	}
+
+	private ExercisesResult loadExercisesFromBackup(int level, String routineName, ReadBackup.BackupData backup) {
+		List<Exercise> exercises = new ArrayList<>();
+		int totalSets = 0;
+		String routineDescription = null;
+
+		if (backup == null || backup.collections == null)
+			return new ExercisesResult(exercises, 0, null);
+
+		List<ReadBackup.DocumentData> workoutDocs = backup.collections.get("workouts");
+		if (workoutDocs == null)
+			return new ExercisesResult(exercises, 0, null);
+
+		for (ReadBackup.DocumentData d : workoutDocs) {
+			String levelValue = d.fields.get("level");
+			String nameValue = d.fields.get("name");
+			if (levelValue != null && nameValue != null && levelValue.equals(String.valueOf(level))
+					&& nameValue.equals(routineName)) {
+
+				routineDescription = d.fields.get("description");
+
+				List<ReadBackup.DocumentData> exerciseDocs = d.subcollections.get("exercises");
+				if (exerciseDocs == null)
+					exerciseDocs = d.subcollections.get("exercise");
+
+				if (exerciseDocs != null) {
+					for (ReadBackup.DocumentData exDoc : exerciseDocs) {
+						Exercise ex = exerciseFromBackupDoc(exDoc);
+						exercises.add(ex);
+						totalSets += ex.getSets();
+					}
+				}
+				break;
+			}
+		}
+
+		return new ExercisesResult(exercises, totalSets, routineDescription);
+	}
+
+	private Exercise exerciseFromBackupDoc(ReadBackup.DocumentData exDoc) {
+		Exercise ex = new Exercise();
+		ex.setName(exDoc.fields.get("name"));
+		ex.setDescription(exDoc.fields.get("description"));
+		ex.setReps(exDoc.fields.get("reps"));
+		ex.setSets(exDoc.fields.get("sets"));
+		ex.setSerieTime(exDoc.fields.get("timeSets"));
+		ex.setRestTimeSec(exDoc.fields.get("timePauseSec"));
+		return ex;
+	}
+
+	private ExercisesResult loadExercisesFromFirestore(int level, String routineName)
+			throws InterruptedException, ExecutionException {
+
+		List<Exercise> exercises = new ArrayList<>();
+		int totalSets = 0;
+		String routineDescription = null;
+
+		Controller controller = new Controller(true);
+		this.db = controller.getDb();
+
 		QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", level)
 				.whereEqualTo("name", routineName).get().get();
 		if (querySnapshot.isEmpty())
-			return new RoutineData(exercises, "", 0);
+			return new ExercisesResult(exercises, 0, null);
 
 		DocumentSnapshot routineDoc = querySnapshot.getDocuments().get(0);
-		// prefer routine-level description
 		routineDescription = routineDoc.getString("description");
 
 		List<QueryDocumentSnapshot> exerciseDocs = routineDoc.getReference().collection("exercises").get().get()
 				.getDocuments();
+
 		for (QueryDocumentSnapshot doc : exerciseDocs) {
 			Exercise ex = new Exercise();
 			String name = doc.getString("name");
@@ -135,88 +178,23 @@ public class Hariak {
 			totalSets += ex.getSets();
 		}
 
-		if (routineDescription == null || routineDescription.trim().isEmpty()) {
-			if (!exercises.isEmpty() && exercises.get(0).getDescription() != null)
-				routineDescription = exercises.get(0).getDescription();
-		}
-
-		return new RoutineData(exercises, routineDescription == null ? "" : routineDescription, totalSets);
+		return new ExercisesResult(exercises, totalSets, routineDescription);
 	}
 
-	private List<Exercise> getExercises(int level, String routineName, Boolean connect)
-			throws InterruptedException, ExecutionException {
-
-		this.level = level;
-
-		List<Exercise> exercises = new ArrayList<>();
-
-		if (connect == null || !connect) {
-			ReadBackup reader = new ReadBackup();
-			ReadBackup.BackupData backup = reader.loadBackupData();
-			if (backup == null)
-				return exercises;
-
-			List<ReadBackup.DocumentData> workoutDocs = backup.collections.get("workouts");
-			if (workoutDocs == null)
-				return exercises;
-
-			for (ReadBackup.DocumentData d : workoutDocs) {
-				String levelValue = d.fields.get("level");
-				String nameValue = d.fields.get("name");
-				if (levelValue != null && nameValue != null && levelValue.equals(String.valueOf(level))
-						&& nameValue.equals(routineName)) {
-					List<ReadBackup.DocumentData> exerciseDocs = d.subcollections.get("exercises");
-					if (exerciseDocs == null)
-						exerciseDocs = d.subcollections.get("exercise");
-					if (exerciseDocs != null) {
-						for (ReadBackup.DocumentData exDoc : exerciseDocs) {
-							Exercise ex = new Exercise();
-							ex.setName(exDoc.fields.get("name"));
-							ex.setDescription(exDoc.fields.get("description"));
-							ex.setReps(exDoc.fields.get("reps"));
-							ex.setSets(exDoc.fields.get("sets"));
-							ex.setSerieTime(exDoc.fields.get("timeSets"));
-							ex.setRestTimeSec(exDoc.fields.get("timePauseSec"));
-							exercises.add(ex);
-						}
-					}
-					break;
-				}
-			}
-			return exercises;
-		}
-
-		Controller controller = new Controller(connect);
-		db = controller.getDb();
-		QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", level)
-				.whereEqualTo("name", routineName).get().get();
-		if (querySnapshot.isEmpty())
-			return exercises;
-
-		DocumentSnapshot routineDoc = querySnapshot.getDocuments().get(0);
-		List<QueryDocumentSnapshot> exerciseDocs = routineDoc.getReference().collection("exercises").get().get()
-				.getDocuments();
-		for (QueryDocumentSnapshot doc : exerciseDocs) {
-			Exercise ex = new Exercise();
-			String name = doc.getString("name");
-			String description = doc.getString("description");
-			if (name != null)
-				ex.setName(name);
-			if (description != null)
-				ex.setDescription(description);
-
-			ex.setReps(doc.get("reps"));
-			ex.setSets(doc.get("sets"));
-			ex.setSerieTime(doc.get("timeSets"));
-			ex.setRestTimeSec(doc.get("timePauseSec"));
-			exercises.add(ex);
-		}
-		return exercises;
+	private String getDefaultRoutineDescription(String routineDescription, List<Exercise> exercises) {
+		if (routineDescription != null && !routineDescription.trim().isEmpty())
+			return routineDescription;
+		if (!exercises.isEmpty() && exercises.get(0).getDescription() != null)
+			return exercises.get(0).getDescription();
+		return "";
 	}
 
 	private void runExerciseThread(List<Exercise> exercises, JLabel label, String hiloTag,
 			Supplier<Boolean> stopSupplier, Supplier<Boolean> skipRest, Supplier<Boolean> pauseSupplier,
 			Object pauseLock, int mode, boolean canPause) {
+
+		if (exercises == null || exercises.isEmpty())
+			return;
 
 		for (int exIdx = 0; exIdx < exercises.size(); exIdx++) {
 			Exercise ex = exercises.get(exIdx);
@@ -246,13 +224,15 @@ public class Hariak {
 
 					final int currentSec = t;
 					final int currentSet = s;
+					final int serieTimeFinal = serieTime;
+
 					SwingUtilities.invokeLater(() -> {
-						if (label != null) {
-							if (mode == 0)
-								label.setText("Denbora totala: " + totalTime + " seg");
-							else if (mode == 1)
-								label.setText("Sets " + currentSet + " - " + currentSec + "/" + serieTime + " seg");
-						}
+						if (label == null)
+							return;
+						if (mode == 0)
+							label.setText("Denbora totala: " + totalTime + " seg");
+						else if (mode == 1)
+							label.setText("Sets " + currentSet + " - " + currentSec + "/" + serieTimeFinal + " seg");
 					});
 
 					sleep(1000);
@@ -264,104 +244,79 @@ public class Hariak {
 
 				if (s < sets) {
 					skipNow = false;
-					int elapsed = 0;
-					while (elapsed < restTime && !skipNow) {
-						if (stopSupplier != null && stopSupplier.get()) {
-							if (mode == 0)
-								totalSeconds = elapsedSeconds;
-							return;
-						}
-
-						if (skipRest != null && skipRest.get()) {
-							skipNow = true;
-							break;
-						}
-
-						if (canPause)
-							waitIfPaused(pauseSupplier, pauseLock);
-
-						if (mode == 0) {
-							elapsedSeconds++;
+					boolean stopped = handleRestPeriod(restTime, mode, label, stopSupplier, skipRest, pauseSupplier,
+							pauseLock, false);
+					if (stopped) {
+						if (mode == 0)
 							totalSeconds = elapsedSeconds;
-							int remaining = expectedTotalSeconds - elapsedSeconds + 1;
-							if (remaining < 0)
-								remaining = 0;
-							totalTime = remaining;
-						}
-
-						final int currentSec = ++elapsed;
-						final int remainingRest = restTime - currentSec + 1;
-						SwingUtilities.invokeLater(() -> {
-							if (label != null) {
-								if (mode == 0)
-									label.setText("Denbora totala: " + totalTime + " seg");
-								else if (mode == 2)
-									label.setText("Atsedena " + remainingRest + "/" + restTime + " seg");
-							}
-						});
-
-						for (int i = 0; i < 5; i++) {
-							if (skipRest != null && skipRest.get()) {
-								skipNow = true;
-								break;
-							}
-							sleep(200);
-						}
+						return;
 					}
 				}
-
 			}
 
 			if (exIdx < exercises.size() - 1) {
 				int interExerciseRest = restTime;
 				skipNow = false;
-				int elapsed = 0;
-				while (elapsed < interExerciseRest && !skipNow) {
-					if (stopSupplier != null && stopSupplier.get()) {
-						if (mode == 0)
-							totalSeconds = elapsedSeconds;
-						return;
-					}
-
-					if (skipRest != null && skipRest.get()) {
-						skipNow = true;
-						break;
-					}
-
-					if (canPause)
-						waitIfPaused(pauseSupplier, pauseLock);
-
-					if (mode == 0) {
-						elapsedSeconds++;
+				boolean stopped = handleRestPeriod(interExerciseRest, mode, label, stopSupplier, skipRest,
+						pauseSupplier, pauseLock, true);
+				if (stopped) {
+					if (mode == 0)
 						totalSeconds = elapsedSeconds;
-						int remaining = expectedTotalSeconds - elapsedSeconds + 1;
-						if (remaining < 0)
-							remaining = 0;
-						totalTime = remaining;
-					}
-
-					final int currentSec = ++elapsed;
-					SwingUtilities.invokeLater(() -> {
-						if (label != null) {
-							if (mode == 0)
-								label.setText("Denbora totala: " + totalTime + " seg");
-							else if (mode == 2) {
-								int remainingRest = interExerciseRest - currentSec + 1;
-								label.setText("Atsedena " + remainingRest + "/" + interExerciseRest + " seg");
-							}
-						}
-					});
-
-					for (int i = 0; i < 5; i++) {
-						if (skipRest != null && skipRest.get()) {
-							skipNow = true;
-							break;
-						}
-						sleep(200);
-					}
+					return;
 				}
 			}
 		}
+	}
+
+	private boolean handleRestPeriod(int restDuration, int mode, JLabel label, Supplier<Boolean> stopSupplier,
+			Supplier<Boolean> skipRest, Supplier<Boolean> pauseSupplier, Object pauseLock, boolean isInterExercise) {
+
+		int elapsed = 0;
+		while (elapsed < restDuration && !skipNow) {
+
+			if (stopSupplier != null && stopSupplier.get()) {
+				return true;
+			}
+
+			if (skipRest != null && skipRest.get()) {
+				skipNow = true;
+				break;
+			}
+
+			if (pauseSupplier != null && pauseSupplier.get()) {
+				waitIfPaused(pauseSupplier, pauseLock);
+			}
+
+			if (mode == 0) {
+				elapsedSeconds++;
+				totalSeconds = elapsedSeconds;
+				int remaining = expectedTotalSeconds - elapsedSeconds + 1;
+				if (remaining < 0)
+					remaining = 0;
+				totalTime = remaining;
+			}
+
+			final int currentSec = ++elapsed;
+			final int remainingRest = restDuration - currentSec + 1;
+			SwingUtilities.invokeLater(() -> {
+				if (label == null)
+					return;
+				if (mode == 0) {
+					label.setText("Denbora totala: " + totalTime + " seg");
+				} else if (mode == 2) {
+					label.setText("Atsedena " + remainingRest + "/" + restDuration + " seg");
+				}
+			});
+
+			for (int i = 0; i < 5; i++) {
+				if (skipRest != null && skipRest.get()) {
+					skipNow = true;
+					break;
+				}
+				sleep(200);
+			}
+		}
+		return false;
 	}
 
 	private void waitIfPaused(Supplier<Boolean> pauseSupplier, Object pauseLock) {
@@ -386,10 +341,11 @@ public class Hariak {
 			JLabel labelDescansos, JLabel labelHasiera, Supplier<Boolean> stopSupplier, Supplier<Boolean> skipSupplier,
 			Supplier<Boolean> pauseSupplier, Object lock, String routineName, boolean thread1, boolean thread2,
 			boolean thread3) {
+
 		new Thread(() -> {
 			try {
 				for (int i = 5; i > 0; i--) {
-					int countdown = i;
+					final int countdown = i;
 					SwingUtilities.invokeLater(() -> {
 						if (labelHasiera != null)
 							labelHasiera.setText("Prest! Hasiera " + countdown + "...");
@@ -401,7 +357,6 @@ public class Hariak {
 					if (labelHasiera != null)
 						labelHasiera.setText("Hasi da entrenamendua!");
 				});
-
 				Thread.sleep(1000);
 
 				if (exercises == null || exercises.isEmpty()) {
@@ -412,36 +367,24 @@ public class Hariak {
 					return;
 				}
 
-				labelTotal.setVisible(true);
-				labelSeries.setVisible(true);
-				labelDescansos.setVisible(true);
-				labelHasiera.setVisible(false);
+				if (labelTotal != null)
+					labelTotal.setVisible(true);
+				if (labelSeries != null)
+					labelSeries.setVisible(true);
+				if (labelDescansos != null)
+					labelDescansos.setVisible(true);
+				if (labelHasiera != null)
+					labelHasiera.setVisible(false);
 
 				int computedTotalSets = 0;
-				this.completedSets = 0;
-				if (exercises != null) {
-					for (Exercise e : exercises) {
-						computedTotalSets += e.getSets();
-					}
+				int computedTotalSeconds = computeExpectedTotalSeconds(exercises);
+				for (Exercise e : exercises) {
+					computedTotalSets += e.getSets();
 				}
 				this.expectedTotalSets = computedTotalSets;
-
-				int computedTotalSeconds = 0;
-				if (exercises != null) {
-					for (int i = 0; i < exercises.size(); i++) {
-						Exercise e = exercises.get(i);
-						int sets = e.getSets();
-						int serieTime = e.getSerieTime();
-						int restTime = e.getRestTimeSec();
-						computedTotalSeconds += sets * serieTime;
-						if (sets > 1)
-							computedTotalSeconds += restTime * (sets - 1);
-						if (i < exercises.size() - 1)
-							computedTotalSeconds += restTime;
-					}
-				}
 				this.expectedTotalSeconds = computedTotalSeconds;
 				this.elapsedSeconds = 0;
+				this.completedSets = 0;
 
 				Thread tTotal = new Thread(() -> runExerciseThread(exercises, labelTotal, "⏱ TOTAL", stopSupplier,
 						skipSupplier, pauseSupplier, lock, 0, thread1));
@@ -476,25 +419,45 @@ public class Hariak {
 				Thread.currentThread().interrupt();
 			}
 		}).start();
+	}
 
+	private int computeExpectedTotalSeconds(List<Exercise> exercises) {
+		int total = 0;
+		if (exercises == null)
+			return 0;
+		for (int i = 0; i < exercises.size(); i++) {
+			Exercise e = exercises.get(i);
+			int sets = e.getSets();
+			int serieTime = e.getSerieTime();
+			int restTime = e.getRestTimeSec();
+			total += sets * serieTime;
+			if (sets > 1)
+				total += restTime * (sets - 1);
+			if (i < exercises.size() - 1)
+				total += restTime;
+		}
+		return total;
 	}
 
 	public void sumLevel() {
+
+		if (!amaituta)
+			return;
 
 		String emaila = createUserBackup.loadEmail();
 
 		try {
 			QuerySnapshot querySnapshot = db.collection("users").whereEqualTo("email", emaila).get().get();
+			if (querySnapshot.isEmpty())
+				return;
 
 			DocumentSnapshot userDoc = querySnapshot.getDocuments().get(0);
 
-			if (amaituta == true) {
-				if (level < 5) {
-					level++;
-					Map<String, Object> data = new HashMap<>();
-					data.put("level", level);
-					db.collection("users").document(userDoc.getId()).update(data);
-				}
+			if (level < 5) {
+				level++;
+				Map<String, Object> data = new HashMap<>();
+				data.put("level", level);
+				db.collection("users").document(userDoc.getId()).update(data);
 			}
 
 		} catch (InterruptedException | ExecutionException e) {
@@ -505,11 +468,13 @@ public class Hariak {
 	public void historyLog(String routineName) {
 		String email = createUserBackup.loadEmail();
 
-		// Try online first; if db is not available or write fails, save offline
 		try {
 			if (db != null) {
-				DocumentSnapshot routineDoc = db.collection("workouts").whereEqualTo("name", routineName).get().get()
-						.getDocuments().get(0);
+				QuerySnapshot routineQuery = db.collection("workouts").whereEqualTo("name", routineName).get().get();
+				if (routineQuery.isEmpty()) {
+					throw new Exception("No routine found online");
+				}
+				DocumentSnapshot routineDoc = routineQuery.getDocuments().get(0);
 
 				QuerySnapshot userQuery = db.collection("users").whereEqualTo("email", email).get().get();
 				if (userQuery.isEmpty())
@@ -532,7 +497,6 @@ public class Hariak {
 				sumLevel();
 				return;
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -580,7 +544,6 @@ public class Hariak {
 			fields.put("level", String.valueOf(level));
 
 			offline.addEntry(uid, email, fields);
-
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

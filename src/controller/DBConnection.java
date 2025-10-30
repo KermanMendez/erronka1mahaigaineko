@@ -12,6 +12,12 @@ import com.google.firebase.FirebaseOptions;
 
 public class DBConnection {
 
+	private boolean initialized = false;
+
+	public boolean isInitialized() {
+		return initialized;
+	}
+
 	public boolean initialize(Boolean connect) {
 		try {
 			File keyFile = new File("serviceAccountKey.json");
@@ -34,6 +40,7 @@ public class DBConnection {
 				if (FirebaseApp.getApps().isEmpty()) {
 					FirebaseApp.initializeApp(options);
 				}
+				initialized = true;
 				return true;
 			}
 

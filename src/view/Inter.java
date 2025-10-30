@@ -12,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import model.Theme;
 import model.UIStyle;
 
 public class Inter extends JFrame {
@@ -68,7 +69,7 @@ public class Inter extends JFrame {
 		gbc.gridy = 0;
 		gbc.weightx = 0.5;
 		gbc.weighty = 1.0;
-		contentPane.add(btnProfile, gbc);
+		contentPane.add(btnProfile);
 
 		gbc.gridx = 1;
 		contentPane.add(btnWorkouts, gbc);

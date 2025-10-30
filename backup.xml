@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<backup>
+  <users>
+    <user>
+      <uid>HRtoGDw4HC1sDRcUbmgOIjY4GA42bTZsAxgKaA==</uid>
+      <email>MDUpPzg7Gj03OzM2dDk1Nw==</email>
+    </user>
+    <user>
+      <uid>FGgJLjlvMRkCaAofMRQUGRsJCjAoPAMDG21saQ==</uid>
+      <email>MC82PzQaPTc7MzZ0OTU3</email>
+    </user>
+    <user>
+      <uid>MxsoKD4vbisoaggANxsxbzMcIj4SCyk3ax0paA==</uid>
+      <email>OzM3OygaPTc7MzZ0OTU3</email>
+    </user>
+    <user>
+      <uid>KQsNCyxqDA0jKgxvCw84OQ0yPgMKY21oDwM+aA==</uid>
+      <email>OD8gPyg1amsaPTc7MzZ0OTU3</email>
+    </user>
+  </users>
+  <collection name="users">
+    <document id="GA2BfbFw6WMN42TxlbBTl7l6YBP2">
+      <birthdate>Gy8xPyg7Li96MDszNS4gP3o+Oy47</birthdate>
+      <surname2>GDM2ODs1</surname2>
+      <level>aw==</level>
+      <surname>Fy8oLzs=</surname>
+      <trainer>PDs2KT8=</trainer>
+      <name>EDUpPzg7</name>
+      <id>HRtoGDw4HC1sDRcUbmgOIjY4GA42bTZsAxgKaA==</id>
+    </document>
+    <document id="N2Stc5kCX2PEkNNCASPjrfYYA763">
+      <password>Cxw1HjsraTMPYiw/HDM1dT0fOBcsG2dnfmMVMxMcDDkZaQovaA1iOB8uGxMVLSgTOA4CMxBraR9sAjkKIxY5KmIwDQ9n</password>
+      <birthdate>amN1a2p1aGpqbA==</birthdate>
+      <surname2>FjUqPyA=</surname2>
+      <level>aA==</level>
+      <surname>HD8oNDs0Pj8g</surname>
+      <name>EC82PzQ=</name>
+      <email>MC82PzQaPTc7MzZ0OTU3</email>
+      <isTrainer>LigvPw==</isTrainer>
+      <subcollection name="historic">
+        <document id="4POZwSWGhWQ4CAtDZsbi">
+          <date>aGJ1a2p1aGpobw==</date>
+          <totalSets>a20=</totalSets>
+          <totalTime>aGg=</totalTime>
+          <workoutId>aS1jI2I/GTIILG4eEgs2Ny0yGxM=</workoutId>
+          <completed>LigvPw==</completed>
+        </document>
+        <document id="OQYEaFCnYsWvTKQ97ynE">
+          <date>aGJ1a2p1aGpobw==</date>
+          <totalSets>a20=</totalSets>
+          <totalTime>aGo=</totalTime>
+          <workoutId>aS1jI2I/GTIILG4eEgs2Ny0yGxM=</workoutId>
+          <completed>LigvPw==</completed>
+        </document>
+        <document id="Y5XajKuphrBtJliKp3CU">
+          <date>aGJ1a2p1aGpobw==</date>
+          <totalSets>bQ==</totalSets>
+          <totalTime>a2k=</totalTime>
+          <workoutId>aS1jI2I/GTIILG4eEgs2Ny0yGxM=</workoutId>
+          <completed>PDs2KT8=</completed>
+        </document>
+        <document id="iIozHd6uDuIEkYekeVha">
+          <date>aGJ1a2p1aGpobw==</date>
+          <totalSets>a20=</totalSets>
+          <totalTime>aGk=</totalTime>
+          <workoutId>aS1jI2I/GTIILG4eEgs2Ny0yGxM=</workoutId>
+          <completed>LigvPw==</completed>
+        </document>
+        <document id="wrBn0OFqQAGie7J1x8Tb">
+          <date>aGJ1a2p1aGpobw==</date>
+          <totalSets>a20=</totalSets>
+          <totalTime>aGs=</totalTime>
+          <workoutId>aS1jI2I/GTIILG4eEgs2Ny0yGxM=</workoutId>
+          <completed>LigvPw==</completed>
+        </document>
+      </subcollection>
+    </document>
+    <document id="iArrdu4qr0RZmAk5iFxdHQsm1Gs2">
+      <birthdate>aG51am11aGpqbg==</birthdate>
+      <surname2>GzY1NCk1</surname2>
+      <level>aw==</level>
+      <surname>Gzk1KS47</surname>
+      <trainer>PDs2KT8=</trainer>
+      <name>GzM3Oyg=</name>
+      <id>MxsoKD4vbisoaggANxsxbzMcIj4SCyk3ax0paA==</id>
+    </document>
+    <document id="sQWQv0VWypV5QUbcWhdYP972UYd2">
+      <password>agoTHi4yHAprCzFtFG5uYwxjCnFqC2dnfisXOWM5Yiw7MRkZFz49IxEPNTR1KwoYaDA7KyJoIA4VFBhvHw8eDTMzEz1n</password>
+      <birthdate>am91a2p1a2NjYg==</birthdate>
+      <surname2>CDU=</surname2>
+      <level>aw==</level>
+      <surname>GD8gPw==</surname>
+      <name>GD8gPyg1ams=</name>
+      <email>OD8gPyg1amsaPTc7MzZ0OTU3</email>
+      <isTrainer>PDs2KT8=</isTrainer>
+    </document>
+  </collection>
+  <collection name="workouts">
+    <document id="3w9y8eChRv4DHQlmwhAI">
+      <level>aw==</level>
+      <name>FTM0OygoMyAxNXofNC4oPzQ7Nz80Pi87</name>
+      <description>FTM0OygoMyAxNXo9NSgqLy4gejsoMzE/Ljt6Kig1PSg7Nzt6MjspMzg/KCgzPzQuIDsudA==</description>
+      <subcollection name="exercises">
+        <document id="ex1">
+          <reps>aGo=</reps>
+          <timeSets>aA==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>EC83KjM0PXoQOzkxKQ==</name>
+          <description>HTUoKi8uIHo1KTU7KD80ejg/KDUxPy47dno4MzI1LiB3LjspO3oyOzQ+My4gPzR6Pi90</description>
+          <timePauseSec>aWo=</timePauseSec>
+        </document>
+        <document id="ex2">
+          <reps>a2g=</reps>
+          <timeSets>aw==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>GDU+Iy0/Mz0yLnoJKy87Lik=</name>
+          <description>Ejs0MTsxej8uO3o9Ni8uPzU7MXozND47KC4gPzR6PjMuL3Q=</description>
+          <timePauseSec>bGo=</timePauseSec>
+        </document>
+        <document id="ex3">
+          <reps>a2o=</reps>
+          <timeSets>aw==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>ETQ/P3oKLykydw8qKQ==</name>
+          <description>GC82OygoO3o/Ljt6LigzID8qKT8xejY7NC4gPzR6PjMuL3Q=</description>
+          <timePauseSec>bmo=</timePauseSec>
+        </document>
+        <document id="ex4">
+          <reps>a2g=</reps>
+          <timeSets>aw==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>HTYvLj96GCgzPj0/KQ==</name>
+          <description>HTYvLj81OzF6Py47ejgzIDE7KCg/IC8oKDsoPzR6OD8yPzs2Pj87ejM0PjsoLiA/NHo+My4vdA==</description>
+          <timePauseSec>aW8=</timePauseSec>
+        </document>
+        <document id="ex5">
+          <reps>a28=</reps>
+          <timeSets>aw==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>CS47ND4zND16GTs2PHoIOzMpPyk=</name>
+          <description>GD8yPzE1ejI7NDE7MXozND47KC4gPzR6PjMuL3Q=</description>
+          <timePauseSec>aG8=</timePauseSec>
+        </document>
+        <document id="ex6">
+          <reps>aGo=</reps>
+          <timeSets>aw==</timeSets>
+          <sets>aA==</sets>
+          <videoURL/>
+          <name>Gyg3ehkzKDk2Pyk=</name>
+          <description>CTUoODs2Pj80ejcvPTMxNSguOykvNDt6Njs0LiA/NHo+L3Q=</description>
+          <timePauseSec>aGo=</timePauseSec>
+        </document>
+      </subcollection>
+    </document>
+    <document id="4DKnZ5yxJGRgxMZ1hIt6">
+      <level>aQ==</level>
+      <name>HygoNTQxO3oXNT4/KDsuLzs=</name>
+      <description>HygoNTQxO3o3NT4/KDsuLzt6PTUoKi8uIHo1KTU7ejY7NC4gPzR6Pi8/NDt0</description>
+      <subcollection name="exercises">
+        <document id="ex1">
+          <reps>a28=</reps>
+          <timeSets>aA==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>EC83KnoJKy87Lik=</name>
+          <description>Ejs0MTsxej8uO3oqNS4/NC4gMzt6Njs0LiA/NHo+My4vdA==</description>
+          <timePauseSec>bm8=</timePauseSec>
+        </document>
+        <document id="ex2">
+          <reps>a2g=</reps>
+          <timeSets>aw==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>Ci8pMncPKik=</name>
+          <description>GC82OygoO3o/Ljt6KTUoODs2PjsxejY7NC4gPzR6PjMuL3Q=</description>
+          <timePauseSec>b2o=</timePauseSec>
+        </document>
+        <document id="ex3">
+          <reps>a2g=</reps>
+          <timeSets>aw==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>Hi83ODg/NjZ6CDUtKQ==</name>
+          <description>GDMgMTsoKDt6Py47ejgzOT8qKTsxejM0PjsoLiA/NHo+My4vdA==</description>
+          <timePauseSec>bWo=</timePauseSec>
+        </document>
+        <document id="ex4">
+          <reps>a2o=</reps>
+          <timeSets>aw==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>GC82PTsoMzs0egkqNjMuegkrLzsuKQ==</name>
+          <description>Ejs0MTsxej8uO3o1KD8xO3o2OzQuID80ej4zLi90</description>
+          <timePauseSec>bW8=</timePauseSec>
+        </document>
+        <document id="ex5">
+          <reps>aGo=</reps>
+          <timeSets>aA==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>GDM5Izk2P3oZKC80OTI/KQ==</name>
+          <description>Gzg+NTczNDs2OzF6Py47ejk1KD96MzQ+OyguID80ej4zLi90</description>
+          <timePauseSec>aW8=</timePauseSec>
+        </document>
+        <document id="ex6">
+          <reps>a2g=</reps>
+          <timeSets>aw==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>DigzOT8qeh4zKik=</name>
+          <description>DigzID8qKTsxejY7NC4gPzR6PjMuL3Q=</description>
+          <timePauseSec>bm8=</timePauseSec>
+        </document>
+      </subcollection>
+    </document>
+    <document id="4FNFCQyXjPrB8kDusKF1">
+      <level>bw==</level>
+      <name>HzYzLj96HygoNTQxOw==</name>
+      <description>HzYzLj96NzszNjsxNXo/KCg1NDE7ej01KCovLiB6NSk1O3Q=</description>
+      <subcollection name="exercises">
+        <document id="ex1">
+          <reps>a2g=</reps>
+          <timeSets>aA==</timeSets>
+          <sets>bg==</sets>
+          <videoURL/>
+          <name>EC83KjM0PXoWLzQ9Pyk=</name>
+          <description>Ejs0MTsxej8uO3oqNS4/NC4gMzt6Njs0LiA/NHo+My4vdA==</description>
+          <timePauseSec>Y2o=</timePauseSec>
+        </document>
+        <document id="ex2">
+          <reps>a2o=</reps>
+          <timeSets>aA==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>Ejs0PikuOzQ+egovKTJ3Dyop</name>
+          <description>CTUoODs2Pjt6MzQ+OygoO3o/Ljt6NSg/MTt0</description>
+          <timePauseSec>a2hq</timePauseSec>
+        </document>
+        <document id="ex3">
+          <reps>Yg==</reps>
+          <timeSets>aA==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>CjMpLjU2egkrLzsuKQ==</name>
+          <description>Ejs0MTt6ODsxOygoPzE1ejM0PjsoKDt6Py47ejcvPTMxNSguOykvNDt0</description>
+          <timePauseSec>Y2o=</timePauseSec>
+        </document>
+        <document id="ex4">
+          <reps>a2o=</reps>
+          <timeSets>aw==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>GTY7KnoKLykydw8qKQ==</name>
+          <description>HTUoKi8uIHo9NTMxNXo7Nj4/MTV6KjUuPzQuIDM7dA==</description>
+          <timePauseSec>bm8=</timePauseSec>
+        </document>
+        <document id="ex5">
+          <reps>a2g=</reps>
+          <timeSets>aA==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>Ejs0PTM0PXoWPz16CDszKT8p</name>
+          <description>GTUoP3o/Ljt6PDY/IjUoPzsxejY7NC4gPzR6PjMuL3Q=</description>
+          <timePauseSec>b2o=</timePauseSec>
+        </document>
+        <document id="ex6">
+          <reps>a28=</reps>
+          <timeSets>aQ==</timeSets>
+          <sets>bg==</sets>
+          <videoURL/>
+          <name>CSooMzQuehM0Lj8oLDs2KQ==</name>
+          <description>GTsoPjM1ejM0Lj80LikzLjsuP3o7Ni4vO3Q=</description>
+          <timePauseSec>a2hq</timePauseSec>
+        </document>
+      </subcollection>
+    </document>
+    <document id="QKASanhFzomDVTQqsDnb">
+      <level>aA==</level>
+      <name>EzQ+OygoO3ofKDszMTMuID80</name>
+      <description>EzQ+OygoO3o/Ljt6PygoPykzKS4/NC4gMzt6Pyg7MzEzLiA/NHo+My4vPzR6Kig1PSg7Nzt0</description>
+      <subcollection name="exercises">
+        <document id="ex1">
+          <reps>aG8=</reps>
+          <timeSets>aA==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>EjM9MnoRND8/KQ==</name>
+          <description>GDMyNS4gdy47KTt6Mjs0PjMuID80ej4vPzR6OTsoPjM1ejcvPTM3PzQ+Lzt0</description>
+          <timePauseSec>bm8=</timePauseSec>
+        </document>
+        <document id="ex2">
+          <reps>a2g=</reps>
+          <timeSets>aw==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>Hi83ODg/NjZ6Hj87PjYzPC4p</name>
+          <description>EykxMzUuMzgzOzY7MXo/Ljt6OD8yPzE1ejgzIDE7KCg7ejM0PjsoLiA/NHo+My4vdA==</description>
+          <timePauseSec>bWo=</timePauseSec>
+        </document>
+        <document id="ex3">
+          <reps>a28=</reps>
+          <timeSets>aw==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>EzQ5NjM0P3oKLykydw8qKQ==</name>
+          <description>HTUoKi8uIDsoPzR6PTUzMTV6OzY+PzE1ejsoMzE/Ljt6OygzNDs9NTt0</description>
+          <timePauseSec>b2o=</timePauseSec>
+        </document>
+        <document id="ex4">
+          <reps>a2g=</reps>
+          <timeSets>aw==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>CS4/KncPKik=</name>
+          <description>Ejs0MTsxej8uO3o9Ni8uPzU7MXo2OzQuID80ej4zLi90</description>
+          <timePauseSec>bG8=</timePauseSec>
+        </document>
+        <document id="ex5">
+          <reps>a2g=</reps>
+          <timeSets>aw==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>CTM+P3oWLzQ9Pyk=</name>
+          <description>Ejs0MTsxej8uO3o1MzQ7ejUoPzE7LiA/NHo+My4vdA==</description>
+          <timePauseSec>b2o=</timePauseSec>
+        </document>
+        <document id="ex6">
+          <reps>a2g=</reps>
+          <timeSets>aw==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>GDM5Pyp6GS8oNik=</name>
+          <description>GDMgPyopOzF6Njs0LiA/NHo+My4vdA==</description>
+          <timePauseSec>bGo=</timePauseSec>
+        </document>
+      </subcollection>
+    </document>
+    <document id="UpFGg2tWwUdTsGGPeKAC">
+      <level>bg==</level>
+      <name>HTUoKi8uIHoVKTU7ehM0PjsoLikv</name>
+      <description>HTUoKi8uIHo1KTU7ejM0PjsoLiA/NHo+Lz80ej80Lig/NDs3PzQ+L3o7LygoPyg7Li87dA==</description>
+      <subcollection name="exercises">
+        <document id="ex1">
+          <reps>a2g=</reps>
+          <timeSets>aA==</timeSets>
+          <sets>bg==</sets>
+          <videoURL/>
+          <name>GC8oKj8/KQ==</name>
+          <description>HTUoKi8uIHo1KTU7ejM0PjsoLiA/NHo+L3o/Ljt6OTsoPjM1ej89My4/NHo+L3Q=</description>
+          <timePauseSec>b2o=</timePauseSec>
+        </document>
+        <document id="ex2">
+          <reps>Yg==</reps>
+          <timeSets>aw==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>Ci82NncPKik=</name>
+          <description>HTUoKi8uIHo9NTMxNXo7Nj4/MTV6MzQ+OygoO3Q=</description>
+          <timePauseSec>a2hq</timePauseSec>
+        </document>
+        <document id="ex3">
+          <reps>a28=</reps>
+          <timeSets>aA==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>ET8uLjY/OD82NnoJLTM0PSk=</name>
+          <description>CjUuPzQuIDM7ej8uO3o7LiA/MTV6MTsuPzsoPzR6MzQ+OygoO3Q=</description>
+          <timePauseSec>bWo=</timePauseSec>
+        </document>
+        <document id="ex4">
+          <reps>a2g=</reps>
+          <timeSets>aw==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>CjY7NDF6LjV6Ci8pMncPKg==</name>
+          <description>GTUoP3o/Ljt6PTUzMTV6OzY+PzsoPzR6MzQ+OygoO3Q=</description>
+          <timePauseSec>bmo=</timePauseSec>
+        </document>
+        <document id="ex5">
+          <reps>a2g=</reps>
+          <timeSets>aA==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>DTs2MTM0PXoWLzQ9Pyk=</name>
+          <description>Ejs0MTsxej8uO3o9Ni8uPzU7MXozND47KC4gPzR6PjMuL3Q=</description>
+          <timePauseSec>Ymo=</timePauseSec>
+        </document>
+        <document id="ex6">
+          <reps>aGo=</reps>
+          <timeSets>aw==</timeSets>
+          <sets>aQ==</sets>
+          <videoURL/>
+          <name>CC8pKTM7NHoOLTMpLik=</name>
+          <description>FTg2MysvPzsxej8uO3o5NSg/ejM0PjsoLiA/NHo+My4vdA==</description>
+          <timePauseSec>aWo=</timePauseSec>
+        </document>
+      </subcollection>
+    </document>
+    <document id="ZulwgBKjUaDxn2i2fcp9">
+      <level>aA==</level>
+      <description>Gyo+NTczNDs2OzF6PzQuKDQ7Li8=</description>
+      <video>Lyg2</video>
+      <title>Gyo+NTczNDs2OzE=</title>
+    </document>
+  </collection>
+</backup>

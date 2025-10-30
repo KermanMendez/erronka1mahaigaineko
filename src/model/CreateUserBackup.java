@@ -25,7 +25,6 @@ public class CreateUserBackup {
 
 	public void saveEmail(String email) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		// ObjectOutputStream-aren itxiera ziurtatzeko try-with-resources erabiltzen dugu
 		try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
 			oos.writeObject(email);
 		}

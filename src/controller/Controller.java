@@ -5,10 +5,27 @@ import com.google.cloud.firestore.Firestore;
 import view.FirstView;
 
 public class Controller {
+	private static Controller instance;
 	private static Firestore firestoreInstantzia;
 	private DBConnection dbConnection;
 	private Firestore db;
 	private FirstView firstView;
+	private boolean online;
+
+	public static Controller getInstance() {
+		if (instance == null) {
+			instance = new Controller(false);
+		}
+		return instance;
+	}
+
+	public static void initialize(boolean online) {
+		if (instance == null) {
+			instance = new Controller(online);
+		} else {
+			instance.setOnline(online);
+		}
+	}
 
 	public Controller(Boolean connect) {
 
@@ -27,7 +44,8 @@ public class Controller {
 				this.db = getFirestore();
 			}
 			setDbConnection(this.dbConnection);
-		} catch (Exception ignored) {
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -48,6 +66,17 @@ public class Controller {
 
 	public void setDbConnection(DBConnection dbConnection) {
 		this.dbConnection = dbConnection;
+	}
+
+	public void setOnline(boolean online) {
+		this.online = online;
+		if (online) {
+			onOnline();
+		}
+	}
+
+	public boolean isOnline() {
+		return online && dbConnection != null && dbConnection.isInitialized();
 	}
 
 	private static Firestore getFirestore() {

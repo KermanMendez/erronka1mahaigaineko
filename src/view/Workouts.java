@@ -1,6 +1,5 @@
 package view;
 
-import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,6 +18,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import model.Routines;
+import model.Theme;
 import model.UIStyle;
 
 public class Workouts extends JFrame {
@@ -46,19 +46,21 @@ public class Workouts extends JFrame {
 		UIStyle.stylePanel(edukiontzia);
 		setContentPane(edukiontzia);
 
-		// Header with back button and title
+		JPanel topPanel = new JPanel(new java.awt.BorderLayout(0, 12));
+		UIStyle.stylePanel(topPanel);
+		edukiontzia.add(topPanel, java.awt.BorderLayout.NORTH);
+
 		JPanel header = new JPanel(new java.awt.BorderLayout());
 		UIStyle.stylePanel(header);
-	JButton btnAtzera = new JButton(new ImageIcon(
-		new ImageIcon(getClass().getResource("/img/atzera.png")).getImage().getScaledInstance(36, 36,
-			java.awt.Image.SCALE_SMOOTH)));
-	UIStyle.styleIconButton(btnAtzera);
-	btnAtzera.addActionListener(e -> {
-	    Inter inter = new Inter(isTrainer, connect);
-	    inter.setVisible(true);
-	    dispose();
-	});
-	header.add(btnAtzera, java.awt.BorderLayout.WEST);
+		JButton btnAtzera = new JButton(new ImageIcon(new ImageIcon(getClass().getResource("/img/atzera.png"))
+				.getImage().getScaledInstance(36, 36, java.awt.Image.SCALE_SMOOTH)));
+		UIStyle.styleIconButton(btnAtzera);
+		btnAtzera.addActionListener(e -> {
+			Inter inter = new Inter(isTrainer, connect);
+			inter.setVisible(true);
+			dispose();
+		});
+		header.add(btnAtzera, java.awt.BorderLayout.WEST);
 
 		JLabel lblTitulua = new JLabel("Workouts");
 		lblTitulua.setFont(UIStyle.TITLE_FONT);
@@ -76,9 +78,8 @@ public class Workouts extends JFrame {
 		});
 		header.add(btnLogout, java.awt.BorderLayout.EAST);
 
-		edukiontzia.add(header, java.awt.BorderLayout.NORTH);
+		topPanel.add(header, java.awt.BorderLayout.NORTH);
 
-		// Filters panel
 		JPanel filters = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 12, 8));
 		UIStyle.stylePanel(filters);
 		lblMailaAktuala = new JLabel("Maila: 1");
@@ -106,20 +107,18 @@ public class Workouts extends JFrame {
 		comboMailaRutinakLevel.setToolTipText("Entrenamendu mota aukeratu");
 		filters.add(comboMailaRutinakLevel);
 
-		edukiontzia.add(filters, java.awt.BorderLayout.BEFORE_FIRST_LINE);
+		topPanel.add(filters, java.awt.BorderLayout.CENTER);
 
-	// List center
-	JScrollPane scrollPane = new JScrollPane();
-	scrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-	UIStyle.styleScrollPane(scrollPane);
-	listaWorkout = new JList<>();
-	UIStyle.styleField(listaWorkout);
-	listaWorkout.setCellRenderer(new CardListRenderer());
-	listaWorkout.setFixedCellHeight(-1);
-	scrollPane.setViewportView(listaWorkout);
-	edukiontzia.add(scrollPane, java.awt.BorderLayout.CENTER);
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		UIStyle.styleScrollPane(scrollPane);
+		listaWorkout = new JList<>();
+		UIStyle.styleField(listaWorkout);
+		listaWorkout.setCellRenderer(new CardListRenderer());
+		listaWorkout.setFixedCellHeight(-1);
+		scrollPane.setViewportView(listaWorkout);
+		edukiontzia.add(scrollPane, java.awt.BorderLayout.CENTER);
 
-		// Bottom actions
 		JPanel bottom = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 40, 12));
 		UIStyle.stylePanel(bottom);
 		btnIkusiHistoria = new JButton("Ikusi historia");

@@ -1,6 +1,5 @@
 package view;
 
-import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import model.Theme;
 import model.UIStyle;
 
 public class Profile extends JFrame {
@@ -35,11 +35,11 @@ public class Profile extends JFrame {
 		UIStyle.stylePanel(contentPane);
 		setContentPane(contentPane);
 
-		JPanel top = new JPanel(new java.awt.BorderLayout());
-		UIStyle.stylePanel(top);
-		JButton btnAtzera = new JButton(new ImageIcon(
-				new ImageIcon(getClass().getResource("/img/atzera.png")).getImage().getScaledInstance(36, 36,
-						java.awt.Image.SCALE_SMOOTH)));
+		JPanel header = new JPanel(new java.awt.BorderLayout());
+		UIStyle.stylePanel(header);
+
+		JButton btnAtzera = new JButton(new ImageIcon(new ImageIcon(getClass().getResource("/img/atzera.png"))
+				.getImage().getScaledInstance(36, 36, java.awt.Image.SCALE_SMOOTH)));
 		UIStyle.styleIconButton(btnAtzera);
 		btnAtzera.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -48,8 +48,15 @@ public class Profile extends JFrame {
 				dispose();
 			}
 		});
-		top.add(btnAtzera, java.awt.BorderLayout.WEST);
-		contentPane.add(top, java.awt.BorderLayout.NORTH);
+		header.add(btnAtzera, java.awt.BorderLayout.WEST);
+
+		JLabel lblTitulua = new JLabel("Zure Profila");
+		lblTitulua.setFont(UIStyle.TITLE_FONT);
+		lblTitulua.setForeground(UIStyle.PRIMARY);
+		lblTitulua.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+		header.add(lblTitulua, java.awt.BorderLayout.CENTER);
+
+		contentPane.add(header, java.awt.BorderLayout.NORTH);
 
 		JPanel form = new JPanel(new java.awt.GridBagLayout());
 		UIStyle.stylePanel(form);

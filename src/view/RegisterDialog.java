@@ -21,6 +21,7 @@ import org.jdatepicker.impl.UtilDateModel;
 
 import model.ConnectDB;
 import model.DateFormater;
+import model.Theme;
 import model.UIStyle;
 
 public class RegisterDialog extends JFrame {

@@ -1,367 +1,228 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QueryDocumentSnapshot;
-import com.google.cloud.firestore.QuerySnapshot;
-
+import com.google.cloud.firestore.*;
 import controller.Controller;
 
 public class ReadHistoric {
 
-    Firestore db;
+	private final Firestore db;
 
-    public ReadHistoric(Boolean connect) {
-        this.db = new Controller(connect).getDb();
-    }
+	public ReadHistoric(Boolean connect) {
+		this.db = new Controller(connect).getDb();
+	}
 
-    public String[] getHistoric(int aukeratutakoMaila, String rutinarenIzena, Boolean connect)
-            throws InterruptedException, ExecutionException {
+	public String[] getHistoric(int aukeratutakoMaila, String rutinarenIzena, Boolean connect)
+			throws InterruptedException, ExecutionException {
 
-        if (connect) {
+		List<String> resultList = new ArrayList<>();
 
-            String email = new CreateUserBackup().loadEmail();
+		if (connect) {
+			String email = new CreateUserBackup().loadEmail();
+			QuerySnapshot querySnapshot = db.collection("users").whereEqualTo("email", email).get().get();
 
-            QuerySnapshot querySnapshot = db.collection("users").whereEqualTo("email", email).get().get();
+			if (!querySnapshot.isEmpty()) {
+				for (DocumentSnapshot routineDoc : querySnapshot.getDocuments()) {
+					List<QueryDocumentSnapshot> exerciseDocs = routineDoc.getReference().collection("historic")
+							.whereEqualTo("level", aukeratutakoMaila).get().get().getDocuments();
 
-            if (querySnapshot.isEmpty()) {
-                return new String[]{"Ez dituzu oraindik ariketak egin"};
-            }
+					for (DocumentSnapshot exerciseDoc : exerciseDocs) {
+						addEntryIfMatch(resultList, db, exerciseDoc, rutinarenIzena);
+					}
+				}
+			}
+		}
 
-            List<String> levels = new ArrayList<>();
+		ReadBackup reader = new ReadBackup();
+		ReadBackup.BackupData backup = reader.loadBackupData();
+		String email = new CreateUserBackup().loadEmail();
 
-            for (DocumentSnapshot routineDoc : querySnapshot.getDocuments()) {
-                List<QueryDocumentSnapshot> exerciseDocs = routineDoc.getReference().collection("historic")
-                        .whereEqualTo("level", aukeratutakoMaila).get().get().getDocuments();
+		if (backup != null && email != null) {
+			String userId = null;
+			if (backup.users != null) {
+				for (ReadBackup.UserData u : backup.users) {
+					if (email.equals(u.email)) {
+						userId = u.uid;
+						break;
+					}
+				}
+			}
 
-                for (DocumentSnapshot exerciseDoc : exerciseDocs) {
-                    String exerciseCompleted = exerciseDoc.getBoolean("completed") != null
-                            && exerciseDoc.getBoolean("completed") ? "Bai" : "Ez";
-                    String exerciseDate = exerciseDoc.getString("date");
-                    int totalSets = exerciseDoc.getLong("totalSets") != null
-                            ? exerciseDoc.getLong("totalSets").intValue()
-                            : 0;
-                    int totalTime = exerciseDoc.getLong("totalTime") != null
-                            ? exerciseDoc.getLong("totalTime").intValue()
-                            : 0;
-                    String workoutId = exerciseDoc.getString("workoutId");
-                    String workoutName = workoutId;
+			resultList.addAll(readOfflineXml("historic.xml", userId, email, backup, aukeratutakoMaila, rutinarenIzena));
+			resultList.addAll(
+					readOfflineXml("offlineHistoric.xml", userId, email, backup, aukeratutakoMaila, rutinarenIzena));
+		}
 
-                    if (workoutId != null) {
-                        DocumentSnapshot workoutDoc = db.collection("workouts").document(workoutId).get().get();
-                        if (workoutDoc.exists() && workoutDoc.getString("name") != null) {
-                            workoutName = workoutDoc.getString("name");
-                        }
-                    }
+		if (resultList.isEmpty()) {
+			return new String[] { "Ez daude historikorik workout honetan" };
+		}
 
-                    if (workoutName != null && exerciseDate != null) {
-                        boolean matchesRoutine = true;
-                        if (rutinarenIzena != null && !rutinarenIzena.trim().isEmpty()) {
-                            matchesRoutine = workoutName.equalsIgnoreCase(rutinarenIzena.trim());
-                        }
-                        if (matchesRoutine) {
-                            int totalSetsInWorkout = 0;
-                            if (workoutId != null) {
-                                List<QueryDocumentSnapshot> workoutExercises = db.collection("workouts")
-                                        .document(workoutId).collection("exercises").get().get().getDocuments();
-                                for (DocumentSnapshot wex : workoutExercises) {
-                                    totalSetsInWorkout += new Exercise().setSets(wex.get("sets"));
-                                }
-                            }
+		Set<String> unique = new LinkedHashSet<>(resultList);
+		return unique.toArray(new String[0]);
+	}
 
-                            double percent = 0.0;
-                            if (totalSetsInWorkout > 0) {
-                                percent = (totalSets * 100.0) / totalSetsInWorkout;
-                                if (percent > 100.0) {
-                                    percent = 100.0; // cap at 100
-                                }
-                            }
+	private void addEntryIfMatch(List<String> list, Firestore db, DocumentSnapshot exerciseDoc, String rutinarenIzena)
+			throws InterruptedException, ExecutionException {
 
-                            String pctStr = String.format("%.1f", percent).replace('.', ',');
-                            String bukatutaWithPct = exerciseCompleted + " (" + pctStr + "% )";
-                            String totalSetsDisplay = totalSets + " / " + totalSetsInWorkout;
+		String exerciseCompleted = exerciseDoc.getBoolean("completed") != null && exerciseDoc.getBoolean("completed")
+				? "Bai"
+				: "Ez";
+		String exerciseDate = exerciseDoc.getString("date");
+		int totalSets = getIntValue(exerciseDoc.getLong("totalSets"));
+		int totalTime = getIntValue(exerciseDoc.getLong("totalTime"));
+		String workoutId = exerciseDoc.getString("workoutId");
+		String workoutName = workoutId;
 
-                            levels.add("Data: " + exerciseDate + " | Bukatuta: " + bukatutaWithPct + " | Total Sets: "
-                                    + totalSetsDisplay + " | Total Time: " + totalTime + " segundu");
-                        }
-                    }
-                }
-            }
+		if (workoutId != null) {
+			DocumentSnapshot workoutDoc = db.collection("workouts").document(workoutId).get().get();
+			if (workoutDoc.exists() && workoutDoc.getString("name") != null) {
+				workoutName = workoutDoc.getString("name");
+			}
+		}
 
-            if (levels.isEmpty()) {
-                return new String[]{"Ez daude historikorik workout honetan"};
-            }
+		if (workoutName == null || exerciseDate == null)
+			return;
 
-            return levels.toArray(new String[0]);
-        }
+		if (rutinarenIzena != null && !rutinarenIzena.trim().isEmpty()) {
+			String sel = rutinarenIzena.trim().toLowerCase();
+			String wname = workoutName.trim().toLowerCase();
+			if (!(wname.equals(sel) || wname.contains(sel) || sel.contains(wname)))
+				return;
+		}
 
-        ReadBackup reader = new ReadBackup();
-        ReadBackup.BackupData backup = reader.loadBackupData();
-        if (backup == null) {
-            return new String[]{"Ez dago konexiorik"};
-        }
+		int totalSetsInWorkout = 0;
+		if (workoutId != null) {
+			List<QueryDocumentSnapshot> workoutExercises = db.collection("workouts").document(workoutId)
+					.collection("exercises").get().get().getDocuments();
+			for (DocumentSnapshot wex : workoutExercises) {
+				totalSetsInWorkout += new Exercise().setSets(wex.get("sets"));
+			}
+		}
 
-        String email = new CreateUserBackup().loadEmail();
-        if (email == null) {
-            return new String[]{"Ez dago konexiorik"};
-        }
+		double percent = (totalSetsInWorkout > 0) ? (totalSets * 100.0) / totalSetsInWorkout : 0.0;
+		if (percent > 100.0)
+			percent = 100.0;
 
-        String userId = null;
-        if (backup.users != null) {
-            for (ReadBackup.UserData u : backup.users) {
-                if (u.email != null && u.email.equals(email)) {
-                    userId = u.uid;
-                    break;
-                }
-            }
-        }
-        if (userId == null) {
-            return new String[]{"Ez dituzu oraindik ariketak egin"};
-        }
+		String pctStr = String.format("%.1f", percent).replace('.', ',');
+		String bukatutaWithPct = exerciseCompleted + " (" + pctStr + "%)";
+		String totalSetsDisplay = totalSets + " / " + totalSetsInWorkout;
 
-        java.io.File histFile = new java.io.File("historic.xml");
-        if (!histFile.exists() || histFile.length() == 0) {
-            return new String[]{"Ez daude historikorik workout honetan"};
-        }
+		list.add("Data: " + exerciseDate + " | Bukatuta: " + bukatutaWithPct + " | Total Sets: " + totalSetsDisplay
+				+ " | Total Time: " + totalTime + " segundu");
+	}
 
-        List<String> levelsOffline = new ArrayList<>();
-        try {
-            javax.xml.parsers.DocumentBuilderFactory factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
-            javax.xml.parsers.DocumentBuilder builder = factory.newDocumentBuilder();
-            org.w3c.dom.Document doc = builder.parse(histFile);
-            doc.getDocumentElement().normalize();
+	private List<String> readOfflineXml(String fileName, String userId, String email, ReadBackup.BackupData backup,
+			int level, String rutinarenIzena) {
 
-            org.w3c.dom.NodeList users = doc.getElementsByTagName("user");
-            for (int i = 0; i < users.getLength(); i++) {
-                org.w3c.dom.Node userNode = users.item(i);
-                if (userNode.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE) {
-                    continue;
-                }
-                org.w3c.dom.Element userElem = (org.w3c.dom.Element) userNode;
-                String uidAttr = userElem.getAttribute("uid");
-                if (!userId.equals(uidAttr)) {
-                    continue;
-                }
+		List<String> result = new ArrayList<>();
+		java.io.File file = new java.io.File(fileName);
+		if (!file.exists() || file.length() == 0)
+			return result;
 
-                java.util.Map<String, String> fields = new java.util.HashMap<>();
-                org.w3c.dom.NodeList children = userElem.getChildNodes();
-                for (int c = 0; c < children.getLength(); c++) {
-                    org.w3c.dom.Node ch = children.item(c);
-                    if (ch.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE) {
-                        continue;
-                    }
-                    org.w3c.dom.Element fe = (org.w3c.dom.Element) ch;
-                    fields.put(fe.getTagName(), fe.getTextContent());
-                }
+		try {
+			javax.xml.parsers.DocumentBuilderFactory factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
+			javax.xml.parsers.DocumentBuilder builder = factory.newDocumentBuilder();
+			org.w3c.dom.Document doc = builder.parse(file);
+			doc.getDocumentElement().normalize();
 
-                String levelStr = fields.get("level");
-                if (levelStr == null || !levelStr.equals(String.valueOf(aukeratutakoMaila))) {
-                    continue;
-                }
+			org.w3c.dom.NodeList users = doc.getElementsByTagName("user");
+			for (int i = 0; i < users.getLength(); i++) {
+				org.w3c.dom.Element userElem = (org.w3c.dom.Element) users.item(i);
+				String uidAttr = userElem.getAttribute("uid");
+				String emailAttr = userElem.getAttribute("email");
 
-                String exerciseCompleted = "Ez";
-                String compVal = fields.get("completed");
-                if (compVal != null && (compVal.equalsIgnoreCase("true") || compVal.equalsIgnoreCase("bai")
-                        || compVal.equalsIgnoreCase("yes"))) {
-                    exerciseCompleted = "Bai";
-                }
+				boolean validUser = (uidAttr != null && uidAttr.equals(userId))
+						|| (emailAttr != null && emailAttr.equals(email));
+				if (!validUser)
+					continue;
 
-                String exerciseDate = fields.get("date");
-                int totalSets = 0;
-                if (fields.get("totalSets") != null) {
-                    try {
-                        totalSets = Integer.parseInt(fields.get("totalSets"));
-                    } catch (NumberFormatException ignored) {
-                    }
-                } else if (fields.get("totalReps") != null) {
-                    try {
-                        totalSets = Integer.parseInt(fields.get("totalReps"));
-                    } catch (NumberFormatException ignored) {
-                    }
-                }
+				Map<String, String> fields = new HashMap<>();
+				org.w3c.dom.NodeList children = userElem.getChildNodes();
+				for (int c = 0; c < children.getLength(); c++) {
+					org.w3c.dom.Node ch = children.item(c);
+					if (ch.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+						org.w3c.dom.Element fe = (org.w3c.dom.Element) ch;
+						fields.put(fe.getTagName(), fe.getTextContent());
+					}
+				}
 
-                int totalTime = 0;
-                if (fields.get("totalTime") != null) {
-                    try {
-                        totalTime = Integer.parseInt(fields.get("totalTime"));
-                    } catch (NumberFormatException ignored) {
-                    }
-                }
+				if (!String.valueOf(level).equals(fields.get("level")))
+					continue;
 
-                String workoutId = fields.get("workoutId");
-                String workoutName = workoutId;
+				String exerciseCompleted = parseCompleted(fields.get("completed"));
+				String exerciseDate = fields.get("date");
+				int totalSets = parseInt(fields.get("totalSets"), fields.get("totalReps"));
+				int totalTime = parseInt(fields.get("totalTime"));
+				String workoutId = fields.get("workoutId");
+				String workoutName = workoutId;
 
-                int totalSetsInWorkout = 0;
-                if (backup.collections != null && workoutId != null) {
-                    List<ReadBackup.DocumentData> workoutDocs = backup.collections.get("workouts");
-                    if (workoutDocs != null) {
-                        for (ReadBackup.DocumentData wd : workoutDocs) {
-                            if (workoutId.equals(wd.id)) {
-                                if (wd.fields.get("name") != null) {
-                                    workoutName = wd.fields.get("name");
-                                }
-                                List<ReadBackup.DocumentData> exerciseDocs = wd.subcollections.get("exercises");
-                                if (exerciseDocs != null) {
-                                    for (ReadBackup.DocumentData exd : exerciseDocs) {
-                                        String setsStr = exd.fields.get("sets");
-                                        if (setsStr != null) {
-                                            try {
-                                                totalSetsInWorkout += Integer.parseInt(setsStr);
-                                            } catch (NumberFormatException ignored) {
-                                            }
-                                        }
-                                    }
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
+				int totalSetsInWorkout = 0;
+				if (backup.collections != null && workoutId != null) {
+					List<ReadBackup.DocumentData> workoutDocs = backup.collections.get("workouts");
+					if (workoutDocs != null) {
+						for (ReadBackup.DocumentData wd : workoutDocs) {
+							if (workoutId.equals(wd.id)) {
+								if (wd.fields.get("name") != null) {
+									workoutName = wd.fields.get("name");
+								}
+								List<ReadBackup.DocumentData> exerciseDocs = wd.subcollections.get("exercises");
+								if (exerciseDocs != null) {
+									for (ReadBackup.DocumentData exd : exerciseDocs) {
+										totalSetsInWorkout += parseInt(exd.fields.get("sets"));
+									}
+								}
+								break;
+							}
+						}
+					}
+				}
 
-                double percent = 0.0;
-                if (totalSetsInWorkout > 0) {
-                    percent = (totalSets * 100.0) / totalSetsInWorkout;
-                    if (percent > 100.0) {
-                        percent = 100.0;
-                    }
-                }
+				if (rutinarenIzena != null && !rutinarenIzena.trim().isEmpty()) {
+					String sel = rutinarenIzena.trim().toLowerCase();
+					String wname = workoutName != null ? workoutName.trim().toLowerCase() : "";
+					if (!(wname.equals(sel) || wname.contains(sel) || sel.contains(wname)))
+						continue;
+				}
 
-                String pctStr = String.format("%.1f", percent).replace('.', ',');
-                String bukatutaWithPct = exerciseCompleted + " (" + pctStr + "% )";
-                String totalSetsDisplay = totalSets + " / " + totalSetsInWorkout;
+				double percent = (totalSetsInWorkout > 0) ? (totalSets * 100.0) / totalSetsInWorkout : 0.0;
+				if (percent > 100.0)
+					percent = 100.0;
 
-                levelsOffline.add("Workout: " + workoutName + " | Data: " + exerciseDate + " | Bukatuta: "
-                        + bukatutaWithPct + " | Total Sets: " + totalSetsDisplay + " | Total Time: " + totalTime
-                        + " segundu");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new String[]{"Ez daude historikorik workout honetan"};
-        }
+				String pctStr = String.format("%.1f", percent).replace('.', ',');
+				String bukatutaWithPct = exerciseCompleted + " (" + pctStr + "%)";
+				String totalSetsDisplay = totalSets + " / " + totalSetsInWorkout;
 
-        java.io.File offlineFile = new java.io.File("offlineHistoric.xml");
-        if (offlineFile.exists() && offlineFile.length() > 0) {
-            try {
-                javax.xml.parsers.DocumentBuilderFactory offFactory = javax.xml.parsers.DocumentBuilderFactory
-                        .newInstance();
-                javax.xml.parsers.DocumentBuilder offBuilder = offFactory.newDocumentBuilder();
-                org.w3c.dom.Document offDoc = offBuilder.parse(offlineFile);
-                offDoc.getDocumentElement().normalize();
+				result.add("Data: " + exerciseDate + " | Bukatuta: " + bukatutaWithPct + " | Total Sets: "
+						+ totalSetsDisplay + " | Total Time: " + totalTime + " segundu");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
 
-                org.w3c.dom.NodeList offUsers = offDoc.getElementsByTagName("user");
-                for (int i = 0; i < offUsers.getLength(); i++) {
-                    org.w3c.dom.Node userNode = offUsers.item(i);
-                    if (userNode.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE) {
-                        continue;
-                    }
-                    org.w3c.dom.Element userElem = (org.w3c.dom.Element) userNode;
-                    String uidAttr = userElem.getAttribute("uid");
-                    String emailAttr = userElem.getAttribute("email");
-                    if (uidAttr != null && uidAttr.equals(userId) || (emailAttr != null && emailAttr.equals(email))) {
-                        java.util.Map<String, String> fields = new java.util.HashMap<>();
-                        org.w3c.dom.NodeList children = userElem.getChildNodes();
-                        for (int c = 0; c < children.getLength(); c++) {
-                            org.w3c.dom.Node ch = children.item(c);
-                            if (ch.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE) {
-                                continue;
-                            }
-                            org.w3c.dom.Element fe = (org.w3c.dom.Element) ch;
-                            fields.put(fe.getTagName(), fe.getTextContent());
-                        }
+	private static int getIntValue(Long val) {
+		return val != null ? val.intValue() : 0;
+	}
 
-                        String levelStr = fields.get("level");
-                        if (levelStr == null || !levelStr.equals(String.valueOf(aukeratutakoMaila))) {
-                            continue;
-                        }
+	private static int parseInt(String... vals) {
+		for (String v : vals) {
+			if (v != null) {
+				try {
+					return Integer.parseInt(v.trim());
+				} catch (NumberFormatException ignored) {
+				}
+			}
+		}
+		return 0;
+	}
 
-                        String exerciseCompleted = "Ez";
-                        String compVal = fields.get("completed");
-                        if (compVal != null && (compVal.equalsIgnoreCase("true") || compVal.equalsIgnoreCase("bai")
-                                || compVal.equalsIgnoreCase("yes"))) {
-                            exerciseCompleted = "Bai";
-                        }
-
-                        String exerciseDate = fields.get("date");
-                        int totalSets = 0;
-                        if (fields.get("totalSets") != null) {
-                            try {
-                                totalSets = Integer.parseInt(fields.get("totalSets"));
-                            } catch (NumberFormatException ignored) {
-                            }
-                        } else if (fields.get("totalReps") != null) {
-                            try {
-                                totalSets = Integer.parseInt(fields.get("totalReps"));
-                            } catch (NumberFormatException ignored) {
-                            }
-                        }
-
-                        int totalTime = 0;
-                        if (fields.get("totalTime") != null) {
-                            try {
-                                totalTime = Integer.parseInt(fields.get("totalTime"));
-                            } catch (NumberFormatException ignored) {
-                            }
-                        }
-
-                        String workoutId = fields.get("workoutId");
-                        String workoutName = workoutId;
-                        int totalSetsInWorkout = 0;
-                        if (backup.collections != null && workoutId != null) {
-                            List<ReadBackup.DocumentData> workoutDocs = backup.collections.get("workouts");
-                            if (workoutDocs != null) {
-                                for (ReadBackup.DocumentData wd : workoutDocs) {
-                                    if (workoutId.equals(wd.id)) {
-                                        if (wd.fields.get("name") != null) {
-                                            workoutName = wd.fields.get("name");
-                                        }
-                                        List<ReadBackup.DocumentData> exerciseDocs = wd.subcollections.get("exercises");
-                                        if (exerciseDocs != null) {
-                                            for (ReadBackup.DocumentData exd : exerciseDocs) {
-                                                String setsStr = exd.fields.get("sets");
-                                                if (setsStr != null) {
-                                                    try {
-                                                        totalSetsInWorkout += Integer.parseInt(setsStr);
-                                                    } catch (NumberFormatException ignored) {
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        break;
-                                    }
-                                }
-                            }
-
-                            double percent = 0.0;
-                            if (totalSetsInWorkout > 0) {
-                                percent = (totalSets * 100.0) / totalSetsInWorkout;
-                                if (percent > 100.0) {
-                                    percent = 100.0;
-                                }
-                            }
-
-                            String pctStr = String.format("%.1f", percent).replace('.', ',');
-                            String bukatutaWithPct = exerciseCompleted + " (" + pctStr + "% )";
-                            String totalSetsDisplay = totalSets + " / " + totalSetsInWorkout;
-
-                            levelsOffline.add("Workout: " + workoutName + " | Data: " + exerciseDate + " | Bukatuta: "
-                                    + bukatutaWithPct + " | Total Sets: " + totalSetsDisplay + " | Total Time: " + totalTime
-                                    + " segundu");
-                        }
-                    }
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-
-        if (levelsOffline.isEmpty()) {
-            return new String[]{"Ez daude historikorik workout honetan"};
-        }
-
-        return levelsOffline.toArray(new String[0]);
-    }
+	private static String parseCompleted(String val) {
+		if (val == null)
+			return "Ez";
+		val = val.trim().toLowerCase();
+		return (val.equals("true") || val.equals("bai") || val.equals("yes")) ? "Bai" : "Ez";
+	}
 }
