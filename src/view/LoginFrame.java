@@ -1,7 +1,6 @@
 package view;
 
 import java.awt.Cursor;
-import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -18,8 +17,6 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import controller.AppState;
-import controller.MainApp;
 import model.ConnectDB;
 import model.UIStyle;
 
@@ -31,6 +28,7 @@ public class LoginFrame extends JFrame {
 	private ConnectDB connectDB = new ConnectDB();
 
 	public LoginFrame(Boolean connect) {
+
 		setIconImage(Toolkit.getDefaultToolkit().getImage(LoginFrame.class.getResource("/img/logo.png")));
 		setTitle("LOGIN");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -80,6 +78,7 @@ public class LoginFrame extends JFrame {
 				btnLogin.setForeground(UIStyle.BUTTON_FG);
 			}
 		});
+
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String user = connectDB.handleLogin(textFieldUser, passwordField, connect);
@@ -88,6 +87,7 @@ public class LoginFrame extends JFrame {
 				}
 			}
 		});
+
 		btnLogin.setBounds(40, 180, 136, 30);
 		contentPane.add(btnLogin);
 		JButton btnRegister = new JButton("Register");
@@ -105,27 +105,14 @@ public class LoginFrame extends JFrame {
 				btnRegister.setForeground(UIStyle.BUTTON_FG);
 			}
 		});
+
 		btnRegister.addActionListener(e -> {
 			RegisterDialog registerDialog = new RegisterDialog(connect);
 			registerDialog.setVisible(true);
 		});
+
 		btnRegister.setBounds(40, 220, 136, 30);
 		contentPane.add(btnRegister);
 		getContentPane().setBackground(UIStyle.BACKGROUND);
-	}
-
-	public static void main(String[] args) {
-		if (!AppState.isAppStarted()) {
-			MainApp.main(args);
-			return;
-		}
-		EventQueue.invokeLater(() -> {
-			try {
-				LoginFrame frame = new LoginFrame(Boolean.TRUE);
-				frame.setVisible(true);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
 	}
 }

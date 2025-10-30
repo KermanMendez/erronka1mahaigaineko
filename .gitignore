@@ -1,6 +1,10 @@
 serviceAccountKey.json
 *.json
 
-backup.xml
+backup.dat
+
+historic.xml
+
+offlineHistoric.xml
 
 user.dat

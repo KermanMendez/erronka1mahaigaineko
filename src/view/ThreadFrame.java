@@ -1,9 +1,9 @@
 package view;
 
-import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -14,11 +14,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import controller.AppState;
-import controller.MainApp;
 import model.Exercise;
 import model.Hariak;
-import java.awt.Toolkit;
 
 public class ThreadFrame extends JFrame {
 
@@ -35,6 +32,7 @@ public class ThreadFrame extends JFrame {
 	private JLabel labelHasiera = new JLabel("");
 
 	public ThreadFrame(int level, String routineName, Boolean isTrainer, Boolean connect) {
+
 		setIconImage(Toolkit.getDefaultToolkit().getImage(ThreadFrame.class.getResource("/img/logo.png")));
 		setTitle(" Workout - " + routineName);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -47,7 +45,7 @@ public class ThreadFrame extends JFrame {
 		contentPane.setLayout(null);
 
 		JPanel infoPanel = new JPanel(new GridLayout(1, 3, 15, 15));
-		infoPanel.setBounds(54, 181, 554, 35);
+		infoPanel.setBounds(54, 181, 554, 68);
 
 		labelTotala.setBorder(BorderFactory.createTitledBorder("⏱️ Total"));
 		labelTotala.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -85,6 +83,7 @@ public class ThreadFrame extends JFrame {
 				}
 			}
 		});
+
 		buttonPanel.add(btnPause);
 
 		JButton btnSkip = new JButton("Atsedena saltatu");
@@ -100,8 +99,8 @@ public class ThreadFrame extends JFrame {
 			workoutsView.setVisible(true);
 			dispose();
 		});
-		buttonPanel.add(btnAmaitu);
 
+		buttonPanel.add(btnAmaitu);
 		contentPane.add(buttonPanel);
 
 		hariak = new Hariak();
@@ -120,20 +119,5 @@ public class ThreadFrame extends JFrame {
 				ex.printStackTrace();
 			}
 		}).start();
-	}
-
-	public static void main(String[] args) {
-		EventQueue.invokeLater(() -> {
-			if (!AppState.isAppStarted()) {
-				MainApp.main(args);
-				return;
-			}
-			try {
-				ThreadFrame frame = new ThreadFrame(1, "Nire rutina", Boolean.FALSE, Boolean.TRUE);
-				frame.setVisible(true);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
 	}
 }

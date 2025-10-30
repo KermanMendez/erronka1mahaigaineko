@@ -1,8 +1,8 @@
 package view;
 
 import java.awt.Cursor;
-import java.awt.EventQueue;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -12,10 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import controller.AppState;
-import controller.MainApp;
 import model.UIStyle;
-import java.awt.Toolkit;
 
 public class Inter extends JFrame {
 
@@ -23,6 +20,7 @@ public class Inter extends JFrame {
 	private JPanel contentPane;
 
 	public Inter(Boolean isTrainer, Boolean connect) {
+
 		setTitle("Ongi Etorri LRLL");
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Inter.class.getResource("/img/logo.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -48,11 +46,13 @@ public class Inter extends JFrame {
 				btnProfile.setForeground(UIStyle.BUTTON_FG);
 			}
 		});
+
 		btnProfile.addActionListener(e -> {
 			Profile profile = new Profile(isTrainer, connect);
 			dispose();
 			profile.setVisible(true);
 		});
+
 		btnProfile.setBounds(64, 76, 117, 84);
 		contentPane.add(btnProfile);
 
@@ -71,11 +71,13 @@ public class Inter extends JFrame {
 				btnWorkouts.setForeground(UIStyle.BUTTON_FG);
 			}
 		});
+
 		btnWorkouts.addActionListener(e -> {
 			Workouts workouts = new Workouts(isTrainer, connect);
 			dispose();
 			workouts.setVisible(true);
 		});
+
 		btnWorkouts.setBounds(258, 76, 117, 84);
 		contentPane.add(btnWorkouts);
 
@@ -94,6 +96,7 @@ public class Inter extends JFrame {
 				btnAdmin.setForeground(UIStyle.BUTTON_FG);
 			}
 		});
+
 		btnAdmin.setBounds(359, 203, 65, 47);
 		contentPane.add(btnAdmin);
 		if (isTrainer) {
@@ -102,13 +105,11 @@ public class Inter extends JFrame {
 			btnAdmin.setVisible(false);
 		}
 
-
 		ImageIcon profileIcon = new ImageIcon(getClass().getResource("/img/profile_icon.png"));
 		Image scaledProfileImage = profileIcon.getImage().getScaledInstance(97, 64, Image.SCALE_SMOOTH);
 		btnProfile.setIcon(new ImageIcon(scaledProfileImage));
 		btnProfile.setHorizontalAlignment(SwingConstants.CENTER);
 		contentPane.add(btnProfile);
-
 
 		ImageIcon workoutIcon = new ImageIcon(getClass().getResource("/img/workout_icon.png"));
 		Image scaledWorkoutImage = workoutIcon.getImage().getScaledInstance(97, 64, Image.SCALE_SMOOTH);
@@ -117,20 +118,5 @@ public class Inter extends JFrame {
 		contentPane.add(btnWorkouts);
 
 		getContentPane().setBackground(UIStyle.BACKGROUND);
-	}
-
-	public static void main(String[] args) {
-		if (!AppState.isAppStarted()) {
-			MainApp.main(args);
-			return;
-		}
-		EventQueue.invokeLater(() -> {
-			try {
-				Inter frame = new Inter(Boolean.FALSE, Boolean.TRUE);
-				frame.setVisible(true);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
 	}
 }

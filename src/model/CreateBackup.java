@@ -1,10 +1,8 @@
 package model;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
-
+import java.io.ObjectOutputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -12,9 +10,12 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
@@ -29,9 +30,17 @@ import controller.Controller;
 
 public class CreateBackup {
 
-	private final String FICHERO = "backup.xml";
+	private final String FICHERO = "backup.dat";
 	private final byte CLAVE = 0x5A;
 	private Firestore db;
+
+	private byte[] xorBytes(byte[] data) {
+		byte[] result = new byte[data.length];
+		for (int i = 0; i < data.length; i++) {
+			result[i] = (byte) (data[i] ^ CLAVE);
+		}
+		return result;
+	}
 
 	private String xorEncrypt(String text) {
 		byte[] data = text.getBytes();
@@ -42,61 +51,70 @@ public class CreateBackup {
 		return Base64.getEncoder().encodeToString(result);
 	}
 
-	public void saveBackupToXML(Boolean connect) {
+	public void saveBackup(Boolean connect) {
 
 		if (connect) {
 			if (com.google.firebase.FirebaseApp.getApps().isEmpty()) {
-				System.err.println("[ERROR] FirebaseApp no está inicializado. No se puede hacer backup a XML.");
+				System.err.println("[ERROR] FirebaseApp no está inicializado. No se puede hacer backup.");
 				return;
 			}
-			
+
 			Controller controller = new Controller(connect);
 			db = controller.getDb();
 
 			try {
-				DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-				DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-				Document doc = docBuilder.newDocument();
-
-				Element rootElement = doc.createElement("backup");
-				doc.appendChild(rootElement);
-
-				Element usersElement = doc.createElement("users");
-				rootElement.appendChild(usersElement);
+				List<String> lines = new ArrayList<>();
 
 				ListUsersPage page = FirebaseAuth.getInstance().listUsers(null);
 				for (ExportedUserRecord user : page.getValues()) {
-					Element userElement = doc.createElement("user");
-					usersElement.appendChild(userElement);
-
-					Element uid = doc.createElement("uid");
-					uid.appendChild(doc.createTextNode(xorEncrypt(user.getUid())));
-					userElement.appendChild(uid);
-
-					Element email = doc.createElement("email");
-					email.appendChild(doc.createTextNode(xorEncrypt(user.getEmail() != null ? user.getEmail() : "")));
-					userElement.appendChild(email);
+					lines.add("USER_UID:" + xorEncrypt(user.getUid()));
+					lines.add("USER_EMAIL:" + xorEncrypt(user.getEmail() != null ? user.getEmail() : ""));
 				}
 
-				// === COLECCIONES FIRESTORE ===
 				Iterable<CollectionReference> collections = db.listCollections();
+				List<HistoricRecord> historicList = new ArrayList<>();
 				for (CollectionReference collection : collections) {
-					Element collectionElement = doc.createElement("collection");
-					collectionElement.setAttribute("name", collection.getId());
-					rootElement.appendChild(collectionElement);
-					addDocumentsToXML(collection, collectionElement, doc);
+					lines.add("COLLECTION:" + collection.getId());
+					addDocumentsToDat(collection, lines, "", historicList);
 				}
 
-				// === GUARDADO ===
-				TransformerFactory transformerFactory = TransformerFactory.newInstance();
-				Transformer transformer = transformerFactory.newTransformer();
-				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-				transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-				transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ObjectOutputStream oos = new ObjectOutputStream(baos);
+				oos.writeObject(lines);
+				oos.close();
+				byte[] encrypted = xorBytes(baos.toByteArray());
+				try (FileOutputStream fos = new FileOutputStream(FICHERO)) {
+					fos.write(encrypted);
+				}
 
-				DOMSource source = new DOMSource(doc);
-				StreamResult result = new StreamResult(new FileOutputStream(FICHERO));
-				transformer.transform(source, result);
+				if (!historicList.isEmpty()) {
+					DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+					DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+					Document histDoc = dBuilder.newDocument();
+					Element rootElement = histDoc.createElement("historicBackup");
+					histDoc.appendChild(rootElement);
+
+					for (HistoricRecord hr : historicList) {
+						Element userElem = histDoc.createElement("user");
+						userElem.setAttribute("uid", hr.userId);
+						rootElement.appendChild(userElem);
+
+						for (Map.Entry<String, String> e : hr.fields.entrySet()) {
+							Element field = histDoc.createElement(e.getKey());
+							field.appendChild(histDoc.createTextNode(e.getValue()));
+							userElem.appendChild(field);
+						}
+					}
+
+					TransformerFactory transformerFactory = TransformerFactory.newInstance();
+					Transformer transformer = transformerFactory.newTransformer();
+					transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+					transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+					transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+					DOMSource source = new DOMSource(histDoc);
+					StreamResult result2 = new StreamResult(new FileOutputStream("historic.xml"));
+					transformer.transform(source, result2);
+				}
 
 				System.out.println("Backup guardado en " + FICHERO);
 			} catch (Exception e) {
@@ -105,32 +123,47 @@ public class CreateBackup {
 		}
 	}
 
-	private void addDocumentsToXML(CollectionReference collection, Element parentElement, Document doc)
-			throws Exception {
+	private void addDocumentsToDat(CollectionReference collection, List<String> lines, String indent,
+			List<HistoricRecord> historicList) throws Exception {
 		ApiFuture<QuerySnapshot> future = collection.get();
 		List<QueryDocumentSnapshot> documents = future.get().getDocuments();
 
 		for (QueryDocumentSnapshot document : documents) {
-			Element documentElement = doc.createElement("document");
-			documentElement.setAttribute("id", document.getId());
-			parentElement.appendChild(documentElement);
+			lines.add(indent + "DOCUMENT_ID:" + document.getId());
 
 			Map<String, Object> data = document.getData();
 			for (Map.Entry<String, Object> entry : data.entrySet()) {
-				Element field = doc.createElement(entry.getKey());
 				String value = entry.getValue() != null ? entry.getValue().toString() : "";
-				field.appendChild(doc.createTextNode(xorEncrypt(value)));
-				documentElement.appendChild(field);
+				lines.add(indent + "FIELD:" + entry.getKey() + "=" + xorEncrypt(value));
 			}
 
-			// Subcolecciones recursivas
 			Iterable<CollectionReference> subcollections = document.getReference().listCollections();
 			for (CollectionReference subcollection : subcollections) {
-				Element subcollectionElement = doc.createElement("subcollection");
-				subcollectionElement.setAttribute("name", subcollection.getId());
-				documentElement.appendChild(subcollectionElement);
-				addDocumentsToXML(subcollection, subcollectionElement, doc);
+				if (collection != null && "users".equalsIgnoreCase(collection.getId())
+						&& "historic".equalsIgnoreCase(subcollection.getId())) {
+					ApiFuture<QuerySnapshot> hf = subcollection.get();
+					List<QueryDocumentSnapshot> hdocs = hf.get().getDocuments();
+					for (QueryDocumentSnapshot hd : hdocs) {
+						HistoricRecord hr = new HistoricRecord();
+						hr.userId = document.getId();
+						hr.fields = new java.util.LinkedHashMap<>();
+						Map<String, Object> hdata = hd.getData();
+						for (Map.Entry<String, Object> he : hdata.entrySet()) {
+							String val = he.getValue() != null ? he.getValue().toString() : "";
+							hr.fields.put(he.getKey(), val);
+						}
+						historicList.add(hr);
+					}
+					continue;
+				}
+				lines.add(indent + "SUBCOLLECTION:" + subcollection.getId());
+				addDocumentsToDat(subcollection, lines, indent + "  ", historicList);
 			}
 		}
+	}
+
+	private static class HistoricRecord {
+		String userId;
+		Map<String, String> fields;
 	}
 }

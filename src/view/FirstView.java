@@ -1,7 +1,6 @@
 package view;
 
 import java.awt.Cursor;
-import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
@@ -14,8 +13,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import controller.AppState;
-import controller.MainApp;
 import model.UIStyle;
 
 public class FirstView extends JFrame {
@@ -25,9 +22,7 @@ public class FirstView extends JFrame {
 	private JPanel contentPane;
 
 	public FirstView(Boolean connect) {
-		if (!AppState.isAppStarted()) {
-			controller.MainApp.main(null);
-		}
+		
 		setTitle("LONG RING LONG LAND GYM");
 		setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/img/logo.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -50,11 +45,13 @@ public class FirstView extends JFrame {
 				btnEnter.setForeground(UIStyle.BUTTON_FG);
 			}
 		});
+		
 		btnEnter.addActionListener(e -> {
 			LoginFrame loginFrame = new LoginFrame(connect);
 			loginFrame.setVisible(true);
 			dispose();
 		});
+		
 		btnEnter.setBounds(207, 255, 120, 35);
 		contentPane.add(btnEnter);
 		JLabel labelLogo = new JLabel("");
@@ -73,22 +70,5 @@ public class FirstView extends JFrame {
 			logo = new ImageIcon(irudiaEskalatua);
 		}
 		return logo;
-	}
-
-	public static void main(String[] args) {
-		if (!AppState.isAppStarted()) {
-			MainApp.main(args);
-			return;
-		}
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					FirstView frame = new FirstView(Boolean.TRUE);
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
 	}
 }

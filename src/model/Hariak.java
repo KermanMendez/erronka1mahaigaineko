@@ -28,6 +28,8 @@ public class Hariak {
 	private int expectedTotalSets = 0;
 	private int sec;
 	private int totalTime = 0;
+	private int elapsedSeconds = 0;
+	private int expectedTotalSeconds = 0;
 	private Firestore db;
 	private CreateUserBackup createUserBackup = new CreateUserBackup();
 
@@ -48,9 +50,46 @@ public class Hariak {
 
 		this.level = level;
 
+		List<Exercise> exercises = new ArrayList<>();
+
+		if (connect == null || !connect) {
+			ReadBackup reader = new ReadBackup();
+			ReadBackup.BackupData backup = reader.loadBackupData();
+			if (backup == null)
+				return exercises;
+
+			List<ReadBackup.DocumentData> workoutDocs = backup.collections.get("workouts");
+			if (workoutDocs == null)
+				return exercises;
+
+			for (ReadBackup.DocumentData d : workoutDocs) {
+				String levelValue = d.fields.get("level");
+				String nameValue = d.fields.get("name");
+				if (levelValue != null && nameValue != null && levelValue.equals(String.valueOf(level))
+						&& nameValue.equals(routineName)) {
+					List<ReadBackup.DocumentData> exerciseDocs = d.subcollections.get("exercises");
+					if (exerciseDocs == null)
+						exerciseDocs = d.subcollections.get("exercise");
+					if (exerciseDocs != null) {
+						for (ReadBackup.DocumentData exDoc : exerciseDocs) {
+							Exercise ex = new Exercise();
+							ex.setName(exDoc.fields.get("name"));
+							ex.setDescription(exDoc.fields.get("description"));
+							ex.setReps(exDoc.fields.get("reps"));
+							ex.setSets(exDoc.fields.get("sets"));
+							ex.setSerieTime(exDoc.fields.get("timeSets"));
+							ex.setRestTimeSec(exDoc.fields.get("timePauseSec"));
+							exercises.add(ex);
+						}
+					}
+					break;
+				}
+			}
+			return exercises;
+		}
+
 		Controller controller = new Controller(connect);
 		db = controller.getDb();
-		List<Exercise> exercises = new ArrayList<>();
 		QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", level)
 				.whereEqualTo("name", routineName).get().get();
 		if (querySnapshot.isEmpty())
@@ -74,8 +113,6 @@ public class Hariak {
 			Supplier<Boolean> stopSupplier, Supplier<Boolean> skipRest, Supplier<Boolean> pauseSupplier,
 			Object pauseLock, int mode, boolean canPause) {
 
-		int hiloTotalCounter = 0;
-
 		for (int exIdx = 0; exIdx < exercises.size(); exIdx++) {
 			Exercise ex = exercises.get(exIdx);
 			int sets = ex.getSets();
@@ -87,15 +124,19 @@ public class Hariak {
 				for (int t = 1; t <= serieTime; t++) {
 					if (stopSupplier != null && stopSupplier.get()) {
 						if (mode == 0)
-							totalSeconds = hiloTotalCounter;
+							totalSeconds = elapsedSeconds;
 						return;
 					}
 					if (canPause)
 						waitIfPaused(pauseSupplier, pauseLock);
 
 					if (mode == 0) {
-						hiloTotalCounter++;
-						totalTime = hiloTotalCounter;
+						elapsedSeconds++;
+						totalSeconds = elapsedSeconds;
+						int remaining = expectedTotalSeconds - elapsedSeconds + 1;
+						if (remaining < 0)
+							remaining = 0;
+						totalTime = remaining;
 					}
 
 					final int currentSec = t;
@@ -112,8 +153,6 @@ public class Hariak {
 					sleep(1000);
 				}
 
-				// After finishing a full serie (all seconds), count it as a completed set in
-				// the mode 0 thread
 				if (mode == 0) {
 					completedSets++;
 				}
@@ -124,7 +163,7 @@ public class Hariak {
 					while (elapsed < restTime && !skipNow) {
 						if (stopSupplier != null && stopSupplier.get()) {
 							if (mode == 0)
-								totalSeconds = hiloTotalCounter;
+								totalSeconds = elapsedSeconds;
 							return;
 						}
 
@@ -137,18 +176,22 @@ public class Hariak {
 							waitIfPaused(pauseSupplier, pauseLock);
 
 						if (mode == 0) {
-							hiloTotalCounter++;
-							totalSeconds = hiloTotalCounter;
-							totalTime = hiloTotalCounter;
+							elapsedSeconds++;
+							totalSeconds = elapsedSeconds;
+							int remaining = expectedTotalSeconds - elapsedSeconds + 1;
+							if (remaining < 0)
+								remaining = 0;
+							totalTime = remaining;
 						}
 
 						final int currentSec = ++elapsed;
+						final int remainingRest = restTime - currentSec + 1;
 						SwingUtilities.invokeLater(() -> {
 							if (label != null) {
 								if (mode == 0)
 									label.setText("Denbora totala: " + totalTime + " seg");
 								else if (mode == 2)
-									label.setText("Atsedena " + currentSec + "/" + restTime + " seg");
+									label.setText("Atsedena " + remainingRest + "/" + restTime + " seg");
 							}
 						});
 
@@ -171,7 +214,7 @@ public class Hariak {
 				while (elapsed < interExerciseRest && !skipNow) {
 					if (stopSupplier != null && stopSupplier.get()) {
 						if (mode == 0)
-							totalSeconds = hiloTotalCounter;
+							totalSeconds = elapsedSeconds;
 						return;
 					}
 
@@ -184,9 +227,12 @@ public class Hariak {
 						waitIfPaused(pauseSupplier, pauseLock);
 
 					if (mode == 0) {
-						hiloTotalCounter++;
-						totalSeconds = hiloTotalCounter;
-						totalTime = hiloTotalCounter;
+						elapsedSeconds++;
+						totalSeconds = elapsedSeconds;
+						int remaining = expectedTotalSeconds - elapsedSeconds + 1;
+						if (remaining < 0)
+							remaining = 0;
+						totalTime = remaining;
 					}
 
 					final int currentSec = ++elapsed;
@@ -194,8 +240,10 @@ public class Hariak {
 						if (label != null) {
 							if (mode == 0)
 								label.setText("Denbora totala: " + totalTime + " seg");
-							else if (mode == 2)
-								label.setText("Atsedena " + currentSec + "/" + interExerciseRest + " seg");
+							else if (mode == 2) {
+								int remainingRest = interExerciseRest - currentSec + 1;
+								label.setText("Atsedena " + remainingRest + "/" + interExerciseRest + " seg");
+							}
 						}
 					});
 
@@ -273,6 +321,23 @@ public class Hariak {
 				}
 				this.expectedTotalSets = computedTotalSets;
 
+				int computedTotalSeconds = 0;
+				if (exercises != null) {
+					for (int i = 0; i < exercises.size(); i++) {
+						Exercise e = exercises.get(i);
+						int sets = e.getSets();
+						int serieTime = e.getSerieTime();
+						int restTime = e.getRestTimeSec();
+						computedTotalSeconds += sets * serieTime;
+						if (sets > 1)
+							computedTotalSeconds += restTime * (sets - 1);
+						if (i < exercises.size() - 1)
+							computedTotalSeconds += restTime;
+					}
+				}
+				this.expectedTotalSeconds = computedTotalSeconds;
+				this.elapsedSeconds = 0;
+
 				Thread tTotal = new Thread(() -> runExerciseThread(exercises, labelTotal, "⏱ TOTAL", stopSupplier,
 						skipSupplier, pauseSupplier, lock, 0, thread1));
 				Thread tSeries = new Thread(() -> runExerciseThread(exercises, labelSeries, "💪 SERIEAK", stopSupplier,
@@ -290,7 +355,7 @@ public class Hariak {
 
 				if (stopSupplier == null || !stopSupplier.get()) {
 					amaituta = true;
-					totalSeconds = totalTime;
+					totalSeconds = elapsedSeconds;
 				}
 
 				final long popupTime = totalSeconds;
@@ -319,9 +384,7 @@ public class Hariak {
 			DocumentSnapshot userDoc = querySnapshot.getDocuments().get(0);
 
 			if (amaituta == true) {
-				if (level == 5) {
-					level = 5;
-				} else {
+				if (level < 5) {
 					level++;
 					Map<String, Object> data = new HashMap<>();
 					data.put("level", level);
@@ -337,32 +400,84 @@ public class Hariak {
 	public void historyLog(String routineName) {
 		String email = createUserBackup.loadEmail();
 
+		// Try online first; if db is not available or write fails, save offline
 		try {
-			DocumentSnapshot routineDoc = db.collection("workouts").whereEqualTo("name", routineName).get().get()
-					.getDocuments().get(0);
+			if (db != null) {
+				DocumentSnapshot routineDoc = db.collection("workouts").whereEqualTo("name", routineName).get().get()
+						.getDocuments().get(0);
 
-			QuerySnapshot userQuery = db.collection("users").whereEqualTo("email", email).get().get();
-			if (userQuery.isEmpty())
+				QuerySnapshot userQuery = db.collection("users").whereEqualTo("email", email).get().get();
+				if (userQuery.isEmpty())
+					return;
+
+				String userId = userQuery.getDocuments().get(0).getId();
+				CollectionReference history = db.collection("users").document(userId).collection("historic");
+
+				String today = java.time.LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+				Map<String, Object> data = new HashMap<>();
+				data.put("completed", amaituta);
+				data.put("date", today);
+				data.put("totalSets", completedSets);
+				data.put("totalTime", totalSeconds);
+				data.put("workoutId", routineDoc.getId());
+				data.put("level", level);
+
+				history.add(data);
+
+				sumLevel();
 				return;
-
-			String userId = userQuery.getDocuments().get(0).getId();
-			CollectionReference history = db.collection("users").document(userId).collection("historic");
-
-			String today = java.time.LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-			Map<String, Object> data = new HashMap<>();
-			data.put("completed", amaituta);
-			data.put("date", today);
-			data.put("totalSets", completedSets);
-			data.put("totalTime", totalSeconds);
-			data.put("workoutId", routineDoc.getId());
-			data.put("level", level);
-
-			history.add(data);
-
-			sumLevel();
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+
+		try {
+			OfflineHistoric offline = new OfflineHistoric();
+			String uid = null;
+			ReadBackup reader = new ReadBackup();
+			ReadBackup.BackupData backup = reader.loadBackupData();
+			if (backup != null && backup.users != null) {
+				for (ReadBackup.UserData u : backup.users) {
+					if (u.email != null && u.email.equals(email)) {
+						uid = u.uid;
+						break;
+					}
+				}
+			}
+
+			String workoutId = null;
+			if (backup != null && backup.collections != null) {
+				List<ReadBackup.DocumentData> workouts = backup.collections.get("workouts");
+				if (workouts != null) {
+					for (ReadBackup.DocumentData wd : workouts) {
+						String nameVal = wd.fields.get("name");
+						String levelVal = wd.fields.get("level");
+						if (nameVal != null && nameVal.equals(routineName) && levelVal != null
+								&& levelVal.equals(String.valueOf(level))) {
+							workoutId = wd.id;
+							break;
+						}
+					}
+				}
+			}
+
+			String today = java.time.LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+			Map<String, String> fields = new HashMap<>();
+			fields.put("completed", String.valueOf(amaituta));
+			fields.put("date", today);
+			fields.put("totalSets", String.valueOf(completedSets));
+			fields.put("totalTime", String.valueOf(totalSeconds));
+			if (workoutId != null)
+				fields.put("workoutId", workoutId);
+			else
+				fields.put("workoutName", routineName);
+			fields.put("level", String.valueOf(level));
+
+			offline.addEntry(uid, email, fields);
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 

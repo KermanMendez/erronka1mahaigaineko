@@ -1,8 +1,8 @@
 package view;
 
 import java.awt.Cursor;
-import java.awt.EventQueue;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -15,10 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import controller.AppState;
-import controller.MainApp;
 import model.UIStyle;
-import java.awt.Toolkit;
 
 public class Profile extends JFrame {
 
@@ -29,6 +26,7 @@ public class Profile extends JFrame {
 	private JTextField txtSurname2;
 
 	public Profile(Boolean isTrainer, Boolean connect) {
+
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Profile.class.getResource("/img/logo.png")));
 		setTitle("Zure Profila");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -37,7 +35,7 @@ public class Profile extends JFrame {
 		UIStyle.stylePanel(contentPane);
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
+
 		ImageIcon icon = new ImageIcon(getClass().getResource("/img/atzera.png"));
 
 		Image scaledImage = icon.getImage().getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH);
@@ -51,6 +49,7 @@ public class Profile extends JFrame {
 				dispose();
 			}
 		});
+
 		btnAtzera.setBounds(10, 10, 40, 40);
 		btnAtzera.setBorderPainted(false);
 		btnAtzera.setContentAreaFilled(false);
@@ -109,6 +108,7 @@ public class Profile extends JFrame {
 				btnOnartuP.setForeground(UIStyle.BUTTON_FG);
 			}
 		});
+
 		btnOnartuP.setBounds(127, 227, 89, 30);
 		contentPane.add(btnOnartuP);
 
@@ -127,6 +127,7 @@ public class Profile extends JFrame {
 				btnUtziP.setForeground(UIStyle.BUTTON_FG);
 			}
 		});
+
 		btnUtziP.setBounds(226, 227, 89, 30);
 		contentPane.add(btnUtziP);
 
@@ -145,24 +146,10 @@ public class Profile extends JFrame {
 				btnChangePass.setForeground(UIStyle.BUTTON_FG);
 			}
 		});
+
 		btnChangePass.setBounds(160, 128, 125, 30);
 		contentPane.add(btnChangePass);
 
 		getContentPane().setBackground(UIStyle.BACKGROUND);
-	}
-
-	public static void main(String[] args) {
-		if (!AppState.isAppStarted()) {
-			MainApp.main(args);
-			return;
-		}
-		EventQueue.invokeLater(() -> {
-			try {
-				Profile frame = new Profile(Boolean.FALSE, Boolean.TRUE);
-				frame.setVisible(true);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
 	}
 }

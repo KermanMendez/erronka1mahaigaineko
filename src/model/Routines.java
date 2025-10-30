@@ -17,11 +17,13 @@ import controller.Controller;
 public class Routines {
 
 	private final Firestore db;
+	private final Boolean connect;
 	private final DefaultListModel<String> listModel = new DefaultListModel<>();
 	CreateUserBackup createUserBackup = new CreateUserBackup();
 
 	public Routines(Boolean connect) {
 		this.db = new Controller(connect).getDb();
+		this.connect = connect;
 	}
 
 	public String[] levels() {
@@ -30,6 +32,38 @@ public class Routines {
 		int level = 1;
 
 		try {
+			if (connect == null || !connect || db == null) {
+				ReadBackup reader = new ReadBackup();
+				ReadBackup.BackupData backup = reader.loadBackupData();
+				if (backup == null)
+					return new String[] { "No levels available" };
+
+				List<ReadBackup.DocumentData> users = backup.collections.get("users");
+				if (users == null)
+					return new String[] { "No levels available" };
+
+				for (ReadBackup.DocumentData ud : users) {
+					String userEmail = ud.fields.get("email");
+					if (userEmail != null && userEmail.equals(emaila)) {
+						String levelStr = ud.fields.get("level");
+						if (levelStr != null) {
+							try {
+								level = Integer.parseInt(levelStr);
+							} catch (NumberFormatException nfe) {
+								level = 1;
+							}
+						}
+						break;
+					}
+				}
+
+				String[] levelsArray = new String[level];
+				for (int i = 1; i <= level; i++) {
+					levelsArray[i - 1] = "Level " + i;
+				}
+				return levelsArray;
+			}
+
 			QuerySnapshot querySnapshot = db.collection("users").whereEqualTo("email", emaila).get().get();
 			if (querySnapshot.isEmpty()) {
 				return new String[] { "No levels available" };

@@ -1,7 +1,6 @@
 package view;
 
 import java.awt.Cursor;
-import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -22,8 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
-import controller.AppState;
-import controller.MainApp;
 import model.ReadHistoric;
 import model.Routines;
 import model.UIStyle;
@@ -37,6 +34,7 @@ public class ViewHistoric extends JFrame {
 	private LoginFrame login = new LoginFrame(Boolean.TRUE);
 
 	public ViewHistoric(Boolean isTrainer, Boolean connect) {
+
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Workouts.class.getResource("/img/logo.png")));
 		Routines routines = new Routines(connect);
 		ReadHistoric readHistoric = new ReadHistoric(connect);
@@ -63,6 +61,7 @@ public class ViewHistoric extends JFrame {
 				dispose();
 			}
 		});
+
 		btnAtzera.setBounds(10, 10, 40, 40);
 		btnAtzera.setBorderPainted(false);
 		btnAtzera.setContentAreaFilled(false);
@@ -115,10 +114,12 @@ public class ViewHistoric extends JFrame {
 				btnLogout.setForeground(UIStyle.BUTTON_FG);
 			}
 		});
+
 		btnLogout.addActionListener(e -> {
 			dispose();
 			login.setVisible(true);
 		});
+
 		btnLogout.setBounds(485, 18, 89, 23);
 		edukiontzia.add(btnLogout);
 
@@ -131,6 +132,7 @@ public class ViewHistoric extends JFrame {
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
+
 		comboMailaRutinakLevel.setBounds(345, 99, 210, 22);
 		UIStyle.styleField(comboMailaRutinakLevel);
 		comboMailaRutinakLevel.setToolTipText("Entrenamendu mota aukeratu");
@@ -213,6 +215,7 @@ public class ViewHistoric extends JFrame {
 				}).start();
 			}
 		});
+
 		int aukeratutakoMaila = comboMaila.getSelectedIndex() + 1;
 		new Thread(() -> {
 			String rutinarenIzena = comboMailaRutinakLevel.getSelectedItem().toString();
@@ -236,20 +239,5 @@ public class ViewHistoric extends JFrame {
 				ex.printStackTrace();
 			}
 		}).start();
-	}
-
-	public static void main(String[] args) {
-		if (!AppState.isAppStarted()) {
-			MainApp.main(args);
-			return;
-		}
-		EventQueue.invokeLater(() -> {
-			try {
-				Workouts frame = new Workouts(Boolean.FALSE, Boolean.TRUE);
-				frame.setVisible(true);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
 	}
 }

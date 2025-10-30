@@ -1,7 +1,6 @@
 package view;
 
 import java.awt.Cursor;
-import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -33,11 +32,11 @@ public class Workouts extends JFrame {
 	public static JList<String> listaWorkout;
 	private JButton btnIkusiHistoria;
 	private JButton btnHasiWorkout;
-	private JButton btnIkusiAriketak;
 	private JLabel lblMailaAktuala;
 	private LoginFrame login = new LoginFrame(Boolean.TRUE);
 
 	public Workouts(Boolean isTrainer, Boolean connect) {
+
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Workouts.class.getResource("/img/logo.png")));
 		Routines routines = new Routines(connect);
 		setTitle("Workouts");
@@ -63,6 +62,7 @@ public class Workouts extends JFrame {
 				dispose();
 			}
 		});
+
 		btnAtzera.setBounds(10, 10, 40, 40);
 		btnAtzera.setBorderPainted(false);
 		btnAtzera.setContentAreaFilled(false);
@@ -100,6 +100,7 @@ public class Workouts extends JFrame {
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
+
 		comboMailaRutinakLevel.setBounds(345, 99, 210, 22);
 		UIStyle.styleField(comboMailaRutinakLevel);
 		comboMailaRutinakLevel.setToolTipText("Entrenamendu mota aukeratu");
@@ -182,6 +183,7 @@ public class Workouts extends JFrame {
 				dispose();
 			}
 		});
+
 		UIStyle.styleButton(btnIkusiHistoria);
 		btnIkusiHistoria.setToolTipText("Entrenamenduen historiala ikusi");
 		btnIkusiHistoria.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -196,7 +198,8 @@ public class Workouts extends JFrame {
 				btnIkusiHistoria.setForeground(UIStyle.BUTTON_FG);
 			}
 		});
-		btnIkusiHistoria.setBounds(30, 321, 160, 30);
+
+		btnIkusiHistoria.setBounds(100, 321, 160, 30);
 		edukiontzia.add(btnIkusiHistoria);
 
 		btnHasiWorkout = new JButton("Hasi Workout-a");
@@ -214,32 +217,16 @@ public class Workouts extends JFrame {
 				btnHasiWorkout.setForeground(UIStyle.BUTTON_FG);
 			}
 		});
+
 		btnHasiWorkout.addActionListener(e -> {
 			ThreadFrame threadFrame = new ThreadFrame(comboMaila.getSelectedIndex() + 1,
 					comboMailaRutinakLevel.getSelectedItem().toString(), isTrainer, connect);
 			threadFrame.setVisible(true);
 			dispose();
 		});
-		btnHasiWorkout.setBounds(212, 321, 160, 30);
+
+		btnHasiWorkout.setBounds(332, 321, 160, 30);
 		edukiontzia.add(btnHasiWorkout);
-
-		btnIkusiAriketak = new JButton("Ikusi ariketak");
-		UIStyle.styleButton(btnIkusiAriketak);
-		btnIkusiAriketak.setToolTipText("Aukeratutako workout-aren ariketak ikusi");
-		btnIkusiAriketak.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnIkusiAriketak.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) {
-				btnIkusiAriketak.setBackground(UIStyle.ACCENT);
-				btnIkusiAriketak.setForeground(UIStyle.SECONDARY);
-			}
-
-			public void mouseExited(MouseEvent e) {
-				btnIkusiAriketak.setBackground(UIStyle.BUTTON_BG);
-				btnIkusiAriketak.setForeground(UIStyle.BUTTON_FG);
-			}
-		});
-		btnIkusiAriketak.setBounds(395, 321, 160, 30);
-		edukiontzia.add(btnIkusiAriketak);
 
 		JButton btnLogout = new JButton("Logout");
 		UIStyle.styleButton(btnLogout);
@@ -256,6 +243,7 @@ public class Workouts extends JFrame {
 				btnLogout.setForeground(UIStyle.BUTTON_FG);
 			}
 		});
+
 		btnLogout.addActionListener(e -> {
 			dispose();
 			login.setVisible(true);
@@ -264,19 +252,5 @@ public class Workouts extends JFrame {
 		edukiontzia.add(btnLogout);
 
 		getContentPane().setBackground(UIStyle.BACKGROUND);
-	}
-
-	public static void main(String[] args) {
-		/*
-		 * if (!AppState.isAppStarted()) { MainApp.main(args); return; }
-		 */
-		EventQueue.invokeLater(() -> {
-			try {
-				Workouts frame = new Workouts(Boolean.FALSE, Boolean.TRUE);
-				frame.setVisible(true);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
 	}
 }

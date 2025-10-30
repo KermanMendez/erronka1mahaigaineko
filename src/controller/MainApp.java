@@ -15,7 +15,7 @@ public class MainApp {
 		if (connect) {
 			CreateBackup backup = new CreateBackup();
 			new Thread(() -> {
-				backup.saveBackupToXML(connect);
+				backup.saveBackup(connect);
 			}).start();
 		}
 

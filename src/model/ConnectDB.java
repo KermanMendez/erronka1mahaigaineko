@@ -224,6 +224,8 @@ public class ConnectDB {
 			}
 			String responseBody = response.body().string();
 			JsonObject responseJson = JsonParser.parseString(responseBody).getAsJsonObject();
+			OfflineHistoric offlineHandler = new OfflineHistoric();
+			offlineHandler.syncOfflineToDb(true);
 			return responseJson.get("localId").getAsString();
 		}
 	}

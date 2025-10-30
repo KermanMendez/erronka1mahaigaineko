@@ -1,7 +1,7 @@
 package view;
 
 import java.awt.Cursor;
-import java.awt.EventQueue;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -20,12 +20,9 @@ import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
-import controller.AppState;
-import controller.MainApp;
 import model.ConnectDB;
 import model.DateFormater;
 import model.UIStyle;
-import java.awt.Toolkit;
 
 public class RegisterDialog extends JFrame {
 
@@ -40,6 +37,7 @@ public class RegisterDialog extends JFrame {
 	private ConnectDB connectDB = new ConnectDB();
 
 	public RegisterDialog(Boolean connect) {
+
 		setIconImage(Toolkit.getDefaultToolkit().getImage(RegisterDialog.class.getResource("/img/logo.png")));
 		setTitle("Erabiltzailearen Registroa");
 		setSize(399, 388);
@@ -142,6 +140,7 @@ public class RegisterDialog extends JFrame {
 				btnRegistrar.setForeground(UIStyle.BUTTON_FG);
 			}
 		});
+
 		btnRegistrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Boolean registroa = connectDB.eskaeraRegistratu(textFieldIzena.getText().trim(),
@@ -153,6 +152,7 @@ public class RegisterDialog extends JFrame {
 				}
 			}
 		});
+
 		btnRegistrar.setBounds(170, 255, 160, 30);
 		getContentPane().add(btnRegistrar);
 
@@ -171,27 +171,11 @@ public class RegisterDialog extends JFrame {
 				btnCancelar.setForeground(UIStyle.BUTTON_FG);
 			}
 		});
+
 		btnCancelar.setBounds(170, 290, 160, 30);
 		btnCancelar.addActionListener(e -> dispose());
 		getContentPane().add(btnCancelar);
 
 		getContentPane().setBackground(UIStyle.BACKGROUND);
-	}
-
-	public static void main(String[] args) {
-		if (!AppState.isAppStarted()) {
-			MainApp.main(args);
-			return;
-		}
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					RegisterDialog frame = new RegisterDialog(Boolean.TRUE);
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
 	}
 }
