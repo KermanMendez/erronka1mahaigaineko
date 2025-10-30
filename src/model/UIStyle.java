@@ -25,16 +25,17 @@ public class UIStyle {
 	public static final Font FIELD_FONT = new Font("Segoe UI", Font.PLAIN, 15);
 
 	public static void styleButton(JButton button) {
-		button.setBackground(BUTTON_BG);
-		button.setForeground(BUTTON_FG);
-		button.setFont(BUTTON_FONT);
-		button.setFocusPainted(false);
-		button.setBorderPainted(false);
-		button.setOpaque(true);
-		// Padding eta border konposatua
-		button.setBorder(javax.swing.BorderFactory.createCompoundBorder(
-				javax.swing.BorderFactory.createLineBorder(PRIMARY, 2, true),
-				javax.swing.BorderFactory.createEmptyBorder(6, 12, 6, 12)));
+	button.setBackground(BUTTON_BG);
+	button.setForeground(BUTTON_FG);
+	button.setFont(BUTTON_FONT);
+	button.setFocusPainted(false);
+	button.setBorderPainted(true);
+	button.setContentAreaFilled(true);
+	button.setOpaque(true);
+	// Padding and rounded border
+	button.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+		javax.swing.BorderFactory.createLineBorder(PRIMARY, 1, true),
+		javax.swing.BorderFactory.createEmptyBorder(8, 14, 8, 14)));
 	}
 
 	public static void styleLabel(JLabel label, boolean isTitle) {
@@ -83,14 +84,61 @@ public class UIStyle {
 		button.addMouseListener(new java.awt.event.MouseAdapter() {
 			@Override
 			public void mouseEntered(java.awt.event.MouseEvent e) {
-				button.setBackground(ACCENT);
-				button.setForeground(SECONDARY);
+				try {
+					// subtle brighten on hover and stronger border
+					button.setBackground(BUTTON_BG.brighter());
+					button.setForeground(BUTTON_FG);
+					button.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+							javax.swing.BorderFactory.createLineBorder(PRIMARY, 2, true),
+							javax.swing.BorderFactory.createEmptyBorder(8, 14, 8, 14)));
+				} catch (Throwable t) {
+					// fall back silently
+				}
 			}
 
 			@Override
 			public void mouseExited(java.awt.event.MouseEvent e) {
-				button.setBackground(BUTTON_BG);
+				try {
+					button.setBackground(BUTTON_BG);
+					button.setForeground(BUTTON_FG);
+					button.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+							javax.swing.BorderFactory.createLineBorder(PRIMARY, 1, true),
+							javax.swing.BorderFactory.createEmptyBorder(8, 14, 8, 14)));
+				} catch (Throwable t) {
+				}
+			}
+		});
+	}
+
+	/**
+	 * Estilo para botones icono (back/mini)
+	 */
+	public static void styleIconButton(JButton button) {
+		if (button == null)
+			return;
+		button.setPreferredSize(new java.awt.Dimension(44, 44));
+		button.setBackground(BACKGROUND);
+		button.setForeground(PRIMARY);
+		button.setFocusPainted(false);
+		button.setBorderPainted(true);
+		button.setContentAreaFilled(true);
+		button.setOpaque(true);
+		button.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+				javax.swing.BorderFactory.createLineBorder(PRIMARY, 2, true),
+				javax.swing.BorderFactory.createEmptyBorder(6, 6, 6, 6)));
+		// hover effect: fill with primary
+		button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		button.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
+			public void mouseEntered(java.awt.event.MouseEvent e) {
+				button.setBackground(PRIMARY);
 				button.setForeground(BUTTON_FG);
+			}
+
+			@Override
+			public void mouseExited(java.awt.event.MouseEvent e) {
+				button.setBackground(BACKGROUND);
+				button.setForeground(PRIMARY);
 			}
 		});
 	}

@@ -1,7 +1,10 @@
 package view;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.Insets;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -17,69 +20,63 @@ public class Inter extends JFrame {
 	private JPanel contentPane;
 
 	public Inter(Boolean isTrainer, Boolean connect) {
+		Theme.apply();
 
 		setTitle("Ongi Etorri LRLL");
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Inter.class.getResource("/img/logo.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+		setSize(520, 360);
+		setLocationRelativeTo(null);
 
-		contentPane = new JPanel();
+		contentPane = new JPanel(new GridBagLayout());
 		UIStyle.stylePanel(contentPane);
 		setContentPane(contentPane);
-		contentPane.setLayout(null);
+
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(12, 12, 12, 12);
+		gbc.fill = GridBagConstraints.BOTH;
 
 		JButton btnProfile = new JButton("Profila");
 		UIStyle.styleButton(btnProfile);
 		btnProfile.setToolTipText("Zure profila ikusi");
 		UIStyle.addHoverEffect(btnProfile);
-
 		btnProfile.addActionListener(e -> {
 			Profile profile = new Profile(isTrainer, connect);
-			dispose();
 			profile.setVisible(true);
+			dispose();
 		});
-
-		btnProfile.setBounds(64, 76, 117, 84);
-		contentPane.add(btnProfile);
+		ImageIcon profileIcon = new ImageIcon(getClass().getResource("/img/profile_icon.png"));
+		Image scaledProfileImage = profileIcon.getImage().getScaledInstance(80, 54, Image.SCALE_SMOOTH);
+		btnProfile.setIcon(new ImageIcon(scaledProfileImage));
+		btnProfile.setHorizontalAlignment(SwingConstants.CENTER);
 
 		JButton btnWorkouts = new JButton("Workouts");
 		UIStyle.styleButton(btnWorkouts);
 		btnWorkouts.setToolTipText("zure ariketak ikusi");
 		UIStyle.addHoverEffect(btnWorkouts);
-
 		btnWorkouts.addActionListener(e -> {
 			Workouts workouts = new Workouts(isTrainer, connect);
-			dispose();
 			workouts.setVisible(true);
+			dispose();
 		});
-
-		btnWorkouts.setBounds(258, 76, 117, 84);
-		contentPane.add(btnWorkouts);
-
-		JButton btnAdmin = new JButton("ADMIN");
-		UIStyle.styleButton(btnAdmin);
-		btnAdmin.setToolTipText("Administrazio panela");
-		UIStyle.addHoverEffect(btnAdmin);
-
-		btnAdmin.setBounds(359, 203, 65, 47);
-		contentPane.add(btnAdmin);
-		if (isTrainer) {
-			btnAdmin.setVisible(true);
-		} else {
-			btnAdmin.setVisible(false);
-		}
-
-		ImageIcon profileIcon = new ImageIcon(getClass().getResource("/img/profile_icon.png"));
-		Image scaledProfileImage = profileIcon.getImage().getScaledInstance(97, 64, Image.SCALE_SMOOTH);
-		btnProfile.setIcon(new ImageIcon(scaledProfileImage));
-		btnProfile.setHorizontalAlignment(SwingConstants.CENTER);
-		contentPane.add(btnProfile);
-
 		ImageIcon workoutIcon = new ImageIcon(getClass().getResource("/img/workout_icon.png"));
-		Image scaledWorkoutImage = workoutIcon.getImage().getScaledInstance(97, 64, Image.SCALE_SMOOTH);
+		Image scaledWorkoutImage = workoutIcon.getImage().getScaledInstance(80, 54, Image.SCALE_SMOOTH);
 		btnWorkouts.setIcon(new ImageIcon(scaledWorkoutImage));
 		btnWorkouts.setHorizontalAlignment(SwingConstants.CENTER);
-		contentPane.add(btnWorkouts);
+
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.weightx = 0.5;
+		gbc.weighty = 1.0;
+		contentPane.add(btnProfile, gbc);
+
+		gbc.gridx = 1;
+		contentPane.add(btnWorkouts, gbc);
+
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		gbc.weighty = 0.0;
+		gbc.fill = GridBagConstraints.NONE;
 
 		getContentPane().setBackground(UIStyle.BACKGROUND);
 	}

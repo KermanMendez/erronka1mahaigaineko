@@ -32,85 +32,64 @@ public class ViewHistoric extends JFrame {
 
 	public ViewHistoric(Boolean isTrainer, Boolean connect) {
 
+		Theme.apply();
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Workouts.class.getResource("/img/logo.png")));
 		Routines routines = new Routines(connect);
 		ReadHistoric readHistoric = new ReadHistoric(connect);
 		setTitle("Historic Workouts");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 600, 400);
+		setSize(700, 480);
 		setLocationRelativeTo(null);
 
-		edukiontzia = new JPanel();
+		edukiontzia = new JPanel(new java.awt.BorderLayout(12, 12));
 		UIStyle.stylePanel(edukiontzia);
 		setContentPane(edukiontzia);
-		edukiontzia.setLayout(null);
 
-		ImageIcon icon = new ImageIcon(getClass().getResource("/img/atzera.png"));
-
-		Image scaledImage = icon.getImage().getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH);
-		ImageIcon scaledIcon = new ImageIcon(scaledImage);
-
-		JButton btnAtzera = new JButton(scaledIcon);
-		btnAtzera.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				Workouts workouts = new Workouts(isTrainer, connect);
-				workouts.setVisible(true);
-				dispose();
-			}
-		});
-
-		btnAtzera.setBounds(10, 10, 40, 40);
-		btnAtzera.setBorderPainted(false);
-		btnAtzera.setContentAreaFilled(false);
-		btnAtzera.setFocusPainted(false);
-		btnAtzera.setOpaque(false);
-		edukiontzia.add(btnAtzera);
+		// Header
+		JPanel header = new JPanel(new java.awt.BorderLayout());
+		UIStyle.stylePanel(header);
+	JButton btnAtzera = new JButton(new ImageIcon(
+		new ImageIcon(getClass().getResource("/img/atzera.png")).getImage().getScaledInstance(36, 36,
+			java.awt.Image.SCALE_SMOOTH)));
+	UIStyle.styleIconButton(btnAtzera);
+	btnAtzera.addActionListener(e -> {
+	    Workouts workouts = new Workouts(isTrainer, connect);
+	    workouts.setVisible(true);
+	    dispose();
+	});
+	header.add(btnAtzera, java.awt.BorderLayout.WEST);
 
 		JLabel lblTitulua = new JLabel("Historic");
 		lblTitulua.setFont(UIStyle.TITLE_FONT);
 		lblTitulua.setForeground(UIStyle.PRIMARY);
-		lblTitulua.setBounds(240, 10, 111, 30);
-		edukiontzia.add(lblTitulua);
-
-		JLabel lblIragazi = new JLabel("Zure maila aukeratu:");
-		lblIragazi.setBounds(30, 100, 150, 20);
-		UIStyle.styleLabel(lblIragazi, false);
-		edukiontzia.add(lblIragazi);
-
-		comboMaila = new JComboBox<>();
-		comboMaila.setModel(new DefaultComboBoxModel<>(routines.levels()));
-		comboMaila.setBounds(180, 100, 120, 22);
-		UIStyle.styleField(comboMaila);
-		comboMaila.setToolTipText("Zure maila aukeratu");
-		edukiontzia.add(comboMaila);
-		JLabel lblZerrenda = new JLabel("Historiko zerrenda:");
-		lblZerrenda.setBounds(30, 140, 150, 20);
-		UIStyle.styleLabel(lblZerrenda, false);
-		edukiontzia.add(lblZerrenda);
-
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(30, 160, 525, 150);
-		UIStyle.styleScrollPane(scrollPane);
-		edukiontzia.add(scrollPane);
-
-		listaWorkout = new JList<>();
-		UIStyle.styleField(listaWorkout);
-		scrollPane.setViewportView(listaWorkout);
+		lblTitulua.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+		header.add(lblTitulua, java.awt.BorderLayout.CENTER);
 
 		JButton btnLogout = new JButton("Logout");
 		UIStyle.styleButton(btnLogout);
 		btnLogout.setToolTipText("Saioa itxi");
 		UIStyle.addHoverEffect(btnLogout);
-
 		btnLogout.addActionListener(e -> {
 			dispose();
 			login.setVisible(true);
 		});
+		header.add(btnLogout, java.awt.BorderLayout.EAST);
 
-		btnLogout.setBounds(485, 18, 89, 23);
-		edukiontzia.add(btnLogout);
+		edukiontzia.add(header, java.awt.BorderLayout.NORTH);
 
-		getContentPane().setBackground(UIStyle.BACKGROUND);
+		// Filters and selectors
+		JPanel filters = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 12, 8));
+		UIStyle.stylePanel(filters);
+
+		JLabel lblIragazi = new JLabel("Zure maila aukeratu:");
+		UIStyle.styleLabel(lblIragazi, false);
+		filters.add(lblIragazi);
+
+		comboMaila = new JComboBox<>();
+		comboMaila.setModel(new DefaultComboBoxModel<>(routines.levels()));
+		UIStyle.styleField(comboMaila);
+		comboMaila.setToolTipText("Zure maila aukeratu");
+		filters.add(comboMaila);
 
 		JComboBox<String> comboMailaRutinakLevel = new JComboBox<String>();
 		try {
@@ -119,11 +98,25 @@ public class ViewHistoric extends JFrame {
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
-
-		comboMailaRutinakLevel.setBounds(345, 99, 210, 22);
 		UIStyle.styleField(comboMailaRutinakLevel);
 		comboMailaRutinakLevel.setToolTipText("Entrenamendu mota aukeratu");
-		edukiontzia.add(comboMailaRutinakLevel);
+		filters.add(comboMailaRutinakLevel);
+
+		edukiontzia.add(filters, java.awt.BorderLayout.BEFORE_FIRST_LINE);
+
+	// List center
+	JScrollPane scrollPane = new JScrollPane();
+	scrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	UIStyle.styleScrollPane(scrollPane);
+	listaWorkout = new JList<>();
+	UIStyle.styleField(listaWorkout);
+	listaWorkout.setCellRenderer(new CardListRenderer());
+	// allow variable heights via renderer
+	listaWorkout.setFixedCellHeight(-1);
+	scrollPane.setViewportView(listaWorkout);
+	edukiontzia.add(scrollPane, java.awt.BorderLayout.CENTER);
+
+		getContentPane().setBackground(UIStyle.BACKGROUND);
 
 		comboMaila.addActionListener(new ActionListener() {
 			@Override

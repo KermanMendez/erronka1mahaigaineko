@@ -1,5 +1,7 @@
 package view;
 
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,73 +37,97 @@ public class RegisterDialog extends JFrame {
 
 	public RegisterDialog(Boolean connect) {
 
+		Theme.apply();
 		setIconImage(Toolkit.getDefaultToolkit().getImage(RegisterDialog.class.getResource("/img/logo.png")));
 		setTitle("Erabiltzailearen Registroa");
-		setSize(399, 388);
-		getContentPane().setLayout(null);
-		if (getContentPane() instanceof JPanel) {
-			UIStyle.stylePanel((JPanel) getContentPane());
-		}
+		setSize(520, 420);
+		setLocationRelativeTo(null);
+
+		JPanel root = new JPanel(new BorderLayout(12, 12));
+		UIStyle.stylePanel(root);
+		setContentPane(root);
+
+		JPanel form = new JPanel(new java.awt.GridBagLayout());
+		UIStyle.stylePanel(form);
+		java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
+		gbc.insets = new java.awt.Insets(8, 8, 8, 8);
+		gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
+
+		int row = 0;
 
 		JLabel labelEmail = new JLabel("Email:");
-		labelEmail.setBounds(10, 22, 150, 25);
 		UIStyle.styleLabel(labelEmail, false);
-		getContentPane().add(labelEmail);
+		gbc.gridx = 0;
+		gbc.gridy = row;
+		form.add(labelEmail, gbc);
 
 		textFieldEmail = new JTextField();
-		textFieldEmail.setBounds(170, 22, 200, 25);
 		UIStyle.styleField(textFieldEmail);
 		textFieldEmail.setToolTipText("Zure email-a sartu");
-		getContentPane().add(textFieldEmail);
+		gbc.gridx = 1;
+		gbc.gridy = row++;
+		gbc.weightx = 1.0;
+		form.add(textFieldEmail, gbc);
 
 		JLabel labelPass = new JLabel("Pasahitza:");
-		labelPass.setBounds(10, 57, 150, 25);
 		UIStyle.styleLabel(labelPass, false);
-		getContentPane().add(labelPass);
+		gbc.gridx = 0;
+		gbc.gridy = row;
+		gbc.weightx = 0;
+		form.add(labelPass, gbc);
 
 		passwordField = new JPasswordField();
-		passwordField.setBounds(170, 57, 200, 25);
 		UIStyle.styleField(passwordField);
 		passwordField.setToolTipText("Zure pasahitza sartu");
-		getContentPane().add(passwordField);
+		gbc.gridx = 1;
+		gbc.gridy = row++;
+		form.add(passwordField, gbc);
 
 		JLabel lblIzena = new JLabel("Izena:");
-		lblIzena.setBounds(10, 87, 150, 25);
 		UIStyle.styleLabel(lblIzena, false);
-		getContentPane().add(lblIzena);
+		gbc.gridx = 0;
+		gbc.gridy = row;
+		form.add(lblIzena, gbc);
 
 		textFieldIzena = new JTextField();
-		textFieldIzena.setBounds(170, 87, 200, 25);
 		UIStyle.styleField(textFieldIzena);
 		textFieldIzena.setToolTipText("Izena");
-		getContentPane().add(textFieldIzena);
+		gbc.gridx = 1;
+		gbc.gridy = row++;
+		form.add(textFieldIzena, gbc);
 
 		JLabel lblAbizena1 = new JLabel("Abizena:");
-		lblAbizena1.setBounds(10, 122, 150, 25);
 		UIStyle.styleLabel(lblAbizena1, false);
-		getContentPane().add(lblAbizena1);
+		gbc.gridx = 0;
+		gbc.gridy = row;
+		form.add(lblAbizena1, gbc);
 
 		abizena1Field = new JTextField();
-		abizena1Field.setBounds(170, 122, 200, 25);
 		UIStyle.styleField(abizena1Field);
 		abizena1Field.setToolTipText("Lehenengo Abizena");
-		getContentPane().add(abizena1Field);
+		gbc.gridx = 1;
+		gbc.gridy = row++;
+		form.add(abizena1Field, gbc);
 
 		JLabel lblAbizena2 = new JLabel("Bigarren Abizena:");
-		lblAbizena2.setBounds(10, 158, 150, 25);
 		UIStyle.styleLabel(lblAbizena2, false);
-		getContentPane().add(lblAbizena2);
+		gbc.gridx = 0;
+		gbc.gridy = row;
+		form.add(lblAbizena2, gbc);
 
 		abizena2Field = new JTextField();
-		abizena2Field.setBounds(170, 158, 200, 25);
 		UIStyle.styleField(abizena2Field);
 		abizena2Field.setToolTipText("Bigarren Abizena");
-		getContentPane().add(abizena2Field);
+		gbc.gridx = 1;
+		gbc.gridy = row++;
+		form.add(abizena2Field, gbc);
 
 		JLabel labelData = new JLabel("Jaiotze Data:");
-		labelData.setBounds(10, 204, 150, 25);
 		UIStyle.styleLabel(labelData, false);
-		getContentPane().add(labelData);
+		gbc.gridx = 0;
+		gbc.gridy = row;
+		form.add(labelData, gbc);
+
 		UtilDateModel model = new UtilDateModel();
 		Properties p = new Properties();
 		p.put("text.today", "Gaur");
@@ -109,24 +135,30 @@ public class RegisterDialog extends JFrame {
 		p.put("text.year", "Urtea");
 		JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
 		datePicker = new JDatePickerImpl(datePanel, new DateFormater());
-		datePicker.setBounds(170, 204, 200, 25);
 		UIStyle.styleField(datePicker);
-		getContentPane().add(datePicker);
+		gbc.gridx = 1;
+		gbc.gridy = row++;
+		form.add(datePicker, gbc);
 
 		JLabel lblTrainer = new JLabel("Entrenatzailea da?");
-		lblTrainer.setBounds(10, 230, 150, 25);
 		UIStyle.styleLabel(lblTrainer, false);
-		getContentPane().add(lblTrainer);
+		gbc.gridx = 0;
+		gbc.gridy = row;
+		form.add(lblTrainer, gbc);
 
 		checkboxIsTrainer = new JCheckBox();
-		checkboxIsTrainer.setBounds(170, 230, 200, 25);
-		getContentPane().add(checkboxIsTrainer);
+		gbc.gridx = 1;
+		gbc.gridy = row++;
+		form.add(checkboxIsTrainer, gbc);
 
+		root.add(form, BorderLayout.CENTER);
+
+		JPanel actions = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 8));
+		UIStyle.stylePanel(actions);
 		JButton btnRegistrar = new JButton("Registratu");
 		UIStyle.styleButton(btnRegistrar);
 		btnRegistrar.setToolTipText("Erabiltzailea registratu");
 		UIStyle.addHoverEffect(btnRegistrar);
-
 		btnRegistrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Boolean registroa = connectDB.eskaeraRegistratu(textFieldIzena.getText().trim(),
@@ -139,17 +171,15 @@ public class RegisterDialog extends JFrame {
 			}
 		});
 
-		btnRegistrar.setBounds(170, 255, 160, 30);
-		getContentPane().add(btnRegistrar);
-
 		JButton btnCancelar = new JButton("Utzi");
 		UIStyle.styleButton(btnCancelar);
 		btnCancelar.setToolTipText("Saiakera utzi");
 		UIStyle.addHoverEffect(btnCancelar);
-
-		btnCancelar.setBounds(170, 290, 160, 30);
 		btnCancelar.addActionListener(e -> dispose());
-		getContentPane().add(btnCancelar);
+
+		actions.add(btnRegistrar);
+		actions.add(btnCancelar);
+		root.add(actions, BorderLayout.SOUTH);
 
 		getContentPane().setBackground(UIStyle.BACKGROUND);
 	}

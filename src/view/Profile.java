@@ -23,22 +23,24 @@ public class Profile extends JFrame {
 	private JTextField txtSurname2;
 
 	public Profile(Boolean isTrainer, Boolean connect) {
+		Theme.apply();
 
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Profile.class.getResource("/img/logo.png")));
 		setTitle("Zure Profila");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
-		contentPane = new JPanel();
+		setSize(520, 360);
+		setLocationRelativeTo(null);
+
+		contentPane = new JPanel(new java.awt.BorderLayout(12, 12));
 		UIStyle.stylePanel(contentPane);
 		setContentPane(contentPane);
-		contentPane.setLayout(null);
 
-		ImageIcon icon = new ImageIcon(getClass().getResource("/img/atzera.png"));
-
-		Image scaledImage = icon.getImage().getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH);
-		ImageIcon scaledIcon = new ImageIcon(scaledImage);
-
-		JButton btnAtzera = new JButton(scaledIcon);
+		JPanel top = new JPanel(new java.awt.BorderLayout());
+		UIStyle.stylePanel(top);
+		JButton btnAtzera = new JButton(new ImageIcon(
+				new ImageIcon(getClass().getResource("/img/atzera.png")).getImage().getScaledInstance(36, 36,
+						java.awt.Image.SCALE_SMOOTH)));
+		UIStyle.styleIconButton(btnAtzera);
 		btnAtzera.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Inter inter = new Inter(isTrainer, connect);
@@ -46,73 +48,79 @@ public class Profile extends JFrame {
 				dispose();
 			}
 		});
+		top.add(btnAtzera, java.awt.BorderLayout.WEST);
+		contentPane.add(top, java.awt.BorderLayout.NORTH);
 
-		btnAtzera.setBounds(10, 10, 40, 40);
-		btnAtzera.setBorderPainted(false);
-		btnAtzera.setContentAreaFilled(false);
-		btnAtzera.setFocusPainted(false);
-		btnAtzera.setOpaque(false);
-		contentPane.add(btnAtzera);
+		JPanel form = new JPanel(new java.awt.GridBagLayout());
+		UIStyle.stylePanel(form);
+		java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
+		gbc.insets = new java.awt.Insets(8, 8, 8, 8);
+		gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
+
+		int row = 0;
 
 		JLabel lblIzenaP = new JLabel("Izena");
-		lblIzenaP.setBounds(89, 33, 92, 14);
 		UIStyle.styleLabel(lblIzenaP, false);
-		contentPane.add(lblIzenaP);
-
-		JLabel lblAbizena1P = new JLabel("Abizena:");
-		lblAbizena1P.setBounds(89, 58, 92, 14);
-		UIStyle.styleLabel(lblAbizena1P, false);
-		contentPane.add(lblAbizena1P);
-
-		JLabel lblAbizena2P = new JLabel("2º Abizena:");
-		lblAbizena2P.setBounds(89, 83, 92, 14);
-		UIStyle.styleLabel(lblAbizena2P, false);
-		contentPane.add(lblAbizena2P);
+		gbc.gridx = 0;
+		gbc.gridy = row;
+		form.add(lblIzenaP, gbc);
 
 		txtName = new JTextField();
-		txtName.setBounds(226, 30, 142, 20);
 		UIStyle.styleField(txtName);
-		txtName.setColumns(10);
 		txtName.setToolTipText("Izena");
-		contentPane.add(txtName);
+		gbc.gridx = 1;
+		gbc.gridy = row++;
+		form.add(txtName, gbc);
+
+		JLabel lblAbizena1P = new JLabel("Abizena:");
+		UIStyle.styleLabel(lblAbizena1P, false);
+		gbc.gridx = 0;
+		gbc.gridy = row;
+		form.add(lblAbizena1P, gbc);
 
 		txtSurname1 = new JTextField();
-		txtSurname1.setBounds(226, 55, 142, 20);
 		UIStyle.styleField(txtSurname1);
-		txtSurname1.setColumns(10);
 		txtSurname1.setToolTipText("Lehenengo Abizena");
-		contentPane.add(txtSurname1);
+		gbc.gridx = 1;
+		gbc.gridy = row++;
+		form.add(txtSurname1, gbc);
+
+		JLabel lblAbizena2P = new JLabel("2º Abizena:");
+		UIStyle.styleLabel(lblAbizena2P, false);
+		gbc.gridx = 0;
+		gbc.gridy = row;
+		form.add(lblAbizena2P, gbc);
 
 		txtSurname2 = new JTextField();
-		txtSurname2.setBounds(226, 80, 142, 20);
 		UIStyle.styleField(txtSurname2);
-		txtSurname2.setColumns(10);
 		txtSurname2.setToolTipText("Bigarren");
-		contentPane.add(txtSurname2);
+		gbc.gridx = 1;
+		gbc.gridy = row++;
+		form.add(txtSurname2, gbc);
 
+		JPanel actions = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 12, 8));
+		UIStyle.stylePanel(actions);
 		JButton btnOnartuP = new JButton("Onartu");
 		UIStyle.styleButton(btnOnartuP);
 		btnOnartuP.setToolTipText("Aldaketak Gorde");
 		UIStyle.addHoverEffect(btnOnartuP);
-
-		btnOnartuP.setBounds(127, 227, 89, 30);
-		contentPane.add(btnOnartuP);
 
 		JButton btnUtziP = new JButton("Utzi");
 		UIStyle.styleButton(btnUtziP);
 		btnUtziP.setToolTipText("Aldaketak Utzi");
 		UIStyle.addHoverEffect(btnUtziP);
 
-		btnUtziP.setBounds(226, 227, 89, 30);
-		contentPane.add(btnUtziP);
-
 		JButton btnChangePass = new JButton("Aldatu Pasahitza");
 		UIStyle.styleButton(btnChangePass);
 		btnChangePass.setToolTipText("Pasahitza Aldatu");
 		UIStyle.addHoverEffect(btnChangePass);
 
-		btnChangePass.setBounds(160, 128, 125, 30);
-		contentPane.add(btnChangePass);
+		actions.add(btnOnartuP);
+		actions.add(btnUtziP);
+		actions.add(btnChangePass);
+
+		contentPane.add(form, java.awt.BorderLayout.CENTER);
+		contentPane.add(actions, java.awt.BorderLayout.SOUTH);
 
 		getContentPane().setBackground(UIStyle.BACKGROUND);
 	}
