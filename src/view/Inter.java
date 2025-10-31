@@ -69,7 +69,9 @@ public class Inter extends JFrame {
 		gbc.gridy = 0;
 		gbc.weightx = 0.5;
 		gbc.weighty = 1.0;
-		contentPane.add(btnProfile);
+		GridBagConstraints gbc_btnProfile = new GridBagConstraints();
+		gbc_btnProfile.gridx = 0;
+		contentPane.add(btnProfile, gbc_btnProfile);
 
 		gbc.gridx = 1;
 		contentPane.add(btnWorkouts, gbc);

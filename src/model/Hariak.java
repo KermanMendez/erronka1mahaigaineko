@@ -410,9 +410,14 @@ public class Hariak {
 				final int popupCompletedSets = this.completedSets;
 				final int popupExpectedSets = this.expectedTotalSets;
 				if (popupCompletedSets > 0) {
-					SwingUtilities.invokeLater(
-							() -> JOptionPane.showMessageDialog(null, "Rutina amaitu da! Denbora totala: " + popupTime
-									+ " seg\nSeries egindakoak: " + popupCompletedSets + " / " + popupExpectedSets));
+					double pct = 0.0;
+					if (popupExpectedSets > 0) {
+						pct = (popupCompletedSets * 100.0) / popupExpectedSets;
+					}
+					final String pctStr = String.format("%.1f", pct).replace('.', ',');
+					SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
+							"Rutina amaitu da! Denbora totala: " + popupTime + " seg\nSeries egindakoak: "
+								+ popupCompletedSets + " / " + popupExpectedSets + " (" + pctStr + "%)"));
 					historyLog(routineName);
 				}
 			} catch (InterruptedException e) {
@@ -543,7 +548,7 @@ public class Hariak {
 				fields.put("workoutName", routineName);
 			fields.put("level", String.valueOf(level));
 
-			offline.addEntry(uid, email, fields);
+			offline.gehituSarrera(uid, email, fields);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

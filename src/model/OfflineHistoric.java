@@ -31,89 +31,90 @@ import controller.Controller;
 
 public class OfflineHistoric {
 
-	private final String FILE = "offlineHistoric.xml";
+	private final String FITXATEGIA = "offlineHistorikoa.xml";
 
-	private synchronized void appendToHistoricXml(String uid, Map<String, Object> data) throws Exception {
-		File f = new File("historic.xml");
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+	private void gehituHistorikora(String erabiltzaileId, Map<String, Object> datuak) throws Exception {
+		File fitx = new File("historikoa.xml");
+		DocumentBuilderFactory fabrika = DocumentBuilderFactory.newInstance();
+		DocumentBuilder sortzailea = fabrika.newDocumentBuilder();
 		Document doc;
-		Element root;
-		if (f.exists() && f.length() > 0) {
-			doc = dBuilder.parse(f);
+		Element erroa;
+		if (fitx.exists() && fitx.length() > 0) {
+			doc = sortzailea.parse(fitx);
 			doc.getDocumentElement().normalize();
-			root = doc.getDocumentElement();
+			erroa = doc.getDocumentElement();
 		} else {
-			doc = dBuilder.newDocument();
-			root = doc.createElement("historicBackup");
-			doc.appendChild(root);
+			doc = sortzailea.newDocument();
+			erroa = doc.createElement("historikoBackup");
+			doc.appendChild(erroa);
 		}
 
-		Element userElem = doc.createElement("user");
-		if (uid != null)
-			userElem.setAttribute("uid", uid);
+		Element erabiltzaileElem = doc.createElement("erabiltzailea");
+		if (erabiltzaileId != null)
+			erabiltzaileElem.setAttribute("uid", erabiltzaileId);
 
-		for (Map.Entry<String, Object> e : data.entrySet()) {
-			Element field = doc.createElement(e.getKey());
-			String val = e.getValue() != null ? String.valueOf(e.getValue()) : "";
-			field.appendChild(doc.createTextNode(val));
-			userElem.appendChild(field);
+		for (Map.Entry<String, Object> sarrera : datuak.entrySet()) {
+			Element eremua = doc.createElement(sarrera.getKey());
+			String balioa = sarrera.getValue() != null ? String.valueOf(sarrera.getValue()) : "";
+			eremua.appendChild(doc.createTextNode(balioa));
+			erabiltzaileElem.appendChild(eremua);
 		}
 
-		root.appendChild(userElem);
+		erroa.appendChild(erabiltzaileElem);
 
-		TransformerFactory transformerFactory = TransformerFactory.newInstance();
-		Transformer transformer = transformerFactory.newTransformer();
-		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-		transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-		DOMSource source = new DOMSource(doc);
-		try (FileOutputStream fos = new FileOutputStream(f)) {
-			StreamResult result = new StreamResult(fos);
-			transformer.transform(source, result);
+		TransformerFactory fabTrans = TransformerFactory.newInstance();
+		Transformer trans = fabTrans.newTransformer();
+		trans.setOutputProperty(OutputKeys.INDENT, "yes");
+		trans.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+		trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+		DOMSource iturburua = new DOMSource(doc);
+		try (FileOutputStream fos = new FileOutputStream(fitx)) {
+			StreamResult emaitza = new StreamResult(fos);
+			trans.transform(iturburua, emaitza);
 		}
 	}
 
-	public synchronized void addEntry(String uid, String email, Map<String, String> fields) {
+	// Gehitu sarrera offline fitxategira
+	public void gehituSarrera(String erabiltzaileId, String emaila, Map<String, String> eremuak) {
 		try {
-			File f = new File(FILE);
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			File fitx = new File(FITXATEGIA);
+			DocumentBuilderFactory fabrika = DocumentBuilderFactory.newInstance();
+			DocumentBuilder sortzailea = fabrika.newDocumentBuilder();
 			Document doc;
-			Element root;
-			if (f.exists() && f.length() > 0) {
-				doc = dBuilder.parse(f);
+			Element erroa;
+			if (fitx.exists() && fitx.length() > 0) {
+				doc = sortzailea.parse(fitx);
 				doc.getDocumentElement().normalize();
-				root = doc.getDocumentElement();
+				erroa = doc.getDocumentElement();
 			} else {
-				doc = dBuilder.newDocument();
-				root = doc.createElement("historicBackup");
-				doc.appendChild(root);
+				doc = sortzailea.newDocument();
+				erroa = doc.createElement("historikoBackup");
+				doc.appendChild(erroa);
 			}
 
-			Element userElem = doc.createElement("user");
-			if (uid != null)
-				userElem.setAttribute("uid", uid);
-			if (email != null)
-				userElem.setAttribute("email", email);
+			Element erabiltzaileElem = doc.createElement("erabiltzailea");
+			if (erabiltzaileId != null)
+				erabiltzaileElem.setAttribute("uid", erabiltzaileId);
+			if (emaila != null)
+				erabiltzaileElem.setAttribute("email", emaila);
 
-			for (Map.Entry<String, String> e : fields.entrySet()) {
-				Element field = doc.createElement(e.getKey());
-				field.appendChild(doc.createTextNode(e.getValue() != null ? e.getValue() : ""));
-				userElem.appendChild(field);
+			for (Map.Entry<String, String> sarrera : eremuak.entrySet()) {
+				Element eremua = doc.createElement(sarrera.getKey());
+				eremua.appendChild(doc.createTextNode(sarrera.getValue() != null ? sarrera.getValue() : ""));
+				erabiltzaileElem.appendChild(eremua);
 			}
 
-			root.appendChild(userElem);
+			erroa.appendChild(erabiltzaileElem);
 
-			TransformerFactory transformerFactory = TransformerFactory.newInstance();
-			Transformer transformer = transformerFactory.newTransformer();
-			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-			DOMSource source = new DOMSource(doc);
-			try (FileOutputStream fos = new FileOutputStream(f)) {
-				StreamResult result = new StreamResult(fos);
-				transformer.transform(source, result);
+			TransformerFactory fabTrans = TransformerFactory.newInstance();
+			Transformer trans = fabTrans.newTransformer();
+			trans.setOutputProperty(OutputKeys.INDENT, "yes");
+			trans.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+			trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+			DOMSource iturburua = new DOMSource(doc);
+			try (FileOutputStream fos = new FileOutputStream(fitx)) {
+				StreamResult emaitza = new StreamResult(fos);
+				trans.transform(iturburua, emaitza);
 			}
 
 		} catch (Exception ex) {
@@ -121,131 +122,132 @@ public class OfflineHistoric {
 		}
 	}
 
-	public synchronized boolean syncOfflineToDb(Boolean connect) {
-		if (connect == null || !connect) {
+	public boolean sinkronizatuLineazKanpokoak(Boolean konektatuta) {
+		if (konektatuta == null || !konektatuta) {
 			return false;
 		}
 
-		boolean allSynced = true;
+		boolean denaSinkronizatuta = true;
 		try {
-			Controller controller = Controller.getInstance();
-			Firestore db = controller.getDb();
+			Controller kontrolatzailea = Controller.getInstance();
+			Firestore db = kontrolatzailea.getDb();
 			if (db == null) {
 				return false;
 			}
 
-			File f = new File(FILE);
-			if (!f.exists() || f.length() == 0) {
-				return true; // No hay nada que sincronizar
+			File fitx = new File(FITXATEGIA);
+			if (!fitx.exists() || fitx.length() == 0) {
+				return true;
 			}
 
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse(f);
+			DocumentBuilderFactory fabrika = DocumentBuilderFactory.newInstance();
+			DocumentBuilder sortzailea = fabrika.newDocumentBuilder();
+			Document doc = sortzailea.parse(fitx);
 			doc.getDocumentElement().normalize();
 
-			NodeList users = doc.getElementsByTagName("user");
-			List<Integer> syncedIndexes = new ArrayList<>();
+			NodeList erabiltzaileak = doc.getElementsByTagName("erabiltzailea");
+			List<Integer> sinkronizatuak = new ArrayList<>();
 
-			for (int i = 0; i < users.getLength(); i++) {
-				org.w3c.dom.Node userNode = users.item(i);
-				if (userNode.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE) {
+			for (int i = 0; i < erabiltzaileak.getLength(); i++) {
+				org.w3c.dom.Node nodoa = erabiltzaileak.item(i);
+				if (nodoa.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE) {
 					continue;
 				}
-				Element userElem = (Element) userNode;
-				String emailAttr = userElem.getAttribute("email");
+				Element erabiltzaileElem = (Element) nodoa;
+				String emailAttr = erabiltzaileElem.getAttribute("email");
 
 				String email = emailAttr != null && !emailAttr.isEmpty() ? emailAttr : null;
-				Map<String, Object> data = new HashMap<>();
+				Map<String, Object> datuak = new HashMap<>();
 
-				org.w3c.dom.NodeList children = userElem.getChildNodes();
-				for (int c = 0; c < children.getLength(); c++) {
-					org.w3c.dom.Node ch = children.item(c);
-					if (ch.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE)
+				org.w3c.dom.NodeList haurrak = erabiltzaileElem.getChildNodes();
+				for (int c = 0; c < haurrak.getLength(); c++) {
+					org.w3c.dom.Node haur = haurrak.item(c);
+					if (haur.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE)
 						continue;
-					Element fe = (Element) ch;
-					String key = fe.getTagName();
-					String val = fe.getTextContent();
+					Element eremua = (Element) haur;
+					String gakoa = eremua.getTagName();
+					String balioa = eremua.getTextContent();
 
-					if (val != null && val.matches("^-?\\d+$")) {
+					if (balioa != null && balioa.matches("^-?\\d+$")) {
 						try {
-							data.put(key, Integer.parseInt(val));
+							datuak.put(gakoa, Integer.parseInt(balioa));
 						} catch (NumberFormatException nfe) {
-							data.put(key, val);
+							datuak.put(gakoa, balioa);
 						}
-					} else if (val != null && (val.equalsIgnoreCase("true") || val.equalsIgnoreCase("false")
-							|| val.equalsIgnoreCase("bai") || val.equalsIgnoreCase("ez"))) {
-						if (val.equalsIgnoreCase("true") || val.equalsIgnoreCase("bai"))
-							data.put(key, true);
+					} else if (balioa != null && (balioa.equalsIgnoreCase("true") || balioa.equalsIgnoreCase("false")
+							|| balioa.equalsIgnoreCase("bai") || balioa.equalsIgnoreCase("ez"))) {
+						if (balioa.equalsIgnoreCase("true") || balioa.equalsIgnoreCase("bai"))
+							datuak.put(gakoa, true);
 						else
-							data.put(key, false);
+							datuak.put(gakoa, false);
 					} else {
-						data.put(key, val);
+						datuak.put(gakoa, balioa);
 					}
 				}
 
-				String userDocId = null;
+				String erabiltzaileDocId = null;
 				if (email != null) {
 					QuerySnapshot userQuery = db.collection("users").whereEqualTo("email", email).get().get();
 					if (!userQuery.isEmpty()) {
-						userDocId = userQuery.getDocuments().get(0).getId();
+						erabiltzaileDocId = userQuery.getDocuments().get(0).getId();
 					}
 				}
 
-				if (userDocId != null) {
+				if (erabiltzaileDocId != null) {
 					try {
-						CollectionReference history = db.collection("users").document(userDocId).collection("historic");
-						DocumentReference newDoc = history.document();
-						ApiFuture<WriteResult> future = newDoc.set(data);
-						future.get(); // Esperar a que la operación se complete
+						CollectionReference historikoa = db.collection("users").document(erabiltzaileDocId)
+								.collection("historikoa");
+						DocumentReference dokBerria = historikoa.document();
+						ApiFuture<WriteResult> etorkizuna = dokBerria.set(datuak);
+						etorkizuna.get();
 
 						try {
-							appendToHistoricXml(userDocId, data);
-							syncedIndexes.add(i);
+							gehituHistorikora(erabiltzaileDocId, datuak);
+							sinkronizatuak.add(i);
 						} catch (Exception e) {
-							System.err.println("Error appending to historic.xml: " + e.getMessage());
-							allSynced = false;
+							System.err.println("Errorea historikoa.xml eguneratzean: " + e.getMessage());
+							denaSinkronizatuta = false;
 						}
 					} catch (InterruptedException | ExecutionException e) {
-						System.err.println("Error al sincronizar con Firestore: " + e.getMessage());
-						allSynced = false;
+						System.err.println("Errorea Firestore sinkronizazioan: " + e.getMessage());
+						denaSinkronizatuta = false;
 						continue;
 					}
 				} else {
-					System.err.println("No se pudo encontrar el usuario para sincronizar");
-					allSynced = false;
+					System.err.println("Ezin izan da erabiltzailea aurkitu sinkronizatzeko");
+					denaSinkronizatuta = false;
 				}
 			}
 
-			if (!syncedIndexes.isEmpty()) {
-				Document newDoc = dBuilder.newDocument();
-				Element newRoot = newDoc.createElement("historicBackup");
-				newDoc.appendChild(newRoot);
+			if (!sinkronizatuak.isEmpty()) {
+				Document docBerria = sortzailea.newDocument();
+				Element erroBerria = docBerria.createElement("historikoBackup");
+				docBerria.appendChild(erroBerria);
 
-				for (int i = 0; i < users.getLength(); i++) {
-					if (syncedIndexes.contains(i))
+				for (int i = 0; i < erabiltzaileak.getLength(); i++) {
+					if (sinkronizatuak.contains(i))
 						continue;
-					org.w3c.dom.Node userNode = users.item(i);
-					org.w3c.dom.Node imported = newDoc.importNode(userNode, true);
-					newRoot.appendChild(imported);
+					org.w3c.dom.Node nodoa = erabiltzaileak.item(i);
+					org.w3c.dom.Node inportatua = docBerria.importNode(nodoa, true);
+					erroBerria.appendChild(inportatua);
 				}
 
-				TransformerFactory transformerFactory = TransformerFactory.newInstance();
-				Transformer transformer = transformerFactory.newTransformer();
-				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-				transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-				transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-				DOMSource source = new DOMSource(newDoc);
-				try (FileOutputStream fos = new FileOutputStream(f)) {
-					StreamResult result = new StreamResult(fos);
-					transformer.transform(source, result);
+				TransformerFactory fabTrans = TransformerFactory.newInstance();
+				Transformer trans = fabTrans.newTransformer();
+				trans.setOutputProperty(OutputKeys.INDENT, "yes");
+				trans.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+				trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+				DOMSource iturburua = new DOMSource(docBerria);
+				try (FileOutputStream fos = new FileOutputStream(fitx)) {
+					StreamResult emaitza = new StreamResult(fos);
+					trans.transform(iturburua, emaitza);
 				}
 			}
 
-			Document checkDoc = dBuilder.parse(f);
-			checkDoc.getDocumentElement().normalize();
-			if (!checkDoc.getDocumentElement().hasChildNodes()) {
-				f.delete();
+			Document egiaztatuDoc = sortzailea.parse(fitx);
+			egiaztatuDoc.getDocumentElement().normalize();
+			if (!egiaztatuDoc.getDocumentElement().hasChildNodes()) {
+				fitx.delete();
 			}
 
 		} catch (Exception e) {
@@ -253,7 +255,7 @@ public class OfflineHistoric {
 			return false;
 		}
 
-		return allSynced;
+		return denaSinkronizatuta;
 	}
 
 }
