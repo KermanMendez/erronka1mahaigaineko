@@ -229,7 +229,7 @@ public class ConnectDB {
 
 			OfflineHistoric offlineHandler = new OfflineHistoric();
 			try {
-				offlineHandler.sinkronizatuLineazKanpokoak(true);
+				offlineHandler.sinkronizatuLineazKanpoDBra(true);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

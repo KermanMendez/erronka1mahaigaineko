@@ -79,9 +79,9 @@ public class CreateBackup {
 				}
 
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-					oos.writeObject(lines);
-				}
+				ObjectOutputStream oos = new ObjectOutputStream(baos);
+				oos.writeObject(lines);
+				oos.close();
 				byte[] encrypted = xorBytes(baos.toByteArray());
 				try (FileOutputStream fos = new FileOutputStream(FICHERO)) {
 					fos.write(encrypted);
@@ -116,7 +116,7 @@ public class CreateBackup {
 					transformer.transform(source, result2);
 				}
 
-				System.out.println("Backup gordeta: " + FICHERO);
+				System.out.println("Backup guardado en " + FICHERO);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
