@@ -1,22 +1,42 @@
 package view;
 
-import model.CreateUserBackup;
-import model.Theme;
-import model.UIStyle;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.text.ParseException;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.MaskFormatter;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.text.ParseException;
+
+import model.CreateUserBackup;
+import model.EditProfile;
+import model.Theme;
+import model.UIStyle;
 
 public class Profile extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
 	private JPanel contentPane;
+
+	// form fields as instance members so other methods can access them
+	private JTextField tfName;
+	private JTextField tfSurname1;
+	private JTextField tfSurname2;
+	private JPasswordField pfPassword;
+	private JPasswordField pfPassword2;
+	private JFormattedTextField tfDob;
 
 	public Profile() {
 		Theme.apply();
@@ -41,97 +61,119 @@ public class Profile extends JFrame {
 		JPanel form = new JPanel(new GridBagLayout());
 		UIStyle.stylePanel(form);
 		form.setOpaque(false);
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.insets = new Insets(8, 8, 8, 8);
-		gbc.fill = GridBagConstraints.HORIZONTAL;
 
+		// create a fresh GridBagConstraints for each component to avoid accidental
+		// reuse bugs
 		int row = 0;
 
-		gbc.gridx = 0;
-		gbc.gridy = row;
-		gbc.weightx = 0.0;
+		GridBagConstraints cLblName = new GridBagConstraints();
+		cLblName.insets = new Insets(8, 8, 8, 8);
+		cLblName.fill = GridBagConstraints.HORIZONTAL;
+		cLblName.gridx = 0;
+		cLblName.gridy = row;
+		cLblName.weightx = 0.0;
 		JLabel lblName = new JLabel("Nombre:");
 		UIStyle.styleLabel(lblName, false);
-		form.add(lblName, gbc);
+		form.add(lblName, cLblName);
 
-		gbc.gridx = 1;
-		gbc.weightx = 1.0;
-		JTextField tfName = new JTextField();
+		GridBagConstraints cTfName = (GridBagConstraints) cLblName.clone();
+		cTfName.gridx = 1;
+		cTfName.weightx = 1.0;
+		tfName = new JTextField();
 		UIStyle.styleField(tfName);
-		form.add(tfName, gbc);
+		form.add(tfName, cTfName);
 
 		row++;
 
-		gbc.gridx = 0;
-		gbc.gridy = row;
-		gbc.weightx = 0.0;
-		JLabel lblSurname = new JLabel("Apellidos:");
-		UIStyle.styleLabel(lblSurname, false);
-		form.add(lblSurname, gbc);
+		GridBagConstraints cLblS1 = new GridBagConstraints();
+		cLblS1.insets = new Insets(8, 8, 8, 8);
+		cLblS1.fill = GridBagConstraints.HORIZONTAL;
+		cLblS1.gridx = 0;
+		cLblS1.gridy = row;
+		cLblS1.weightx = 0.0;
+		JLabel lblSurname1 = new JLabel("Apellido 1:");
+		UIStyle.styleLabel(lblSurname1, false);
+		form.add(lblSurname1, cLblS1);
 
-		gbc.gridx = 1;
-		gbc.weightx = 1.0;
-		JTextField tfSurname = new JTextField();
-		UIStyle.styleField(tfSurname);
-		form.add(tfSurname, gbc);
-
-		row++;
-
-		gbc.gridx = 0;
-		gbc.gridy = row;
-		gbc.weightx = 0.0;
-		JLabel lblEmail = new JLabel("Gmail:");
-		UIStyle.styleLabel(lblEmail, false);
-		form.add(lblEmail, gbc);
-
-		gbc.gridx = 1;
-		gbc.weightx = 1.0;
-		JTextField tfEmail = new JTextField();
-		UIStyle.styleField(tfEmail);
-		form.add(tfEmail, gbc);
+		GridBagConstraints cTfS1 = (GridBagConstraints) cLblS1.clone();
+		cTfS1.gridx = 1;
+		cTfS1.weightx = 1.0;
+		tfSurname1 = new JTextField();
+		UIStyle.styleField(tfSurname1);
+		form.add(tfSurname1, cTfS1);
 
 		row++;
 
-		gbc.gridx = 0;
-		gbc.gridy = row;
-		gbc.weightx = 0.0;
+		GridBagConstraints cLblS2 = new GridBagConstraints();
+		cLblS2.insets = new Insets(8, 8, 8, 8);
+		cLblS2.fill = GridBagConstraints.HORIZONTAL;
+		cLblS2.gridx = 0;
+		cLblS2.gridy = row;
+		cLblS2.weightx = 0.0;
+		JLabel lblSurname2 = new JLabel("Apellido 2:");
+		UIStyle.styleLabel(lblSurname2, false);
+		form.add(lblSurname2, cLblS2);
+
+		GridBagConstraints cTfS2 = (GridBagConstraints) cLblS2.clone();
+		cTfS2.gridx = 1;
+		cTfS2.weightx = 1.0;
+		tfSurname2 = new JTextField();
+		UIStyle.styleField(tfSurname2);
+		form.add(tfSurname2, cTfS2);
+
+		row++;
+
+		GridBagConstraints cLblPwd = new GridBagConstraints();
+		cLblPwd.insets = new Insets(8, 8, 8, 8);
+		cLblPwd.fill = GridBagConstraints.HORIZONTAL;
+		cLblPwd.gridx = 0;
+		cLblPwd.gridy = row;
+		cLblPwd.weightx = 0.0;
 		JLabel lblPassword = new JLabel("Contraseña nueva:");
 		UIStyle.styleLabel(lblPassword, false);
-		form.add(lblPassword, gbc);
+		form.add(lblPassword, cLblPwd);
 
-		gbc.gridx = 1;
-		gbc.weightx = 1.0;
-		JPasswordField pfPassword = new JPasswordField();
+		GridBagConstraints cPfPwd = (GridBagConstraints) cLblPwd.clone();
+		cPfPwd.gridx = 1;
+		cPfPwd.weightx = 1.0;
+		pfPassword = new JPasswordField();
 		UIStyle.styleField(pfPassword);
-		form.add(pfPassword, gbc);
+		form.add(pfPassword, cPfPwd);
 
 		row++;
 
-		gbc.gridx = 0;
-		gbc.gridy = row;
-		gbc.weightx = 0.0;
+		GridBagConstraints cLblPwd2 = new GridBagConstraints();
+		cLblPwd2.insets = new Insets(8, 8, 8, 8);
+		cLblPwd2.fill = GridBagConstraints.HORIZONTAL;
+		cLblPwd2.gridx = 0;
+		cLblPwd2.gridy = row;
+		cLblPwd2.weightx = 0.0;
 		JLabel lblPassword2 = new JLabel("Confirmar contraseña:");
 		UIStyle.styleLabel(lblPassword2, false);
-		form.add(lblPassword2, gbc);
+		form.add(lblPassword2, cLblPwd2);
 
-		gbc.gridx = 1;
-		gbc.weightx = 1.0;
-		JPasswordField pfPassword2 = new JPasswordField();
+		GridBagConstraints cPfPwd2 = (GridBagConstraints) cLblPwd2.clone();
+		cPfPwd2.gridx = 1;
+		cPfPwd2.weightx = 1.0;
+		pfPassword2 = new JPasswordField();
 		UIStyle.styleField(pfPassword2);
-		form.add(pfPassword2, gbc);
+		form.add(pfPassword2, cPfPwd2);
 
 		row++;
 
-		gbc.gridx = 0;
-		gbc.gridy = row;
-		gbc.weightx = 0.0;
+		GridBagConstraints cLblDob = new GridBagConstraints();
+		cLblDob.insets = new Insets(8, 8, 8, 8);
+		cLblDob.fill = GridBagConstraints.HORIZONTAL;
+		cLblDob.gridx = 0;
+		cLblDob.gridy = row;
+		cLblDob.weightx = 0.0;
 		JLabel lblDob = new JLabel("Fecha de nacimiento (dd/MM/yyyy):");
 		UIStyle.styleLabel(lblDob, false);
-		form.add(lblDob, gbc);
+		form.add(lblDob, cLblDob);
 
-		gbc.gridx = 1;
-		gbc.weightx = 1.0;
-		JFormattedTextField tfDob;
+		GridBagConstraints cTfDob = (GridBagConstraints) cLblDob.clone();
+		cTfDob.gridx = 1;
+		cTfDob.weightx = 1.0;
 		try {
 			MaskFormatter mf = new MaskFormatter("##/##/####");
 			mf.setPlaceholderCharacter('_');
@@ -140,7 +182,7 @@ public class Profile extends JFrame {
 			tfDob = new JFormattedTextField();
 		}
 		UIStyle.styleField(tfDob);
-		form.add(tfDob, gbc);
+		form.add(tfDob, cTfDob);
 
 		row++;
 
@@ -160,16 +202,13 @@ public class Profile extends JFrame {
 		final JFormattedTextField finalTfDob = tfDob;
 		btnSave.addActionListener((ActionEvent e) -> {
 			String name = tfName.getText().trim();
-			String surname = tfSurname.getText().trim();
-			String email = tfEmail.getText().trim();
+			String surname1 = tfSurname1.getText().trim();
+			String surname2 = tfSurname2.getText().trim();
+			String surname = surname1 + (surname2.isEmpty() ? "" : " " + surname2);
 			String pwd = new String(pfPassword.getPassword());
 			String pwd2 = new String(pfPassword2.getPassword());
 			String dob = finalTfDob.getText().trim();
 
-			if (email.isEmpty() || !email.contains("@")) {
-				JOptionPane.showMessageDialog(this, "Introduce un email válido.", "Error", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
 			if (!pwd.isEmpty() || !pwd2.isEmpty()) {
 				if (!pwd.equals(pwd2)) {
 					JOptionPane.showMessageDialog(this, "Las contraseñas no coinciden.", "Error",
@@ -183,16 +222,47 @@ public class Profile extends JFrame {
 				}
 			}
 
+			// email is not editable here; load it from local backup (saved at login)
+			String localEmail = null;
 			try {
-				new CreateUserBackup().saveEmail(email);
-			} catch (IOException io) {
-				JOptionPane.showMessageDialog(this, "No se pudo guardar el email localmente: " + io.getMessage(),
-						"Aviso", JOptionPane.WARNING_MESSAGE);
+				localEmail = new CreateUserBackup().loadEmail();
+			} catch (Exception ex) {
+				// ignore - will handle null below
+			}
+			if (localEmail == null || localEmail.trim().isEmpty()) {
+				JOptionPane.showMessageDialog(this,
+						"No se encuentra el email local. Inicia sesión para poder actualizar el perfil.", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return;
 			}
 
-			JOptionPane.showMessageDialog(this, "Perfil guardado.\nNombre: " + name + "\nApellidos: " + surname
-					+ "\nEmail: " + email + "\nFecha nacimiento: " + dob, "Guardado", JOptionPane.INFORMATION_MESSAGE);
-			dispose();
+			// perform updates in background to avoid blocking EDT
+			final String targetEmail = localEmail;
+			new Thread(() -> {
+				EditProfile editor = new EditProfile();
+				boolean dbOk = editor.updateUserDocument(targetEmail, name, surname1, surname2, dob);
+				boolean pwdOk = true;
+				if (!pwd.isEmpty()) {
+					pwdOk = editor.updatePasswordAuthAndSaveHash(targetEmail, pwd);
+				}
+
+				if (dbOk && pwdOk) {
+					javax.swing.SwingUtilities.invokeLater(() -> {
+						JOptionPane
+								.showMessageDialog(this,
+										"Perfil actualizado correctamente.\nNombre: " + name + "\nApellidos: " + surname
+												+ "\nFecha nacimiento: " + dob,
+										"Guardado", JOptionPane.INFORMATION_MESSAGE);
+						dispose();
+					});
+				} else {
+					javax.swing.SwingUtilities.invokeLater(() -> {
+						JOptionPane.showMessageDialog(this,
+								"Error al actualizar el perfil. Comprueba la conexión y vuelve a intentarlo.", "Error",
+								JOptionPane.ERROR_MESSAGE);
+					});
+				}
+			}).start();
 		});
 
 		buttons.add(btnCancel);
@@ -200,6 +270,69 @@ public class Profile extends JFrame {
 
 		contentPane.add(buttons, BorderLayout.SOUTH);
 
+		// load initial data from DB (if possible)
+		loadProfileFromDb();
+
 	}
 
+	private void loadProfileFromDb() {
+		// Run in background thread because Firestore calls are blocking
+		new Thread(() -> {
+			try {
+				String email = new CreateUserBackup().loadEmail();
+				if (email == null || email.trim().isEmpty()) {
+					return;
+				}
+
+				// try to get DB connection
+				controller.Controller controller = new controller.Controller(true);
+				com.google.cloud.firestore.Firestore db = controller.getDb();
+				if (db == null)
+					return;
+
+				com.google.cloud.firestore.QuerySnapshot query = db.collection("users").whereEqualTo("email", email)
+						.get().get();
+				if (query.isEmpty())
+					return;
+
+				com.google.cloud.firestore.DocumentSnapshot userDoc = query.getDocuments().get(0);
+				String name = userDoc.getString("name");
+				String surname = userDoc.getString("surname");
+				// some users might have 'surname2' or 'surname' fields
+				String surname2 = userDoc.getString("surname2");
+				String birth = userDoc.getString("birthdate");
+				if (birth == null)
+					birth = userDoc.getString("birthday");
+
+				final String fName = name != null ? name : "";
+				String fSurname1 = "";
+				String fSurname2 = "";
+				if (surname != null) {
+					if (surname2 != null && !surname2.isEmpty()) {
+						fSurname1 = surname;
+						fSurname2 = surname2;
+					} else {
+						String[] parts = surname.trim().split("\\s+", 2);
+						fSurname1 = parts.length > 0 ? parts[0] : "";
+						fSurname2 = parts.length > 1 ? parts[1] : "";
+					}
+				}
+				final String ffSurname1 = fSurname1;
+				final String ffSurname2 = fSurname2;
+				final String fBirth = birth != null ? birth : "";
+
+				javax.swing.SwingUtilities.invokeLater(() -> {
+					tfName.setText(fName);
+					tfSurname1.setText(ffSurname1);
+					tfSurname2.setText(ffSurname2);
+					tfDob.setText(fBirth);
+				});
+
+			} catch (Exception ex) {
+				// ignore: leave fields blank when something fails
+			}
+		}).start();
+	}
+
+	// moved implementation to model.EditProfile
 }
