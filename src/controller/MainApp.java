@@ -7,7 +7,6 @@ import model.CreateBackup;
 public class MainApp {
 
 	public static void main(String[] args) {
-		controller.AppState.setAppStarted(true);
 
 		Controller.initialize(false);
 		Controller controller = Controller.getInstance();

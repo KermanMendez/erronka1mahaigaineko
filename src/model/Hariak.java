@@ -23,7 +23,6 @@ public class Hariak {
 	private long totalSeconds;
 	private int completedSets = 0;
 	private int expectedTotalSets = 0;
-	private int sec;
 	private int totalTime = 0;
 	private int elapsedSeconds = 0;
 	private int expectedTotalSeconds = 0;
@@ -31,9 +30,6 @@ public class Hariak {
 	private CreateUserBackup createUserBackup = new CreateUserBackup();
 	private volatile boolean skipNow = false;
 	private int level;
-
-	public Hariak() {
-	}
 
 	public List<Exercise> start(int level, String routineName, Boolean connect)
 			throws InterruptedException, ExecutionException {
@@ -189,9 +185,8 @@ public class Hariak {
 		return "";
 	}
 
-	private void runExerciseThread(List<Exercise> exercises, JLabel label, String hiloTag,
-			Supplier<Boolean> stopSupplier, Supplier<Boolean> skipRest, Supplier<Boolean> pauseSupplier,
-			Object pauseLock, int mode, boolean canPause) {
+	private void runExerciseThread(List<Exercise> exercises, JLabel label, Supplier<Boolean> stopSupplier,
+			Supplier<Boolean> skipRest, Supplier<Boolean> pauseSupplier, Object pauseLock, int mode, boolean canPause) {
 
 		if (exercises == null || exercises.isEmpty())
 			return;
@@ -320,11 +315,13 @@ public class Hariak {
 	}
 
 	private void waitIfPaused(Supplier<Boolean> pauseSupplier, Object pauseLock) {
-		if (pauseSupplier != null && pauseSupplier.get()) {
+		while (pauseSupplier != null && pauseSupplier.get()) {
 			synchronized (pauseLock) {
 				try {
 					pauseLock.wait();
-				} catch (InterruptedException ignored) {
+				} catch (InterruptedException ie) {
+					Thread.currentThread().interrupt();
+					break;
 				}
 			}
 		}
@@ -334,6 +331,7 @@ public class Hariak {
 		try {
 			Thread.sleep(ms);
 		} catch (InterruptedException ignored) {
+			Thread.currentThread().interrupt();
 		}
 	}
 
@@ -386,12 +384,12 @@ public class Hariak {
 				this.elapsedSeconds = 0;
 				this.completedSets = 0;
 
-				Thread tTotal = new Thread(() -> runExerciseThread(exercises, labelTotal, "⏱ TOTAL", stopSupplier,
-						skipSupplier, pauseSupplier, lock, 0, thread1));
-				Thread tSeries = new Thread(() -> runExerciseThread(exercises, labelSeries, "💪 SERIEAK", stopSupplier,
-						skipSupplier, pauseSupplier, lock, 1, thread2));
-				Thread tRest = new Thread(() -> runExerciseThread(exercises, labelDescansos, "😴 ATSEDENAK",
-						stopSupplier, skipSupplier, pauseSupplier, lock, 2, thread3));
+				Thread tTotal = new Thread(() -> runExerciseThread(exercises, labelTotal, stopSupplier, skipSupplier,
+						pauseSupplier, lock, 0, thread1));
+				Thread tSeries = new Thread(() -> runExerciseThread(exercises, labelSeries, stopSupplier, skipSupplier,
+						pauseSupplier, lock, 1, thread2));
+				Thread tRest = new Thread(() -> runExerciseThread(exercises, labelDescansos, stopSupplier, skipSupplier,
+						pauseSupplier, lock, 2, thread3));
 
 				tTotal.start();
 				tSeries.start();
@@ -417,7 +415,7 @@ public class Hariak {
 					final String pctStr = String.format("%.1f", pct).replace('.', ',');
 					SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
 							"Rutina amaitu da! Denbora totala: " + popupTime + " seg\nSeries egindakoak: "
-								+ popupCompletedSets + " / " + popupExpectedSets + " (" + pctStr + "%)"));
+									+ popupCompletedSets + " / " + popupExpectedSets + " (" + pctStr + "%)"));
 					historyLog(routineName);
 				}
 			} catch (InterruptedException e) {
@@ -552,13 +550,5 @@ public class Hariak {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-	}
-
-	public int getSec() {
-		return sec;
-	}
-
-	public void setSec(int sec) {
-		this.sec = sec;
 	}
 }
