@@ -1,134 +1,205 @@
 package view;
 
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-
+import model.CreateUserBackup;
 import model.Theme;
 import model.UIStyle;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.text.MaskFormatter;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.text.ParseException;
 
 public class Profile extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
-	private JTextField txtName;
-	private JTextField txtSurname1;
-	private JTextField txtSurname2;
 
-	public Profile(Boolean isTrainer, Boolean connect) {
+	private JPanel contentPane;
+
+	public Profile() {
 		Theme.apply();
 
-		setIconImage(Toolkit.getDefaultToolkit().getImage(Profile.class.getResource("/img/logo.png")));
-		setTitle("Zure Profila");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(520, 360);
+		setTitle("Perfil de usuario");
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setSize(520, 420);
 		setLocationRelativeTo(null);
 
-		contentPane = new JPanel(new java.awt.BorderLayout(12, 12));
+		contentPane = new JPanel(new BorderLayout(12, 12));
+		contentPane.setBorder(new EmptyBorder(12, 12, 12, 12));
 		UIStyle.stylePanel(contentPane);
 		setContentPane(contentPane);
 
-		JPanel header = new JPanel(new java.awt.BorderLayout());
+		JPanel header = new JPanel(new BorderLayout());
 		UIStyle.stylePanel(header);
+		JLabel title = new JLabel("Mi perfil");
+		UIStyle.styleLabel(title, true);
+		header.add(title, BorderLayout.WEST);
+		contentPane.add(header, BorderLayout.NORTH);
 
-		JButton btnAtzera = new JButton(new ImageIcon(new ImageIcon(getClass().getResource("/img/atzera.png"))
-				.getImage().getScaledInstance(36, 36, java.awt.Image.SCALE_SMOOTH)));
-		UIStyle.styleIconButton(btnAtzera);
-		btnAtzera.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				Inter inter = new Inter(isTrainer, connect);
-				inter.setVisible(true);
-				dispose();
-			}
-		});
-		header.add(btnAtzera, java.awt.BorderLayout.WEST);
-
-		JLabel lblTitulua = new JLabel("Zure Profila");
-		lblTitulua.setFont(UIStyle.TITLE_FONT);
-		lblTitulua.setForeground(UIStyle.PRIMARY);
-		lblTitulua.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-		header.add(lblTitulua, java.awt.BorderLayout.CENTER);
-
-		contentPane.add(header, java.awt.BorderLayout.NORTH);
-
-		JPanel form = new JPanel(new java.awt.GridBagLayout());
+		JPanel form = new JPanel(new GridBagLayout());
 		UIStyle.stylePanel(form);
-		java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
-		gbc.insets = new java.awt.Insets(8, 8, 8, 8);
-		gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		form.setOpaque(false);
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(8, 8, 8, 8);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
 
 		int row = 0;
 
-		JLabel lblIzenaP = new JLabel("Izena");
-		UIStyle.styleLabel(lblIzenaP, false);
 		gbc.gridx = 0;
 		gbc.gridy = row;
-		form.add(lblIzenaP, gbc);
+		gbc.weightx = 0.0;
+		JLabel lblName = new JLabel("Nombre:");
+		UIStyle.styleLabel(lblName, false);
+		form.add(lblName, gbc);
 
-		txtName = new JTextField();
-		UIStyle.styleField(txtName);
-		txtName.setToolTipText("Izena");
 		gbc.gridx = 1;
-		gbc.gridy = row++;
-		form.add(txtName, gbc);
+		gbc.weightx = 1.0;
+		JTextField tfName = new JTextField();
+		UIStyle.styleField(tfName);
+		form.add(tfName, gbc);
 
-		JLabel lblAbizena1P = new JLabel("Abizena:");
-		UIStyle.styleLabel(lblAbizena1P, false);
+		row++;
+
 		gbc.gridx = 0;
 		gbc.gridy = row;
-		form.add(lblAbizena1P, gbc);
+		gbc.weightx = 0.0;
+		JLabel lblSurname = new JLabel("Apellidos:");
+		UIStyle.styleLabel(lblSurname, false);
+		form.add(lblSurname, gbc);
 
-		txtSurname1 = new JTextField();
-		UIStyle.styleField(txtSurname1);
-		txtSurname1.setToolTipText("Lehenengo Abizena");
 		gbc.gridx = 1;
-		gbc.gridy = row++;
-		form.add(txtSurname1, gbc);
+		gbc.weightx = 1.0;
+		JTextField tfSurname = new JTextField();
+		UIStyle.styleField(tfSurname);
+		form.add(tfSurname, gbc);
 
-		JLabel lblAbizena2P = new JLabel("2º Abizena:");
-		UIStyle.styleLabel(lblAbizena2P, false);
+		row++;
+
 		gbc.gridx = 0;
 		gbc.gridy = row;
-		form.add(lblAbizena2P, gbc);
+		gbc.weightx = 0.0;
+		JLabel lblEmail = new JLabel("Gmail:");
+		UIStyle.styleLabel(lblEmail, false);
+		form.add(lblEmail, gbc);
 
-		txtSurname2 = new JTextField();
-		UIStyle.styleField(txtSurname2);
-		txtSurname2.setToolTipText("Bigarren");
 		gbc.gridx = 1;
-		gbc.gridy = row++;
-		form.add(txtSurname2, gbc);
+		gbc.weightx = 1.0;
+		JTextField tfEmail = new JTextField();
+		UIStyle.styleField(tfEmail);
+		form.add(tfEmail, gbc);
 
-		JPanel actions = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 12, 8));
-		UIStyle.stylePanel(actions);
-		JButton btnOnartuP = new JButton("Onartu");
-		UIStyle.styleButton(btnOnartuP);
-		btnOnartuP.setToolTipText("Aldaketak Gorde");
-		UIStyle.addHoverEffect(btnOnartuP);
+		row++;
 
-		JButton btnUtziP = new JButton("Utzi");
-		UIStyle.styleButton(btnUtziP);
-		btnUtziP.setToolTipText("Aldaketak Utzi");
-		UIStyle.addHoverEffect(btnUtziP);
+		gbc.gridx = 0;
+		gbc.gridy = row;
+		gbc.weightx = 0.0;
+		JLabel lblPassword = new JLabel("Contraseña nueva:");
+		UIStyle.styleLabel(lblPassword, false);
+		form.add(lblPassword, gbc);
 
-		JButton btnChangePass = new JButton("Aldatu Pasahitza");
-		UIStyle.styleButton(btnChangePass);
-		btnChangePass.setToolTipText("Pasahitza Aldatu");
-		UIStyle.addHoverEffect(btnChangePass);
+		gbc.gridx = 1;
+		gbc.weightx = 1.0;
+		JPasswordField pfPassword = new JPasswordField();
+		UIStyle.styleField(pfPassword);
+		form.add(pfPassword, gbc);
 
-		actions.add(btnOnartuP);
-		actions.add(btnUtziP);
-		actions.add(btnChangePass);
+		row++;
 
-		contentPane.add(form, java.awt.BorderLayout.CENTER);
-		contentPane.add(actions, java.awt.BorderLayout.SOUTH);
+		gbc.gridx = 0;
+		gbc.gridy = row;
+		gbc.weightx = 0.0;
+		JLabel lblPassword2 = new JLabel("Confirmar contraseña:");
+		UIStyle.styleLabel(lblPassword2, false);
+		form.add(lblPassword2, gbc);
 
-		getContentPane().setBackground(UIStyle.BACKGROUND);
+		gbc.gridx = 1;
+		gbc.weightx = 1.0;
+		JPasswordField pfPassword2 = new JPasswordField();
+		UIStyle.styleField(pfPassword2);
+		form.add(pfPassword2, gbc);
+
+		row++;
+
+		gbc.gridx = 0;
+		gbc.gridy = row;
+		gbc.weightx = 0.0;
+		JLabel lblDob = new JLabel("Fecha de nacimiento (dd/MM/yyyy):");
+		UIStyle.styleLabel(lblDob, false);
+		form.add(lblDob, gbc);
+
+		gbc.gridx = 1;
+		gbc.weightx = 1.0;
+		JFormattedTextField tfDob;
+		try {
+			MaskFormatter mf = new MaskFormatter("##/##/####");
+			mf.setPlaceholderCharacter('_');
+			tfDob = new JFormattedTextField(mf);
+		} catch (ParseException pe) {
+			tfDob = new JFormattedTextField();
+		}
+		UIStyle.styleField(tfDob);
+		form.add(tfDob, gbc);
+
+		row++;
+
+		contentPane.add(form, BorderLayout.CENTER);
+
+		JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+		UIStyle.stylePanel(buttons);
+
+		JButton btnCancel = new JButton("Cancelar");
+		UIStyle.styleButton(btnCancel);
+		UIStyle.addHoverEffect(btnCancel);
+		btnCancel.addActionListener((ActionEvent e) -> dispose());
+
+		JButton btnSave = new JButton("Guardar");
+		UIStyle.styleButton(btnSave);
+		UIStyle.addHoverEffect(btnSave);
+		final JFormattedTextField finalTfDob = tfDob;
+		btnSave.addActionListener((ActionEvent e) -> {
+			String name = tfName.getText().trim();
+			String surname = tfSurname.getText().trim();
+			String email = tfEmail.getText().trim();
+			String pwd = new String(pfPassword.getPassword());
+			String pwd2 = new String(pfPassword2.getPassword());
+			String dob = finalTfDob.getText().trim();
+
+			if (email.isEmpty() || !email.contains("@")) {
+				JOptionPane.showMessageDialog(this, "Introduce un email válido.", "Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			if (!pwd.isEmpty() || !pwd2.isEmpty()) {
+				if (!pwd.equals(pwd2)) {
+					JOptionPane.showMessageDialog(this, "Las contraseñas no coinciden.", "Error",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				if (pwd.length() < 6) {
+					JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 6 caracteres.", "Error",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+			}
+
+			try {
+				new CreateUserBackup().saveEmail(email);
+			} catch (IOException io) {
+				JOptionPane.showMessageDialog(this, "No se pudo guardar el email localmente: " + io.getMessage(),
+						"Aviso", JOptionPane.WARNING_MESSAGE);
+			}
+
+			JOptionPane.showMessageDialog(this, "Perfil guardado.\nNombre: " + name + "\nApellidos: " + surname
+					+ "\nEmail: " + email + "\nFecha nacimiento: " + dob, "Guardado", JOptionPane.INFORMATION_MESSAGE);
+			dispose();
+		});
+
+		buttons.add(btnCancel);
+		buttons.add(btnSave);
+
+		contentPane.add(buttons, BorderLayout.SOUTH);
+
 	}
+
 }

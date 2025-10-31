@@ -42,7 +42,7 @@ public class Inter extends JFrame {
 		btnProfile.setToolTipText("Zure profila ikusi");
 		UIStyle.addHoverEffect(btnProfile);
 		btnProfile.addActionListener(e -> {
-			Profile profile = new Profile(isTrainer, connect);
+			Profile profile = new Profile();
 			profile.setVisible(true);
 			dispose();
 		});

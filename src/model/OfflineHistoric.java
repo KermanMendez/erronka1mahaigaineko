@@ -196,7 +196,7 @@ public class OfflineHistoric {
 				if (erabiltzaileDocId != null) {
 					try {
 						CollectionReference historikoa = db.collection("users").document(erabiltzaileDocId)
-								.collection("historikoa");
+								.collection("historic");
 						DocumentReference dokBerria = historikoa.document();
 						ApiFuture<WriteResult> etorkizuna = dokBerria.set(datuak);
 						etorkizuna.get();
