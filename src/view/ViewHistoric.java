@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.ExecutionException;
 
-import javax.swing.AbstractListModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -15,7 +14,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
 
 import model.ReadHistoric;
 import model.Routines;
@@ -30,7 +28,7 @@ public class ViewHistoric extends JFrame {
 	public static JList<String> listaWorkout;
 	private LoginFrame login = new LoginFrame(Boolean.TRUE);
 
-	public ViewHistoric(Boolean isTrainer, Boolean connect) {
+	public ViewHistoric(Boolean connect) {
 
 		Theme.apply();
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Workouts.class.getResource("/img/logo.png")));
@@ -55,7 +53,7 @@ public class ViewHistoric extends JFrame {
 				.getImage().getScaledInstance(36, 36, java.awt.Image.SCALE_SMOOTH)));
 		UIStyle.styleIconButton(btnAtzera);
 		btnAtzera.addActionListener(e -> {
-			Workouts workouts = new Workouts(isTrainer, connect);
+			Workouts workouts = new Workouts(connect);
 			workouts.setVisible(true);
 			dispose();
 		});
@@ -118,105 +116,17 @@ public class ViewHistoric extends JFrame {
 		getContentPane().setBackground(UIStyle.BACKGROUND);
 
 		comboMaila.addActionListener(new ActionListener() {
-			@Override
 			public void actionPerformed(ActionEvent e) {
-				int aukeratutakoMaila = comboMaila.getSelectedIndex() + 1;
-				new Thread(() -> {
-					try {
-						String[] routinesForLevel = routines.getRoutines(aukeratutakoMaila, connect);
-						final String[] chosenRoutine = new String[1];
-						SwingUtilities.invokeLater(() -> {
-							comboMailaRutinakLevel.setModel(new DefaultComboBoxModel<>(routinesForLevel));
-							if (routinesForLevel != null && routinesForLevel.length > 0) {
-								comboMailaRutinakLevel.setSelectedIndex(0);
-								chosenRoutine[0] = routinesForLevel[0];
-							} else {
-								chosenRoutine[0] = "";
-							}
-						});
-
-						Thread.sleep(50);
-
-						String rutinarenIzenaToUse = chosenRoutine[0] != null && !chosenRoutine[0].isEmpty()
-								? chosenRoutine[0]
-								: (comboMailaRutinakLevel.getItemCount() > 0 ? comboMailaRutinakLevel.getItemAt(0)
-										: "");
-
-						String[] ariketak = readHistoric.getHistoric(aukeratutakoMaila, rutinarenIzenaToUse, connect);
-						SwingUtilities.invokeLater(() -> {
-							listaWorkout.setModel(new AbstractListModel<String>() {
-								private static final long serialVersionUID = 1L;
-								String[] balioak = ariketak;
-
-								public int getSize() {
-									return balioak.length;
-								}
-
-								public String getElementAt(int index) {
-									return balioak[index];
-								}
-							});
-						});
-					} catch (InterruptedException | ExecutionException ex) {
-						ex.printStackTrace();
-					}
-				}).start();
+				Routines.updateRoutinesComboBox(comboMaila, comboMailaRutinakLevel, routines, connect, listaWorkout);
 			}
 		});
 
 		comboMailaRutinakLevel.addActionListener(new ActionListener() {
-			@Override
 			public void actionPerformed(ActionEvent e) {
-				int aukeratutakoMaila = comboMaila.getSelectedIndex() + 1;
-				String rutinarenIzena = comboMailaRutinakLevel.getSelectedItem() != null
-						? comboMailaRutinakLevel.getSelectedItem().toString()
-						: "";
-				new Thread(() -> {
-					try {
-						String[] ariketak = readHistoric.getHistoric(aukeratutakoMaila, rutinarenIzena, connect);
-						SwingUtilities.invokeLater(() -> {
-							listaWorkout.setModel(new AbstractListModel<String>() {
-								private static final long serialVersionUID = 1L;
-								String[] balioak = ariketak;
-
-								public int getSize() {
-									return balioak.length;
-								}
-
-								public String getElementAt(int index) {
-									return balioak[index];
-								}
-							});
-						});
-					} catch (InterruptedException | ExecutionException ex) {
-						ex.printStackTrace();
-					}
-				}).start();
+				Routines.updateWorkoutList(comboMaila, comboMailaRutinakLevel, readHistoric, connect, listaWorkout);
 			}
 		});
-
-		int aukeratutakoMaila = comboMaila.getSelectedIndex() + 1;
-		new Thread(() -> {
-			String rutinarenIzena = comboMailaRutinakLevel.getSelectedItem().toString();
-			try {
-				String[] ariketak = readHistoric.getHistoric(aukeratutakoMaila, rutinarenIzena, connect);
-				SwingUtilities.invokeLater(() -> {
-					listaWorkout.setModel(new AbstractListModel<String>() {
-						private static final long serialVersionUID = 1L;
-						String[] balioak = ariketak;
-
-						public int getSize() {
-							return balioak.length;
-						}
-
-						public String getElementAt(int index) {
-							return balioak[index];
-						}
-					});
-				});
-			} catch (InterruptedException | ExecutionException ex) {
-				ex.printStackTrace();
-			}
-		}).start();
+		
+		Routines.updateWorkoutList(comboMaila, comboMailaRutinakLevel, readHistoric, connect, listaWorkout);
 	}
 }

@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import javax.swing.AbstractListModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
+import javax.swing.JComboBox;
+import javax.swing.JList;
 import javax.swing.SwingUtilities;
 
 import com.google.cloud.firestore.DocumentSnapshot;
@@ -255,4 +259,80 @@ public class Routines {
 	public DefaultListModel<String> getListModel() {
 		return listModel;
 	}
+
+	public static void updateRoutinesComboBox(JComboBox<String> comboMaila, JComboBox<String> comboMailaRutinakLevel,
+			Routines routines, Boolean connect, JList<String> listaWorkout) {
+		ReadHistoric readHistoric = new ReadHistoric(connect);
+		int aukeratutakoMaila = comboMaila.getSelectedIndex() + 1;
+		new Thread(() -> {
+			try {
+				String[] routinesForLevel = routines.getRoutines(aukeratutakoMaila, connect);
+				final String[] chosenRoutine = new String[1];
+				SwingUtilities.invokeLater(() -> {
+					comboMailaRutinakLevel.setModel(new DefaultComboBoxModel<>(routinesForLevel));
+					if (routinesForLevel != null && routinesForLevel.length > 0) {
+						comboMailaRutinakLevel.setSelectedIndex(0);
+						chosenRoutine[0] = routinesForLevel[0];
+					} else {
+						chosenRoutine[0] = "";
+					}
+				});
+
+				Thread.sleep(50);
+
+				String rutinarenIzenaToUse = chosenRoutine[0] != null && !chosenRoutine[0].isEmpty() ? chosenRoutine[0]
+						: (comboMailaRutinakLevel.getItemCount() > 0 ? comboMailaRutinakLevel.getItemAt(0) : "");
+
+				String[] ariketak = readHistoric.getHistoric(aukeratutakoMaila, rutinarenIzenaToUse, connect);
+				SwingUtilities.invokeLater(() -> {
+					listaWorkout.setModel(new AbstractListModel<String>() {
+						private static final long serialVersionUID = 1L;
+						String[] balioak = ariketak;
+
+						public int getSize() {
+							return balioak.length;
+						}
+
+						public String getElementAt(int index) {
+							return balioak[index];
+						}
+					});
+				});
+			} catch (InterruptedException | ExecutionException ex) {
+				ex.printStackTrace();
+			}
+		}).start();
+
+	}
+
+	public static void updateWorkoutList(JComboBox<String> comboMaila, JComboBox<String> comboMailaRutinakLevel,
+			ReadHistoric readHistoric, Boolean connect, JList<String> listaWorkout) {
+		int aukeratutakoMaila = comboMaila.getSelectedIndex() + 1;
+		String rutinarenIzena = comboMailaRutinakLevel.getSelectedItem() != null
+				? comboMailaRutinakLevel.getSelectedItem().toString()
+				: "";
+		new Thread(() -> {
+			try {
+				String[] ariketak = readHistoric.getHistoric(aukeratutakoMaila, rutinarenIzena, connect);
+				SwingUtilities.invokeLater(() -> {
+					listaWorkout.setModel(new AbstractListModel<String>() {
+						private static final long serialVersionUID = 1L;
+						String[] balioak = ariketak;
+
+						public int getSize() {
+							return balioak.length;
+						}
+
+						public String getElementAt(int index) {
+							return balioak[index];
+						}
+					});
+				});
+			} catch (InterruptedException | ExecutionException ex) {
+				ex.printStackTrace();
+			}
+		}).start();
+	}
+	
+	
 }

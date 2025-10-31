@@ -2,6 +2,8 @@ package model;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 public class User implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -30,6 +32,27 @@ public class User implements Serializable {
 		this.name = username;
 		this.email = email;
 		this.password = password;
+	}
+
+	/**
+	 * Convenience constructor used by EditProfile.validateChanges.
+	 * birthDateStr expected in dd/MM/yyyy format; if invalid, birthDate will be null.
+	 */
+	public User(String name, String surname, String surname2, String password, String birthDateStr) {
+		this.name = name;
+		this.surname = surname;
+		this.surname2 = surname2;
+		this.password = password;
+		if (birthDateStr != null && !birthDateStr.trim().isEmpty()) {
+			try {
+				java.util.Date parsed = new SimpleDateFormat("dd/MM/yyyy").parse(birthDateStr);
+				this.birthDate = new java.sql.Date(parsed.getTime());
+			} catch (ParseException e) {
+				this.birthDate = null;
+			}
+		} else {
+			this.birthDate = null;
+		}
 	}
 
 	public Date getBirthDate() {
@@ -62,6 +85,18 @@ public class User implements Serializable {
 
 	public String getSurname2() {
 		return surname2;
+	}
+
+	public String getFullSurname() {
+		String s1 = surname != null ? surname : "";
+		String s2 = surname2 != null ? surname2 : "";
+		return (s1 + (s2.isEmpty() ? "" : " " + s2)).trim();
+	}
+
+	public String getDobString() {
+		if (birthDate == null)
+			return "";
+		return new SimpleDateFormat("dd/MM/yyyy").format(birthDate);
 	}
 
 	public void setBirthDate(Date birthDate) {

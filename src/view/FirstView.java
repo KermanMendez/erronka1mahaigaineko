@@ -1,9 +1,8 @@
 package view;
 
 import java.awt.BorderLayout;
-import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.FlowLayout;
+import java.awt.Toolkit;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -13,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import controller.Controller;
+import model.LoadLogo;
 import model.Theme;
 import model.UIStyle;
 
@@ -21,6 +21,7 @@ public class FirstView extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private static ImageIcon logo;
 	private JPanel contentPane;
+	private LoadLogo loadLogo = new LoadLogo();
 
 	private Controller controller;
 
@@ -37,7 +38,7 @@ public class FirstView extends JFrame {
 		setContentPane(contentPane);
 
 		JLabel labelLogo = new JLabel("");
-		labelLogo.setIcon(getLogo());
+		labelLogo.setIcon(loadLogo.getLogo(logo));
 		labelLogo.setHorizontalAlignment(SwingConstants.CENTER);
 		UIStyle.styleLabel(labelLogo, true);
 		contentPane.add(labelLogo, BorderLayout.CENTER);
@@ -58,14 +59,5 @@ public class FirstView extends JFrame {
 		setSize(560, 380);
 		setLocationRelativeTo(null);
 		getContentPane().setBackground(UIStyle.BACKGROUND);
-	}
-
-	private ImageIcon getLogo() {
-		if (logo == null) {
-			ImageIcon jatorrekoIkono = new ImageIcon(getClass().getResource("/img/logo.png"));
-			Image irudiaEskalatua = jatorrekoIkono.getImage().getScaledInstance(360, 260, Image.SCALE_SMOOTH);
-			logo = new ImageIcon(irudiaEskalatua);
-		}
-		return logo;
 	}
 }

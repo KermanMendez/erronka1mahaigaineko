@@ -23,7 +23,7 @@ import model.UIStyle;
 public class ThreadFrame extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	private Hariak hariak;
+	private Hariak hariak = new Hariak();
 	private boolean paused = false;
 	private boolean skipRestRequested = false;
 	private final Object pauseLock = new Object();
@@ -38,7 +38,7 @@ public class ThreadFrame extends JFrame {
 	private JLabel lblRutinaDeskribapena;
 	private JLabel lblRutinaSets;
 
-	public ThreadFrame(int level, String routineName, Boolean isTrainer, Boolean connect) {
+	public ThreadFrame(int level, String routineName, Boolean connect) {
 
 		setIconImage(Toolkit.getDefaultToolkit().getImage(ThreadFrame.class.getResource("/img/logo.png")));
 		setTitle(" Workout - " + routineName);
@@ -59,7 +59,7 @@ public class ThreadFrame extends JFrame {
 		UIStyle.styleIconButton(btnAtzera);
 		btnAtzera.addActionListener(e -> {
 			stopRequested = true;
-			Workouts workouts = new Workouts(isTrainer, connect);
+			Workouts workouts = new Workouts(connect);
 			workouts.setVisible(true);
 			dispose();
 		});
@@ -140,7 +140,7 @@ public class ThreadFrame extends JFrame {
 		UIStyle.addHoverEffect(btnAmaitu);
 		btnAmaitu.addActionListener(e -> {
 			stopRequested = true;
-			Workouts workoutsView = new Workouts(isTrainer, connect);
+			Workouts workoutsView = new Workouts(connect);
 			workoutsView.setVisible(true);
 			dispose();
 		});
@@ -148,7 +148,6 @@ public class ThreadFrame extends JFrame {
 		buttonPanel.add(btnAmaitu);
 		contentPane.add(buttonPanel);
 
-		hariak = new Hariak();
 		new Thread(() -> {
 			try {
 				RoutineData result = hariak.loadRoutine(level, routineName, connect);

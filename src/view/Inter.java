@@ -20,7 +20,7 @@ public class Inter extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 
-	public Inter(Boolean isTrainer, Boolean connect) {
+	public Inter(Boolean connect) {
 		Theme.apply();
 
 		setTitle("Ongi Etorri LRLL");
@@ -56,7 +56,7 @@ public class Inter extends JFrame {
 		btnWorkouts.setToolTipText("zure ariketak ikusi");
 		UIStyle.addHoverEffect(btnWorkouts);
 		btnWorkouts.addActionListener(e -> {
-			Workouts workouts = new Workouts(isTrainer, connect);
+			Workouts workouts = new Workouts(connect);
 			workouts.setVisible(true);
 			dispose();
 		});
@@ -65,7 +65,7 @@ public class Inter extends JFrame {
 		btnWorkouts.setIcon(new ImageIcon(scaledWorkoutImage));
 		btnWorkouts.setHorizontalAlignment(SwingConstants.CENTER);
 
-		gbc.gridx = 0;
+		gbc.gridx = 1;
 		gbc.gridy = 0;
 		gbc.weightx = 0.5;
 		gbc.weighty = 1.0;
@@ -78,6 +78,7 @@ public class Inter extends JFrame {
 
 		gbc.gridx = 1;
 		gbc.gridy = 1;
+		gbc.weightx = 0.0;
 		gbc.weighty = 0.0;
 		gbc.fill = GridBagConstraints.NONE;
 

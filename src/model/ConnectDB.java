@@ -134,7 +134,7 @@ public class ConnectDB {
 				if (entrenatzaileaDa == null)
 					entrenatzaileaDa = false;
 
-				Inter inter = new Inter(entrenatzaileaDa, connect);
+				Inter inter = new Inter(entrenatzaileaDa);
 				inter.setVisible(true);
 
 				CreateUserBackup createUserBackup = new CreateUserBackup();
@@ -184,13 +184,7 @@ public class ConnectDB {
 							return null;
 						}
 
-						boolean entrenatzaileaDa = false;
-						String isTrainerField = doc.fields.get("isTrainer");
-						if (isTrainerField != null) {
-							entrenatzaileaDa = Boolean.parseBoolean(isTrainerField);
-						}
-
-						Inter inter = new Inter(entrenatzaileaDa, connect);
+						Inter inter = new Inter(connect);
 						inter.setVisible(true);
 
 						CreateUserBackup createUserBackup = new CreateUserBackup();

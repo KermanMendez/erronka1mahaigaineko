@@ -32,7 +32,7 @@ public class Workouts extends JFrame {
 	private JLabel lblMailaAktuala;
 	private LoginFrame login = new LoginFrame(Boolean.TRUE);
 
-	public Workouts(Boolean isTrainer, Boolean connect) {
+	public Workouts(Boolean connect) {
 
 		Theme.apply();
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Workouts.class.getResource("/img/logo.png")));
@@ -56,7 +56,7 @@ public class Workouts extends JFrame {
 				.getImage().getScaledInstance(36, 36, java.awt.Image.SCALE_SMOOTH)));
 		UIStyle.styleIconButton(btnAtzera);
 		btnAtzera.addActionListener(e -> {
-			Inter inter = new Inter(isTrainer, connect);
+			Inter inter = new Inter(connect);
 			inter.setVisible(true);
 			dispose();
 		});
@@ -124,7 +124,7 @@ public class Workouts extends JFrame {
 		btnIkusiHistoria = new JButton("Ikusi historia");
 		btnIkusiHistoria.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ViewHistoric viewHistoric = new ViewHistoric(isTrainer, connect);
+				ViewHistoric viewHistoric = new ViewHistoric(connect);
 				viewHistoric.setVisible(true);
 				dispose();
 			}
@@ -140,7 +140,7 @@ public class Workouts extends JFrame {
 		UIStyle.addHoverEffect(btnHasiWorkout);
 		btnHasiWorkout.addActionListener(e -> {
 			ThreadFrame threadFrame = new ThreadFrame(comboMaila.getSelectedIndex() + 1,
-					comboMailaRutinakLevel.getSelectedItem().toString(), isTrainer, connect);
+					comboMailaRutinakLevel.getSelectedItem().toString(), connect);
 			threadFrame.setVisible(true);
 			dispose();
 		});
@@ -149,39 +149,8 @@ public class Workouts extends JFrame {
 		edukiontzia.add(bottom, java.awt.BorderLayout.SOUTH);
 
 		getContentPane().setBackground(UIStyle.BACKGROUND);
-
-		Runnable listaEguneratu = () -> {
-			int aukeratutakoMaila = comboMaila.getSelectedIndex() + 1;
-			Object selectedItem = comboMailaRutinakLevel.getSelectedItem();
-
-			if (selectedItem == null) {
-				return;
-			}
-
-			String nivelText = selectedItem.toString();
-
-			new Thread(() -> {
-				try {
-					String[] ariketak = routines.getLevels(aukeratutakoMaila, nivelText, connect);
-					SwingUtilities.invokeLater(() -> {
-						listaWorkout.setModel(new AbstractListModel<String>() {
-							private static final long serialVersionUID = 1L;
-							String[] balioak = ariketak;
-
-							public int getSize() {
-								return balioak.length;
-							}
-
-							public String getElementAt(int index) {
-								return balioak[index];
-							}
-						});
-					});
-				} catch (InterruptedException | ExecutionException ex) {
-					ex.printStackTrace();
-				}
-			}).start();
-		};
+		
+		Routines.updateRoutinesComboBox(comboMaila, comboMailaRutinakLevel, routines, connect, listaWorkout);
 
 		listaEguneratu.run();
 

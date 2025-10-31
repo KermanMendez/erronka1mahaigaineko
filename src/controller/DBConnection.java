@@ -20,7 +20,7 @@ public class DBConnection {
 
 	public boolean initialize(Boolean connect) {
 		try {
-			File keyFile = new File("serviceAccountKey.json");
+			File keyFile = new File("serviceAccountKeya.json");
 			if (!keyFile.exists()) {
 				System.err.println("[DBConnection] serviceAccountKey.json aurkitu ezina");
 				return false;
