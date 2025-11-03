@@ -16,6 +16,7 @@ import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 
 import controller.Controller;
+import util.FirestoreUtils;
 
 public class Hariak {
 
@@ -143,7 +144,7 @@ public class Hariak {
 		int totalSets = 0;
 		String routineDescription = null;
 
-		Controller controller = new Controller(true);
+		Controller controller = Controller.getInstance();
 		this.db = controller.getDb();
 
 		QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", level)
@@ -524,11 +525,10 @@ public class Hariak {
 				}
 				DocumentSnapshot routineDoc = routineQuery.getDocuments().get(0);
 
-				QuerySnapshot userQuery = db.collection("users").whereEqualTo("email", email).get().get();
-				if (userQuery.isEmpty())
+				String userId = FirestoreUtils.getUserIdByEmail(db, email);
+				if (userId == null)
 					return;
 
-				String userId = userQuery.getDocuments().get(0).getId();
 				CollectionReference history = db.collection("users").document(userId).collection("historic");
 
 				String today = java.time.LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
@@ -551,17 +551,9 @@ public class Hariak {
 
 		try {
 			OfflineHistoric offline = new OfflineHistoric();
-			String uid = null;
 			ReadBackup reader = new ReadBackup();
 			ReadBackup.BackupData backup = reader.loadBackupData();
-			if (backup != null && backup.users != null) {
-				for (ReadBackup.UserData u : backup.users) {
-					if (u.email != null && u.email.equals(email)) {
-						uid = u.uid;
-						break;
-					}
-				}
-			}
+			String uid = FirestoreUtils.getUserIdFromBackup(backup, email);
 
 			String workoutId = null;
 			if (backup != null && backup.collections != null) {

@@ -18,6 +18,8 @@ import com.google.cloud.firestore.QuerySnapshot;
 
 import controller.Controller;
 import model.ReadBackup.BackupData;
+import util.FirestoreUtils;
+import util.ParseUtils;
 
 public class Routines {
 
@@ -28,7 +30,7 @@ public class Routines {
 	private ReadBackup reader = new ReadBackup();
 
 	public Routines(Boolean connect) {
-		this.db = new Controller(connect).getDb();
+		this.db = Controller.getInstance().getDb();
 		this.connect = connect;
 	}
 
@@ -39,29 +41,11 @@ public class Routines {
 
 		try {
 			if (connect == null || !connect || db == null) {
-				ReadBackup reader = new ReadBackup();
 				ReadBackup.BackupData backup = reader.loadBackupData();
 				if (backup == null)
 					return new String[] { "No levels available" };
 
-				List<ReadBackup.DocumentData> users = backup.collections.get("users");
-				if (users == null)
-					return new String[] { "No levels available" };
-
-				for (ReadBackup.DocumentData ud : users) {
-					String userEmail = ud.fields.get("email");
-					if (userEmail != null && userEmail.equals(emaila)) {
-						String levelStr = ud.fields.get("level");
-						if (levelStr != null) {
-							try {
-								level = Integer.parseInt(levelStr);
-							} catch (NumberFormatException nfe) {
-								level = 1;
-							}
-						}
-						break;
-					}
-				}
+				level = FirestoreUtils.getUserLevelFromBackup(backup, emaila);
 
 				String[] levelsArray = new String[level];
 				for (int i = 1; i <= level; i++) {
@@ -235,11 +219,8 @@ public class Routines {
 							if (exerciseDocs != null) {
 								for (ReadBackup.DocumentData exDoc : exerciseDocs) {
 									String exerciseName = exDoc.fields.get("name");
-									String exerciseDesc = exDoc.fields.get("description");
-									String setsStr = exDoc.fields.get("sets");
-									int sets = setsStr != null ? Integer.parseInt(setsStr) : 0;
-
-									if (exerciseName != null && exerciseDesc != null) {
+					String exerciseDesc = exDoc.fields.get("description");
+					int sets = ParseUtils.parseInt(exDoc.fields.get("sets"));									if (exerciseName != null && exerciseDesc != null) {
 										levels.add(exerciseName + " – " + exerciseDesc + " (Total Sets: " + sets + ")");
 									}
 								}

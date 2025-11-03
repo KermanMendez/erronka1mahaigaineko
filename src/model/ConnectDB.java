@@ -29,6 +29,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import util.DateUtils;
 import view.Inter;
 
 public class ConnectDB {
@@ -37,7 +38,6 @@ public class ConnectDB {
 			: DEFAULT_API_KEY;
 	private static final OkHttpClient HTTP_BEZEROA = new OkHttpClient();
 	private static final MediaType JSON_MEDIA = MediaType.parse("application/json; charset=utf-8");
-	private static final java.text.SimpleDateFormat DATA_FORMATUA = new java.text.SimpleDateFormat("dd/MM/yyyy");
 
 	private ReadBackup reader = new ReadBackup();
 
@@ -48,7 +48,7 @@ public class ConnectDB {
 			JOptionPane.showMessageDialog(null, "Datu Guztiak Bete.", "Errorea", JOptionPane.INFORMATION_MESSAGE);
 			return null;
 		}
-		String birthdateString = DATA_FORMATUA.format(birthdate);
+		String birthdateString = DateUtils.formatDate(birthdate);
 		try {
 			createUser(izena, abizena1, abizena2, email, password, birthdateString, isTrainer, connect);
 			JOptionPane.showMessageDialog(null, "Registratu zara", "Login", JOptionPane.INFORMATION_MESSAGE);
@@ -78,7 +78,7 @@ public class ConnectDB {
 	public void createUser(String name, String surname1, String surname2, String email, String password,
 			String birthdate, Boolean isTrainer, Boolean connect) throws Exception {
 
-		Controller controller = new Controller(connect);
+		Controller controller = Controller.getInstance();
 		Firestore db = controller.getDb();
 		int level = 1;
 
@@ -105,7 +105,8 @@ public class ConnectDB {
 		String email = textFieldUser.getText().trim();
 		String password = new String(passwordField.getPassword());
 
-		Controller controller = new Controller(connect);
+		// Usar el Controller singleton en lugar de crear uno nuevo
+		Controller controller = Controller.getInstance();
 		Firestore db = controller.getDb();
 
 		if (email.isEmpty() || password.isEmpty()) {
@@ -115,8 +116,8 @@ public class ConnectDB {
 		}
 
 		try {
-			if (connect) {
-				// Online
+			if (connect && db != null) {
+				// Online (solo si DB está disponible)
 				String uid = checkLogin(email, password);
 				if (uid == null) {
 					JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.", "Errorea",

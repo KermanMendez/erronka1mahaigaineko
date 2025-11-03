@@ -10,25 +10,18 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import util.CryptoUtils;
+
 public class CreateUserBackup {
 
 	private final String FICHERO = "user.dat";
-	private final byte CLAVE = 0x5A;
-
-	private byte[] xorBytes(byte[] data) {
-		byte[] result = new byte[data.length];
-		for (int i = 0; i < data.length; i++) {
-			result[i] = (byte) (data[i] ^ CLAVE);
-		}
-		return result;
-	}
 
 	public void saveEmail(String email) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
 			oos.writeObject(email);
 		}
-		byte[] encryptedData = xorBytes(baos.toByteArray());
+		byte[] encryptedData = CryptoUtils.xorBytes(baos.toByteArray());
 
 		try (FileOutputStream fos = new FileOutputStream(FICHERO)) {
 			fos.write(encryptedData);
@@ -43,7 +36,7 @@ public class CreateUserBackup {
 
 		try {
 			byte[] fileBytes = Files.readAllBytes(Paths.get(FICHERO));
-			byte[] decryptedData = xorBytes(fileBytes);
+			byte[] decryptedData = CryptoUtils.xorBytes(fileBytes);
 			try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decryptedData))) {
 				Object obj = ois.readObject();
 				if (obj instanceof String) {

@@ -9,7 +9,7 @@ public class EditProfile {
 
 	public boolean updateUserDocument(String email, String name, String surname1, String surname2, String birthdate) {
 		try {
-			Controller controller = new Controller(true);
+			Controller controller = Controller.getInstance();
 			com.google.cloud.firestore.Firestore db = controller.getDb();
 			if (db == null)
 				return false;
@@ -41,7 +41,7 @@ public class EditProfile {
 			return true;
 
 		try {
-			Controller controller = new Controller(true);
+			Controller controller = Controller.getInstance();
 			com.google.cloud.firestore.Firestore db = controller.getDb();
 			if (db == null)
 				return false;
@@ -77,10 +77,13 @@ public class EditProfile {
 					return;
 				}
 
-				controller.Controller controller = new controller.Controller(true);
-				com.google.cloud.firestore.Firestore db = controller.getDb();
-				if (db == null)
+				controller.Controller ctrl = controller.Controller.getInstance();
+				com.google.cloud.firestore.Firestore db = ctrl.getDb();
+				
+				if (db == null) {
+					System.err.println("[EditProfile] No hay conexión a Firebase");
 					return;
+				}
 
 				com.google.cloud.firestore.QuerySnapshot query = db.collection("users").whereEqualTo("email", email)
 						.get().get();

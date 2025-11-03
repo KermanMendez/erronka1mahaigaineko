@@ -30,8 +30,9 @@ public class DBConnection {
 				FirebaseOptions options = FirebaseOptions.builder()
 						.setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
 
+				// Test de conexión con timeout reducido (1 segundo en lugar de 3)
 				try (Socket s = new Socket()) {
-					s.connect(new InetSocketAddress("firestore.googleapis.com", 443), 3000);
+					s.connect(new InetSocketAddress("firestore.googleapis.com", 443), 1000);
 				} catch (IOException ex) {
 					System.err.println("[DBConnection] Ezin izan da Firestore-era konektatu: " + ex.getMessage());
 					return false;

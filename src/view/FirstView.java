@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -13,13 +12,11 @@ import javax.swing.SwingConstants;
 
 import controller.Controller;
 import model.LoadLogo;
-import model.Theme;
 import model.UIStyle;
 
 public class FirstView extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	private static ImageIcon logo;
 	private JPanel contentPane;
 	private LoadLogo loadLogo = new LoadLogo();
 
@@ -27,7 +24,7 @@ public class FirstView extends JFrame {
 
 	public FirstView(Boolean connect) {
 		this.controller = Controller.getInstance();
-		Theme.apply();
+		// Theme.apply() ya se llama en MainApp, no es necesario repetirlo
 
 		setTitle("LONG RING LONG LAND GYM");
 		setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/img/logo.png")));
@@ -38,7 +35,8 @@ public class FirstView extends JFrame {
 		setContentPane(contentPane);
 
 		JLabel labelLogo = new JLabel("");
-		labelLogo.setIcon(loadLogo.getLogo(logo));
+		// Usar el logo cacheado para mejorar el rendimiento
+		labelLogo.setIcon(loadLogo.getLogo());
 		labelLogo.setHorizontalAlignment(SwingConstants.CENTER);
 		UIStyle.styleLabel(labelLogo, true);
 		contentPane.add(labelLogo, BorderLayout.CENTER);

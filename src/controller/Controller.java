@@ -28,22 +28,16 @@ public class Controller {
 	}
 
 	public Controller(Boolean connect) {
-
-		this.dbConnection = new DBConnection();
-		db = getFirestore();
-		setDbConnection(this.dbConnection);
+		// No inicializar DBConnection hasta que sea necesario (lazy loading)
+		// Esto acelera el inicio de la aplicación
+		this.online = false;
 	}
 
 	public void onOnline() {
 		try {
-			if (this.dbConnection == null) {
-				this.dbConnection = new DBConnection();
-			}
-			boolean ok = this.dbConnection.initialize(true);
-			if (ok) {
+			if (this.dbConnection != null && this.dbConnection.isInitialized()) {
 				this.db = getFirestore();
 			}
-			setDbConnection(this.dbConnection);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

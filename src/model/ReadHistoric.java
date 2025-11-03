@@ -5,13 +5,14 @@ import java.util.concurrent.ExecutionException;
 
 import com.google.cloud.firestore.*;
 import controller.Controller;
+import util.ParseUtils;
 
 public class ReadHistoric {
 
 	private final Firestore db;
 
 	public ReadHistoric(Boolean connect) {
-		this.db = new Controller(connect).getDb();
+		this.db = Controller.getInstance().getDb();
 	}
 
 	public String[] getHistoric(int aukeratutakoMaila, String rutinarenIzena, Boolean connect)
@@ -66,12 +67,11 @@ public class ReadHistoric {
 	private void addEntryIfMatch(List<String> list, Firestore db, DocumentSnapshot exerciseDoc, String rutinarenIzena)
 			throws InterruptedException, ExecutionException {
 
-		String exerciseCompleted = exerciseDoc.getBoolean("completed") != null && exerciseDoc.getBoolean("completed")
-				? "Bai"
-				: "Ez";
+		String exerciseCompleted = ParseUtils.booleanToEuskera(
+				exerciseDoc.getBoolean("completed") != null && exerciseDoc.getBoolean("completed"));
 		String exerciseDate = exerciseDoc.getString("date");
-		int totalSets = getIntValue(exerciseDoc.getLong("totalSets"));
-		int totalTime = getIntValue(exerciseDoc.getLong("totalTime"));
+		int totalSets = ParseUtils.getIntValue(exerciseDoc.getLong("totalSets"));
+		int totalTime = ParseUtils.getIntValue(exerciseDoc.getLong("totalTime"));
 		String workoutId = exerciseDoc.getString("workoutId");
 		String workoutName = workoutId;
 
@@ -151,10 +151,10 @@ public class ReadHistoric {
 				if (!String.valueOf(level).equals(fields.get("level")))
 					continue;
 
-				String exerciseCompleted = parseCompleted(fields.get("completed"));
+				String exerciseCompleted = ParseUtils.booleanToEuskera(ParseUtils.parseBoolean(fields.get("completed")));
 				String exerciseDate = fields.get("date");
-				int totalSets = parseInt(fields.get("totalSets"), fields.get("totalReps"));
-				int totalTime = parseInt(fields.get("totalTime"));
+				int totalSets = ParseUtils.parseIntFirstValid(fields.get("totalSets"), fields.get("totalReps"));
+				int totalTime = ParseUtils.parseInt(fields.get("totalTime"));
 				String workoutId = fields.get("workoutId");
 				String workoutName = workoutId;
 
@@ -170,7 +170,7 @@ public class ReadHistoric {
 								List<ReadBackup.DocumentData> exerciseDocs = wd.subcollections.get("exercises");
 								if (exerciseDocs != null) {
 									for (ReadBackup.DocumentData exd : exerciseDocs) {
-										totalSetsInWorkout += parseInt(exd.fields.get("sets"));
+										totalSetsInWorkout += ParseUtils.parseInt(exd.fields.get("sets"));
 									}
 								}
 								break;
@@ -203,26 +203,5 @@ public class ReadHistoric {
 		return result;
 	}
 
-	private static int getIntValue(Long val) {
-		return val != null ? val.intValue() : 0;
-	}
 
-	private static int parseInt(String... vals) {
-		for (String v : vals) {
-			if (v != null) {
-				try {
-					return Integer.parseInt(v.trim());
-				} catch (NumberFormatException ignored) {
-				}
-			}
-		}
-		return 0;
-	}
-
-	private static String parseCompleted(String val) {
-		if (val == null)
-			return "Ez";
-		val = val.trim().toLowerCase();
-		return (val.equals("true") || val.equals("bai") || val.equals("yes")) ? "Bai" : "Ez";
-	}
 }

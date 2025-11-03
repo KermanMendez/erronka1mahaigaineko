@@ -13,7 +13,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -27,29 +26,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.ListUsersPage;
 
 import controller.Controller;
+import util.CryptoUtils;
 
 public class CreateBackup {
 
 	private final String FICHERO = "backup.dat";
-	private final byte CLAVE = 0x5A;
 	private Firestore db;
-
-	private byte[] xorBytes(byte[] data) {
-		byte[] result = new byte[data.length];
-		for (int i = 0; i < data.length; i++) {
-			result[i] = (byte) (data[i] ^ CLAVE);
-		}
-		return result;
-	}
-
-	private String xorEncrypt(String text) {
-		byte[] data = text.getBytes();
-		byte[] result = new byte[data.length];
-		for (int i = 0; i < data.length; i++) {
-			result[i] = (byte) (data[i] ^ CLAVE);
-		}
-		return Base64.getEncoder().encodeToString(result);
-	}
 
 	public void saveBackup(Boolean connect) {
 
@@ -59,16 +41,23 @@ public class CreateBackup {
 				return;
 			}
 
-			Controller controller = new Controller(connect);
+			// Usar el Controller singleton existente en lugar de crear uno nuevo
+			Controller controller = Controller.getInstance();
 			db = controller.getDb();
+			
+			// Verificar que la DB está disponible
+			if (db == null) {
+				System.err.println("[ERROR] Firestore DB no está disponible. No se puede hacer backup.");
+				return;
+			}
 
 			try {
 				List<String> lines = new ArrayList<>();
 
 				ListUsersPage page = FirebaseAuth.getInstance().listUsers(null);
 				for (ExportedUserRecord user : page.getValues()) {
-					lines.add("USER_UID:" + xorEncrypt(user.getUid()));
-					lines.add("USER_EMAIL:" + xorEncrypt(user.getEmail() != null ? user.getEmail() : ""));
+					lines.add("USER_UID:" + CryptoUtils.xorEncrypt(user.getUid()));
+					lines.add("USER_EMAIL:" + CryptoUtils.xorEncrypt(user.getEmail() != null ? user.getEmail() : ""));
 				}
 
 				Iterable<CollectionReference> collections = db.listCollections();
@@ -82,7 +71,7 @@ public class CreateBackup {
 				ObjectOutputStream oos = new ObjectOutputStream(baos);
 				oos.writeObject(lines);
 				oos.close();
-				byte[] encrypted = xorBytes(baos.toByteArray());
+				byte[] encrypted = CryptoUtils.xorBytes(baos.toByteArray());
 				try (FileOutputStream fos = new FileOutputStream(FICHERO)) {
 					fos.write(encrypted);
 				}
@@ -134,7 +123,7 @@ public class CreateBackup {
 			Map<String, Object> data = document.getData();
 			for (Map.Entry<String, Object> entry : data.entrySet()) {
 				String value = entry.getValue() != null ? entry.getValue().toString() : "";
-				lines.add(indent + "FIELD:" + entry.getKey() + "=" + xorEncrypt(value));
+				lines.add(indent + "FIELD:" + entry.getKey() + "=" + CryptoUtils.xorEncrypt(value));
 			}
 
 			Iterable<CollectionReference> subcollections = document.getReference().listCollections();

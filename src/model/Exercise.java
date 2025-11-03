@@ -1,5 +1,7 @@
 package model;
 
+import util.ParseUtils;
+
 public class Exercise {
 
 	private String name;
@@ -81,46 +83,19 @@ public class Exercise {
 	}
 
 	public int setSets(Object sets) {
-		return this.sets = convertToInt(sets);
+		return this.sets = ParseUtils.parseInt(sets);
 	}
 
 	public int setReps(Object reps) {
-		return this.reps = convertToInt(reps);
+		return this.reps = ParseUtils.parseInt(reps);
 	}
 
 	public int setSerieTime(Object serieTime) {
-		return this.serieTime = convertToInt(serieTime);
+		return this.serieTime = ParseUtils.parseInt(serieTime);
 	}
 
 	public int setRestTimeSec(Object object) {
-		return this.restTime = convertToInt(object);
-	}
-
-	private int convertToInt(Object value) {
-		if (value == null) {
-			return 0;
-		}
-
-		if (value instanceof Number) {
-			return ((Number) value).intValue();
-		}
-
-		if (value instanceof String) {
-			String strValue = ((String) value).trim();
-			if (strValue.isEmpty()) {
-				return 0;
-			}
-			try {
-				return Integer.parseInt(strValue);
-			} catch (NumberFormatException e) {
-				System.out.println("Warning: Could not parse '" + strValue + "' as integer, using 0");
-				return 0;
-			}
-		}
-
-		System.out.println(
-				"Warning: Unexpected type " + value.getClass().getSimpleName() + " for numeric field, using 0");
-		return 0;
+		return this.restTime = ParseUtils.parseInt(object);
 	}
 
 	@Override

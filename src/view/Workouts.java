@@ -148,17 +148,14 @@ public class Workouts extends JFrame {
 
 		getContentPane().setBackground(UIStyle.BACKGROUND);
 
-		// Cargar lista inicial
 		Routines.updateWorkoutList(comboMaila, comboMailaRutinakLevel, connect, listaWorkout, false);
 
-		// Listener para cambio de nivel
 		comboMaila.addActionListener(e -> {
 			int aukeratutakoMaila = comboMaila.getSelectedIndex() + 1;
 			lblMailaAktuala.setText("Maila: " + aukeratutakoMaila);
 			Routines.updateRoutinesComboBox(comboMaila, comboMailaRutinakLevel, routines, connect, listaWorkout, false);
 		});
 
-		// Listener para cambio de rutina
 		comboMailaRutinakLevel.addActionListener(e -> {
 			Routines.updateWorkoutList(comboMaila, comboMailaRutinakLevel, connect, listaWorkout, false);
 		});
