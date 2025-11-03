@@ -125,11 +125,14 @@ public class EditProfile {
 		}).start();
 	}
 
-	public void showMessage(Boolean dbOk, Boolean pwdOk, String name, String surname, String dob) {
+	public void showMessage(Boolean dbOk, Boolean pwdOk, String name, String surname, String dob, Runnable onSuccess) {
 		if (dbOk && pwdOk) {
 			javax.swing.SwingUtilities.invokeLater(() -> {
 				JOptionPane.showMessageDialog(null, "Profila ondo eguneratuta.\nIzena: " + name + "\nAbizenak: "
 						+ surname + "\nJaiotze Data: " + dob, "Gordeta", JOptionPane.INFORMATION_MESSAGE);
+				if (onSuccess != null) {
+					onSuccess.run();
+				}
 			});
 		} else {
 			javax.swing.SwingUtilities.invokeLater(() -> {
@@ -153,8 +156,7 @@ public class EditProfile {
 
 		if (!pwd.isEmpty() || !pwd2.isEmpty()) {
 			if (!pwd.equals(pwd2)) {
-				JOptionPane.showMessageDialog(null, "Pasahitzak ez dira berdinak.", "Error",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, "Pasahitzak ez dira berdinak.", "Error", JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
 			if (pwd.length() < 6) {

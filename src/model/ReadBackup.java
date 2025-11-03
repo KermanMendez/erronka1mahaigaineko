@@ -39,7 +39,7 @@ public class ReadBackup {
 		}
 	}
 
-	public static class DocumentData {
+	public class DocumentData {
 		public String id;
 		public Map<String, String> fields = new HashMap<>();
 		public Map<String, List<DocumentData>> subcollections = new HashMap<>();
@@ -50,7 +50,7 @@ public class ReadBackup {
 		}
 	}
 
-	public static class BackupData {
+	public class BackupData {
 		public List<UserData> users = new ArrayList<>();
 		public Map<String, List<DocumentData>> collections = new HashMap<>();
 

@@ -34,10 +34,6 @@ public class User implements Serializable {
 		this.password = password;
 	}
 
-	/**
-	 * Convenience constructor used by EditProfile.validateChanges.
-	 * birthDateStr expected in dd/MM/yyyy format; if invalid, birthDate will be null.
-	 */
 	public User(String name, String surname, String surname2, String password, String birthDateStr) {
 		this.name = name;
 		this.surname = surname;

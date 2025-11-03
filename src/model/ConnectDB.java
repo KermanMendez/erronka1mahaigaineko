@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import controller.Controller;
+import model.ReadBackup.BackupData;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -37,6 +38,8 @@ public class ConnectDB {
 	private static final OkHttpClient HTTP_BEZEROA = new OkHttpClient();
 	private static final MediaType JSON_MEDIA = MediaType.parse("application/json; charset=utf-8");
 	private static final java.text.SimpleDateFormat DATA_FORMATUA = new java.text.SimpleDateFormat("dd/MM/yyyy");
+
+	private ReadBackup reader = new ReadBackup();
 
 	public Boolean eskaeraRegistratu(String izena, String abizena1, String abizena2, String email, String password,
 			Date birthdate, Boolean isTrainer, Boolean connect) {
@@ -81,8 +84,6 @@ public class ConnectDB {
 
 		if (isTrainer) {
 			level = 5;
-		} else {
-			level = 1;
 		}
 
 		String hashedPassword = hashPassword(password);
@@ -144,8 +145,7 @@ public class ConnectDB {
 
 			} else {
 				// Offline
-				ReadBackup reader = new ReadBackup();
-				ReadBackup.BackupData backup = reader.loadBackupData();
+				BackupData backup = reader.loadBackupData();
 				if (backup == null)
 					return null;
 

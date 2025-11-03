@@ -335,10 +335,42 @@ public class Hariak {
 		}
 	}
 
+	public void executeWorkout(int level, String routineName, Boolean connect, JLabel labelTotal, JLabel labelSeries,
+			JLabel labelDescansos, JLabel labelHasiera, JLabel lblRutinaDeskribapena, JLabel lblRutinaSets,
+			Supplier<Boolean> stopSupplier, Supplier<Boolean> skipSupplier, Supplier<Boolean> pauseSupplier,
+			Object lock, Runnable onWorkoutFinished) {
+
+		new Thread(() -> {
+			try {
+				RoutineData result = loadRoutine(level, routineName, connect);
+				List<Exercise> exercises = result.getExercises();
+				String desc = result.getDescription();
+				int totalSets = result.getTotalSets();
+
+				final String description = (desc == null || desc.trim().isEmpty()) ? "Ez da deskripziorik aurkitu"
+						: desc;
+				final int finalTotalSets = totalSets;
+
+				SwingUtilities.invokeLater(() -> {
+					if (lblRutinaDeskribapena != null)
+						lblRutinaDeskribapena.setText(description);
+					if (lblRutinaSets != null)
+						lblRutinaSets.setText("Serieak: " + finalTotalSets);
+				});
+
+				startExerciseThreads(exercises, labelTotal, labelSeries, labelDescansos, labelHasiera, stopSupplier,
+						skipSupplier, pauseSupplier, lock, routineName, true, true, true, onWorkoutFinished);
+
+			} catch (InterruptedException | ExecutionException ex) {
+				ex.printStackTrace();
+			}
+		}).start();
+	}
+
 	public void startExerciseThreads(List<Exercise> exercises, JLabel labelTotal, JLabel labelSeries,
 			JLabel labelDescansos, JLabel labelHasiera, Supplier<Boolean> stopSupplier, Supplier<Boolean> skipSupplier,
 			Supplier<Boolean> pauseSupplier, Object lock, String routineName, boolean thread1, boolean thread2,
-			boolean thread3) {
+			boolean thread3, Runnable onWorkoutFinished) {
 
 		new Thread(() -> {
 			try {
@@ -413,10 +445,23 @@ public class Hariak {
 						pct = (popupCompletedSets * 100.0) / popupExpectedSets;
 					}
 					final String pctStr = String.format("%.1f", pct).replace('.', ',');
-					SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null,
-							"Rutina amaitu da! Denbora totala: " + popupTime + " seg\nSeries egindakoak: "
-									+ popupCompletedSets + " / " + popupExpectedSets + " (" + pctStr + "%)"));
+					SwingUtilities.invokeLater(() -> {
+						JOptionPane.showMessageDialog(null,
+								"Rutina amaitu da! Denbora totala: " + popupTime + " seg\nSeries egindakoak: "
+										+ popupCompletedSets + " / " + popupExpectedSets + " (" + pctStr + "%)");
+						// Ejecutar el callback después de cerrar el popup
+						if (onWorkoutFinished != null) {
+							onWorkoutFinished.run();
+						}
+					});
 					historyLog(routineName);
+				} else {
+					// Si no se completó ningún set, ejecutar el callback inmediatamente
+					SwingUtilities.invokeLater(() -> {
+						if (onWorkoutFinished != null) {
+							onWorkoutFinished.run();
+						}
+					});
 				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();

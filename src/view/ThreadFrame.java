@@ -4,8 +4,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -15,9 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import model.Exercise;
 import model.Hariak;
-import model.RoutineData;
 import model.UIStyle;
 
 public class ThreadFrame extends JFrame {
@@ -52,15 +48,14 @@ public class ThreadFrame extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		// Botón atrás
 		JButton btnAtzera = new JButton(new ImageIcon(new ImageIcon(getClass().getResource("/img/atzera.png"))
 				.getImage().getScaledInstance(36, 36, java.awt.Image.SCALE_SMOOTH)));
 		btnAtzera.setBounds(10, 10, 36, 36);
 		UIStyle.styleIconButton(btnAtzera);
 		btnAtzera.addActionListener(e -> {
+			// Solo marcar como detenido y cerrar sin abrir Workouts
+			// (el usuario no completó el workout)
 			stopRequested = true;
-			Workouts workouts = new Workouts(connect);
-			workouts.setVisible(true);
 			dispose();
 		});
 		contentPane.add(btnAtzera);
@@ -140,39 +135,22 @@ public class ThreadFrame extends JFrame {
 		UIStyle.addHoverEffect(btnAmaitu);
 		btnAmaitu.addActionListener(e -> {
 			stopRequested = true;
-			Workouts workoutsView = new Workouts(connect);
-			workoutsView.setVisible(true);
-			dispose();
 		});
 
 		buttonPanel.add(btnAmaitu);
 		contentPane.add(buttonPanel);
 
-		new Thread(() -> {
-			try {
-				RoutineData result = hariak.loadRoutine(level, routineName, connect);
-				List<Exercise> exercises = result.getExercises();
-				String desc = result.getDescription();
-				int totalSets = result.getTotalSets();
-
-				final String description = (desc == null || desc.trim().isEmpty()) ? "Ez da deskripziorik aurkitu"
-						: desc;
-				final int finalTotalSets = totalSets;
-				javax.swing.SwingUtilities.invokeLater(() -> {
-					lblRutinaDeskribapena.setText(description);
-					lblRutinaSets.setText("Serieak: " + finalTotalSets);
+		hariak.executeWorkout(level, routineName, connect, labelTotala, labelSerieak, labelAtsedenak, labelHasiera,
+				lblRutinaDeskribapena, lblRutinaSets, () -> stopRequested, () -> {
+					if (skipRestRequested) {
+						skipRestRequested = false;
+						return true;
+					}
+					return false;
+				}, () -> paused, pauseLock, () -> {
+					Workouts workouts = new Workouts(connect);
+					workouts.setVisible(true);
+					dispose();
 				});
-				hariak.startExerciseThreads(exercises, labelTotala, labelSerieak, labelAtsedenak, labelHasiera,
-						() -> stopRequested, () -> {
-							if (skipRestRequested) {
-								skipRestRequested = false;
-								return true;
-							}
-							return false;
-						}, () -> paused, pauseLock, routineName, true, true, true);
-			} catch (InterruptedException | ExecutionException ex) {
-				ex.printStackTrace();
-			}
-		}).start();
 	}
 }

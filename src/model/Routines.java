@@ -17,13 +17,15 @@ import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 
 import controller.Controller;
+import model.ReadBackup.BackupData;
 
 public class Routines {
 
 	private final Firestore db;
 	private final Boolean connect;
 	private final DefaultListModel<String> listModel = new DefaultListModel<>();
-	CreateUserBackup createUserBackup = new CreateUserBackup();
+	private CreateUserBackup createUserBackup = new CreateUserBackup();
+	private ReadBackup reader = new ReadBackup();
 
 	public Routines(Boolean connect) {
 		this.db = new Controller(connect).getDb();
@@ -218,8 +220,7 @@ public class Routines {
 
 			return levels.toArray(new String[0]);
 		} else {
-			ReadBackup reader = new ReadBackup();
-			ReadBackup.BackupData backup = reader.loadBackupData();
+			BackupData backup = reader.loadBackupData();
 
 			List<String> levels = new ArrayList<>();
 
@@ -333,6 +334,6 @@ public class Routines {
 			}
 		}).start();
 	}
-	
+
 	
 }

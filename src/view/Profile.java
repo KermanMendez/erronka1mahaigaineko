@@ -40,7 +40,7 @@ public class Profile extends JFrame {
 
 	private EditProfile editProfile = new EditProfile();
 
-	public Profile() {
+	public Profile(Boolean connect) {
 		Theme.apply();
 
 		setTitle("Erabiltzailearen Profila");
@@ -194,7 +194,11 @@ public class Profile extends JFrame {
 		JButton btnCancel = new JButton("Ezeztatu");
 		UIStyle.styleButton(btnCancel);
 		UIStyle.addHoverEffect(btnCancel);
-		btnCancel.addActionListener((ActionEvent e) -> dispose());
+		btnCancel.addActionListener((ActionEvent e) -> {
+			Inter inter = new Inter(connect);
+			inter.setVisible(true);
+			dispose();
+		});
 
 		JButton btnSave = new JButton("Gorde");
 		UIStyle.styleButton(btnSave);
@@ -229,7 +233,11 @@ public class Profile extends JFrame {
 				}
 
 				editProfile.showMessage(dbOk, pwdOk, userProfile.getName(), userProfile.getFullSurname(),
-						userProfile.getDobString());
+						userProfile.getDobString(), () -> {
+							Inter inter = new Inter(connect);
+							inter.setVisible(true);
+							dispose();
+						});
 
 			}).start();
 		});
@@ -239,7 +247,7 @@ public class Profile extends JFrame {
 
 		contentPane.add(buttons, BorderLayout.SOUTH);
 
-	editProfile.loadProfileFromDb(tfName, tfSurname1, tfSurname2, tfDob);
+		editProfile.loadProfileFromDb(tfName, tfSurname1, tfSurname2, tfDob);
 
 	}
 }
