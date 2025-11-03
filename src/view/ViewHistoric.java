@@ -15,7 +15,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import model.ReadHistoric;
 import model.Routines;
 import model.Theme;
 import model.UIStyle;
@@ -33,7 +32,6 @@ public class ViewHistoric extends JFrame {
 		Theme.apply();
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Workouts.class.getResource("/img/logo.png")));
 		Routines routines = new Routines(connect);
-		ReadHistoric readHistoric = new ReadHistoric(connect);
 		setTitle("Historic Workouts");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(700, 480);
@@ -117,16 +115,17 @@ public class ViewHistoric extends JFrame {
 
 		comboMaila.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Routines.updateRoutinesComboBox(comboMaila, comboMailaRutinakLevel, routines, connect, listaWorkout);
+				Routines.updateRoutinesComboBox(comboMaila, comboMailaRutinakLevel, routines, connect, listaWorkout,
+						true);
 			}
 		});
 
 		comboMailaRutinakLevel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Routines.updateWorkoutList(comboMaila, comboMailaRutinakLevel, readHistoric, connect, listaWorkout);
+				Routines.updateWorkoutList(comboMaila, comboMailaRutinakLevel, connect, listaWorkout, true);
 			}
 		});
-		
-		Routines.updateWorkoutList(comboMaila, comboMailaRutinakLevel, readHistoric, connect, listaWorkout);
+
+		Routines.updateWorkoutList(comboMaila, comboMailaRutinakLevel, connect, listaWorkout, true);
 	}
 }

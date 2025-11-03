@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.ExecutionException;
 
-import javax.swing.AbstractListModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -15,7 +14,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
 
 import model.Routines;
 import model.Theme;
@@ -150,60 +148,19 @@ public class Workouts extends JFrame {
 
 		getContentPane().setBackground(UIStyle.BACKGROUND);
 
-		Runnable listaEguneratu = () -> {
-			int aukeratutakoMaila = comboMaila.getSelectedIndex() + 1;
-			Object selectedItem = comboMailaRutinakLevel.getSelectedItem();
+		// Cargar lista inicial
+		Routines.updateWorkoutList(comboMaila, comboMailaRutinakLevel, connect, listaWorkout, false);
 
-			if (selectedItem == null) {
-				return;
-			}
-
-			String nivelText = selectedItem.toString();
-
-			new Thread(() -> {
-				try {
-					String[] ariketak = routines.getLevels(aukeratutakoMaila, nivelText, connect);
-					SwingUtilities.invokeLater(() -> {
-						listaWorkout.setModel(new AbstractListModel<String>() {
-							private static final long serialVersionUID = 1L;
-							String[] balioak = ariketak;
-
-							public int getSize() {
-								return balioak.length;
-							}
-
-							public String getElementAt(int index) {
-								return balioak[index];
-							}
-						});
-					});
-				} catch (InterruptedException | ExecutionException ex) {
-					ex.printStackTrace();
-				}
-			}).start();
-		};
-
-		listaEguneratu.run();
-
+		// Listener para cambio de nivel
 		comboMaila.addActionListener(e -> {
 			int aukeratutakoMaila = comboMaila.getSelectedIndex() + 1;
 			lblMailaAktuala.setText("Maila: " + aukeratutakoMaila);
-
-			new Thread(() -> {
-				try {
-					String[] workouts = routines.getRoutines(aukeratutakoMaila, connect);
-					SwingUtilities.invokeLater(() -> {
-						comboMailaRutinakLevel.setModel(new DefaultComboBoxModel<>(workouts));
-						listaEguneratu.run();
-					});
-				} catch (InterruptedException | ExecutionException ex) {
-					ex.printStackTrace();
-				}
-			}).start();
+			Routines.updateRoutinesComboBox(comboMaila, comboMailaRutinakLevel, routines, connect, listaWorkout, false);
 		});
 
+		// Listener para cambio de rutina
 		comboMailaRutinakLevel.addActionListener(e -> {
-			listaEguneratu.run();
+			Routines.updateWorkoutList(comboMaila, comboMailaRutinakLevel, connect, listaWorkout, false);
 		});
 	}
 }

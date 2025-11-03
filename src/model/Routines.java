@@ -261,14 +261,20 @@ public class Routines {
 		return listModel;
 	}
 
+	/**
+	 * Actualiza el comboBox de rutinas cuando cambia el nivel
+	 * @param isHistoric true para ViewHistoric, false para Workouts
+	 */
 	public static void updateRoutinesComboBox(JComboBox<String> comboMaila, JComboBox<String> comboMailaRutinakLevel,
-			Routines routines, Boolean connect, JList<String> listaWorkout) {
-		ReadHistoric readHistoric = new ReadHistoric(connect);
+			Routines routines, Boolean connect, JList<String> listaWorkout, boolean isHistoric) {
+		
 		int aukeratutakoMaila = comboMaila.getSelectedIndex() + 1;
+		
 		new Thread(() -> {
 			try {
 				String[] routinesForLevel = routines.getRoutines(aukeratutakoMaila, connect);
 				final String[] chosenRoutine = new String[1];
+				
 				SwingUtilities.invokeLater(() -> {
 					comboMailaRutinakLevel.setModel(new DefaultComboBoxModel<>(routinesForLevel));
 					if (routinesForLevel != null && routinesForLevel.length > 0) {
@@ -284,56 +290,68 @@ public class Routines {
 				String rutinarenIzenaToUse = chosenRoutine[0] != null && !chosenRoutine[0].isEmpty() ? chosenRoutine[0]
 						: (comboMailaRutinakLevel.getItemCount() > 0 ? comboMailaRutinakLevel.getItemAt(0) : "");
 
-				String[] ariketak = readHistoric.getHistoric(aukeratutakoMaila, rutinarenIzenaToUse, connect);
-				SwingUtilities.invokeLater(() -> {
-					listaWorkout.setModel(new AbstractListModel<String>() {
-						private static final long serialVersionUID = 1L;
-						String[] balioak = ariketak;
-
-						public int getSize() {
-							return balioak.length;
-						}
-
-						public String getElementAt(int index) {
-							return balioak[index];
-						}
-					});
-				});
+				// Cargar lista según el tipo de vista
+				updateList(aukeratutakoMaila, rutinarenIzenaToUse, connect, listaWorkout, isHistoric);
+				
 			} catch (InterruptedException | ExecutionException ex) {
 				ex.printStackTrace();
 			}
 		}).start();
-
 	}
 
+	/**
+	 * Actualiza la lista cuando cambia la rutina seleccionada
+	 * @param isHistoric true para ViewHistoric, false para Workouts
+	 */
 	public static void updateWorkoutList(JComboBox<String> comboMaila, JComboBox<String> comboMailaRutinakLevel,
-			ReadHistoric readHistoric, Boolean connect, JList<String> listaWorkout) {
+			Boolean connect, JList<String> listaWorkout, boolean isHistoric) {
+		
 		int aukeratutakoMaila = comboMaila.getSelectedIndex() + 1;
 		String rutinarenIzena = comboMailaRutinakLevel.getSelectedItem() != null
 				? comboMailaRutinakLevel.getSelectedItem().toString()
 				: "";
+		
 		new Thread(() -> {
 			try {
-				String[] ariketak = readHistoric.getHistoric(aukeratutakoMaila, rutinarenIzena, connect);
-				SwingUtilities.invokeLater(() -> {
-					listaWorkout.setModel(new AbstractListModel<String>() {
-						private static final long serialVersionUID = 1L;
-						String[] balioak = ariketak;
-
-						public int getSize() {
-							return balioak.length;
-						}
-
-						public String getElementAt(int index) {
-							return balioak[index];
-						}
-					});
-				});
+				updateList(aukeratutakoMaila, rutinarenIzena, connect, listaWorkout, isHistoric);
 			} catch (InterruptedException | ExecutionException ex) {
 				ex.printStackTrace();
 			}
 		}).start();
 	}
 
+	/**
+	 * Método común para actualizar la lista (ejercicios o histórico)
+	 */
+	private static void updateList(int nivel, String rutinaNombre, Boolean connect, JList<String> listaWorkout,
+			boolean isHistoric) throws InterruptedException, ExecutionException {
+		
+		String[] datos;
+		
+		if (isHistoric) {
+			// Para ViewHistoric: cargar histórico
+			ReadHistoric readHistoric = new ReadHistoric(connect);
+			datos = readHistoric.getHistoric(nivel, rutinaNombre, connect);
+		} else {
+			// Para Workouts: cargar ejercicios
+			Routines routines = new Routines(connect);
+			datos = routines.getLevels(nivel, rutinaNombre, connect);
+		}
+		
+		SwingUtilities.invokeLater(() -> {
+			listaWorkout.setModel(new AbstractListModel<String>() {
+				private static final long serialVersionUID = 1L;
+				String[] balioak = datos;
+
+				public int getSize() {
+					return balioak.length;
+				}
+
+				public String getElementAt(int index) {
+					return balioak[index];
+				}
+			});
+		});
+	}
 	
 }
