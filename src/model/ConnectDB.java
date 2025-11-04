@@ -25,7 +25,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import util.DateUtils;
-import util.ErrorHandler;
+import util.ExceptionHandler;
 import util.PasswordUtils;
 import util.ValidationUtils;
 import view.Inter;
@@ -46,7 +46,7 @@ public class ConnectDB {
 				birthdate);
 
 		if (erroreMezua != null) {
-			ErrorHandler.erakutsiErrorea("Balidazio errorea", erroreMezua);
+			ExceptionHandler.erakutsiErrorea("Balidazio errorea", erroreMezua);
 			return false;
 		}
 
@@ -54,16 +54,16 @@ public class ConnectDB {
 
 		try {
 			createUser(izena, abizena1, abizena2, email, password, birthdateString, trainer, connect);
-			ErrorHandler.erakutsiInfo("Erregistroa", "Ondo erregistratu zara. Orain saioa hasi dezakezu.");
+			ExceptionHandler.erakutsiInfo("Erregistroa", "Ondo erregistratu zara. Orain saioa hasi dezakezu.");
 			return true;
 		} catch (Exception ex) {
 			System.err.println("[ERROR] Errorea erregistroa sortzean");
 
 			if (ex.getMessage() != null && ex.getMessage().contains("EMAIL_EXISTS")) {
-				ErrorHandler.erakutsiErrorea("Erregistroa ezin izan da egin",
+				ExceptionHandler.erakutsiErrorea("Erregistroa ezin izan da egin",
 						"Email helbide hau jadanik erregistratuta dago. Saioa hasi edo beste bat erabili.");
 			} else {
-				ErrorHandler.kudeatu(ErrorHandler.ErrorMota.SISTEMA_ERROREA, ex);
+				ExceptionHandler.kudeatu(ExceptionHandler.ErrorMota.SISTEMA_ERROREA, ex);
 			}
 			return false;
 		}
@@ -109,7 +109,7 @@ public class ConnectDB {
 
 		// Balidatu sarrera datuak
 		if (ValidationUtils.testuaHutsik(email) || ValidationUtils.testuaHutsik(password)) {
-			ErrorHandler.erakutsiAbisua("Datuak falta dira", "Erabiltzailea eta pasahitza bete behar dituzu.");
+			ExceptionHandler.erakutsiAbisua("Datuak falta dira", "Erabiltzailea eta pasahitza bete behar dituzu.");
 			return null;
 		}
 
@@ -118,14 +118,14 @@ public class ConnectDB {
 				// Online (DB eskuragarri badago bakarrik)
 				String uid = checkLogin(email, password);
 				if (uid == null) {
-					ErrorHandler.erakutsiErrorea("Autentifikazio errorea",
+					ExceptionHandler.erakutsiErrorea("Autentifikazio errorea",
 							"Erabiltzailea edo pasahitza ez dira zuzenak. Egiaztatu eta saiatu berriro.");
 					return null;
 				}
 
 				DocumentSnapshot userDoc = db.collection("users").document(uid).get().get();
 				if (!userDoc.exists()) {
-					ErrorHandler.erakutsiErrorea("Errorea",
+					ExceptionHandler.erakutsiErrorea("Errorea",
 							"Ezin izan dira erabiltzailearen datuak aurkitu datu-basean.");
 					return null;
 				}
@@ -162,7 +162,7 @@ public class ConnectDB {
 						}
 
 						if (!PasswordUtils.egiaztaturPasahitza(password, storedPassword)) {
-							ErrorHandler.erakutsiErrorea("Autentifikazio errorea",
+							ExceptionHandler.erakutsiErrorea("Autentifikazio errorea",
 									"Erabiltzailea edo pasahitza ez dira zuzenak.");
 							return null;
 						}
@@ -177,14 +177,14 @@ public class ConnectDB {
 					}
 				}
 
-				ErrorHandler.erakutsiErrorea("Erabiltzailea ez da aurkitu",
+				ExceptionHandler.erakutsiErrorea("Erabiltzailea ez da aurkitu",
 						"Ez dago erabiltzailerik email horrekin. Lehenik erregistratu behar duzu.");
 				return null;
 			}
 
 		} catch (Exception ex) {
 			System.err.println("[ERROR] Errorea login prozesuan");
-			ErrorHandler.kudeatu(ErrorHandler.ErrorMota.AUTENTIFIKAZIO_ERROREA, ex);
+			ExceptionHandler.kudeatu(ExceptionHandler.ErrorMota.AUTENTIFIKAZIO_ERROREA, ex);
 			return null;
 		}
 	}

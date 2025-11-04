@@ -21,6 +21,7 @@ import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.ExportedUserRecord;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.ListUsersPage;
@@ -37,7 +38,7 @@ public class CreateBackup {
 	public void saveBackup(Boolean connect) {
 
 		if (connect) {
-			if (com.google.firebase.FirebaseApp.getApps().isEmpty()) {
+			if (FirebaseApp.getApps().isEmpty()) {
 				System.err.println("[ERROR] FirebaseApp ez dago hasieratuta. Ezin da backup-ik egin.");
 				return;
 			}

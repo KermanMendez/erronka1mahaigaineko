@@ -15,7 +15,7 @@ public class MainApp {
 		Theme.apply();
 
 		// Hasieratu kontrolatzailea
-		Controller.initialize(false);
+		Controller.initialize(false); // Hasiera azkarragoa
 		Controller controller = Controller.getInstance();
 
 		// Konektatu Firebase-ra

@@ -8,7 +8,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserRecord;
 
 import controller.Controller;
-import util.ErrorHandler;
+import util.ExceptionHandler;
 import util.FirestoreUtils;
 import util.ValidationUtils;
 
@@ -150,7 +150,7 @@ public class EditProfile {
 	public void showMessage(Boolean dbOk, Boolean pwdOk, String name, String surname, String dob, Runnable onSuccess) {
 		if (dbOk && pwdOk) {
 			javax.swing.SwingUtilities.invokeLater(() -> {
-				ErrorHandler.erakutsiInfo("Profila gordeta", "Zure profila ondo eguneratu da.\n\nIzena: " + name
+				ExceptionHandler.erakutsiInfo("Profila gordeta", "Zure profila ondo eguneratu da.\n\nIzena: " + name
 						+ "\nAbizenak: " + surname + "\nJaiotze Data: " + dob);
 				if (onSuccess != null) {
 					onSuccess.run();
@@ -158,7 +158,7 @@ public class EditProfile {
 			});
 		} else {
 			javax.swing.SwingUtilities.invokeLater(() -> {
-				ErrorHandler.erakutsiErrorea("Errorea profila eguneratzean",
+				ExceptionHandler.erakutsiErrorea("Errorea profila eguneratzean",
 						"Ezin izan da profila eguneratu. Egiaztatu internet konexioa eta saiatu berriro.");
 			});
 		}
@@ -178,19 +178,19 @@ public class EditProfile {
 		// Balidatu izen-eremuak
 		String errorea = ValidationUtils.balidatuBeteBeharrekoa(name, "Izena");
 		if (errorea != null) {
-			ErrorHandler.erakutsiErrorea("Balidazio errorea", errorea);
+			ExceptionHandler.erakutsiErrorea("Balidazio errorea", errorea);
 			return null;
 		}
 
 		errorea = ValidationUtils.balidatuBeteBeharrekoa(surname1, "Lehenengo abizena");
 		if (errorea != null) {
-			ErrorHandler.erakutsiErrorea("Balidazio errorea", errorea);
+			ExceptionHandler.erakutsiErrorea("Balidazio errorea", errorea);
 			return null;
 		}
 
 		errorea = ValidationUtils.balidatuBeteBeharrekoa(surname2, "Bigarren abizena");
 		if (errorea != null) {
-			ErrorHandler.erakutsiErrorea("Balidazio errorea", errorea);
+			ExceptionHandler.erakutsiErrorea("Balidazio errorea", errorea);
 			return null;
 		}
 
@@ -198,7 +198,7 @@ public class EditProfile {
 		if (!pwd.isEmpty() || !pwd2.isEmpty()) {
 			errorea = ValidationUtils.balidatuPasahitzakBerdinak(pwd, pwd2);
 			if (errorea != null) {
-				ErrorHandler.erakutsiErrorea("Pasahitza errorea", errorea);
+				ExceptionHandler.erakutsiErrorea("Pasahitza errorea", errorea);
 				return null;
 			}
 		}
@@ -209,7 +209,7 @@ public class EditProfile {
 
 	public void setLocalEmail(String localEmail) {
 		if (localEmail == null || localEmail.trim().isEmpty()) {
-			ErrorHandler.erakutsiErrorea("Errorea",
+			ExceptionHandler.erakutsiErrorea("Errorea",
 					"Ezin izan da zure email helbidea aurkitu. Saioa berriro hasi eta saiatu berriro.");
 			return;
 		}

@@ -7,7 +7,7 @@ import javax.swing.SwingUtilities;
  * Erroreen kudeaketa zentralizatua euskerazko mezuekin
  * Centralizador de gestión de errores con mensajes en euskera
  */
-public class ErrorHandler {
+public class ExceptionHandler {
 
 	// Errore motak / Tipos de error
 	public enum ErrorMota {
