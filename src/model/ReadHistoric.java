@@ -58,18 +58,20 @@ public class ReadHistoric {
 		}
 
 		if (resultList.isEmpty()) {
-			return new String[] { "Ez daude historikorik workout honetan" };
+			System.out.println("[INFO] Ez dago historikorik aurkitu rutina honetarako");
+			return new String[] { "Ez dago historikorik rutina honetarako" };
 		}
 
 		Set<String> unique = new LinkedHashSet<>(resultList);
+		System.out.println("[INFO] " + unique.size() + " historiko sarrera aurkituak");
 		return unique.toArray(new String[0]);
 	}
 
 	private void addEntryIfMatch(List<String> list, Firestore db, DocumentSnapshot exerciseDoc, String rutinarenIzena)
 			throws InterruptedException, ExecutionException {
 
-		String exerciseCompleted = parse.booleanToEuskera(
-				exerciseDoc.getBoolean("completed") != null && exerciseDoc.getBoolean("completed"));
+		String exerciseCompleted = parse
+				.booleanToEuskera(exerciseDoc.getBoolean("completed") != null && exerciseDoc.getBoolean("completed"));
 		String exerciseDate = exerciseDoc.getString("date");
 		int totalSets = ParseUtils.getIntValue(exerciseDoc.getLong("totalSets"));
 		int totalTime = ParseUtils.getIntValue(exerciseDoc.getLong("totalTime"));
@@ -110,8 +112,8 @@ public class ReadHistoric {
 		String bukatutaWithPct = exerciseCompleted + " (" + pctStr + "%)";
 		String totalSetsDisplay = totalSets + " / " + totalSetsInWorkout;
 
-		list.add("Data: " + exerciseDate + " | Bukatuta: " + bukatutaWithPct + " | Total Sets: " + totalSetsDisplay
-				+ " | Total Time: " + totalTime + " segundu");
+		list.add("Data: " + exerciseDate + " | Bukatuta: " + bukatutaWithPct + " | Serieak: " + totalSetsDisplay
+				+ " | ⏱Denbora: " + totalTime + " seg");
 	}
 
 	private List<String> readOfflineXml(String fileName, String userId, String email, ReadBackup.BackupData backup,
@@ -195,14 +197,13 @@ public class ReadHistoric {
 				String bukatutaWithPct = exerciseCompleted + " (" + pctStr + "%)";
 				String totalSetsDisplay = totalSets + " / " + totalSetsInWorkout;
 
-				result.add("Data: " + exerciseDate + " | Bukatuta: " + bukatutaWithPct + " | Total Sets: "
-						+ totalSetsDisplay + " | Total Time: " + totalTime + " segundu");
+				result.add("Data: " + exerciseDate + " | Bukatuta: " + bukatutaWithPct + " | Serieak: "
+						+ totalSetsDisplay + " | Denbora: " + totalTime + " seg");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println("[ERROR] Errorea XML historikoa irakurtzerakoan");
 		}
 		return result;
 	}
-
 
 }

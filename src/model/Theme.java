@@ -4,30 +4,31 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 /**
- * Gestor del tema visual de la aplicación (Nimbus Look and Feel)
- * Thread-safe con double-checked locking
+ * Aplikazioaren itxura tema kudeatzailea (Nimbus Look and Feel) Gestor del tema
+ * visual de la aplicación (Nimbus Look and Feel) Thread-safe double-checked
+ * locking erabiliz
  */
 public class Theme {
 
 	private static volatile boolean applied = false;
 
 	/**
-	 * Aplica el tema Nimbus a toda la aplicación
-	 * Solo se ejecuta una vez (thread-safe)
+	 * Nimbus tema aplikatu aplikazio osoari Behin bakarrik exekutatzen da
+	 * (thread-safe)
 	 */
 	public static void apply() {
-		// Double-checked locking para mejor rendimiento
+		// Double-checked locking errendimendu hoberako
 		if (applied) {
 			return;
 		}
-		
+
 		synchronized (Theme.class) {
 			if (applied) {
 				return;
 			}
-			
+
 			try {
-				// Buscar y aplicar Nimbus Look and Feel
+				// Nimbus Look and Feel bilatu eta aplikatu
 				for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 					if ("Nimbus".equals(info.getName())) {
 						UIManager.setLookAndFeel(info.getClassName());
@@ -35,7 +36,7 @@ public class Theme {
 					}
 				}
 
-				// Aplicar colores personalizados de UIStyle
+				// UIStyle-ko kolore pertsonalizatuak aplikatu
 				UIManager.put("control", UIStyle.BACKGROUND);
 				UIManager.put("info", UIStyle.BACKGROUND);
 				UIManager.put("nimbusBase", UIStyle.PRIMARY);
@@ -52,16 +53,18 @@ public class Theme {
 				UIManager.put("List.font", UIStyle.FIELD_FONT);
 
 				applied = true;
-				
+
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 					| UnsupportedLookAndFeelException e) {
-				e.printStackTrace();
+				System.err.println("[ERROR] Errorea tema aplikatzerakoan");
 			}
 		}
 	}
-	
+
 	/**
-	 * Verifica si el tema ya ha sido aplicado
+	 * Egiaztatu tema jadanik aplikatuta dagoen
+	 * 
+	 * @return true aplikatuta badago
 	 */
 	public static boolean isApplied() {
 		return applied;

@@ -3,7 +3,7 @@ package model;
 import org.jdatepicker.impl.DateComponentFormatter;
 
 public class DateFormater extends DateComponentFormatter {
-	
+
 	private static final long serialVersionUID = 1L;
 	private final java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd-MM-yyyy");
 

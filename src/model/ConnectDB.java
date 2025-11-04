@@ -9,7 +9,6 @@ import java.util.Map;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
@@ -30,6 +29,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import util.DateUtils;
+import util.ErrorHandler;
+import util.ValidationUtils;
 import view.Inter;
 
 public class ConnectDB {
@@ -44,20 +45,31 @@ public class ConnectDB {
 
 	public Boolean eskaeraRegistratu(String izena, String abizena1, String abizena2, String email, String password,
 			Date birthdate, Boolean isTrainer, Boolean connect) {
-		if (email.isEmpty() || password.isEmpty() || izena.isEmpty() || abizena1.isEmpty() || abizena2.isEmpty()
-				|| birthdate == null) {
-			JOptionPane.showMessageDialog(null, "Datu Guztiak Bete.", "Errorea", JOptionPane.INFORMATION_MESSAGE);
-			return null;
+
+		// Balidatu datuak ValidationUtils erabiliz
+		String erroreMezua = ValidationUtils.balidatuErregistroa(izena, abizena1, abizena2, email, password, password,
+				birthdate);
+
+		if (erroreMezua != null) {
+			ErrorHandler.erakutsiErrorea("Balidazio errorea", erroreMezua);
+			return false;
 		}
+
 		String birthdateString = dateUtils.formatDate(birthdate);
+
 		try {
 			createUser(izena, abizena1, abizena2, email, password, birthdateString, isTrainer, connect);
-			JOptionPane.showMessageDialog(null, "Registratu zara", "Login", JOptionPane.INFORMATION_MESSAGE);
+			ErrorHandler.erakutsiInfo("Erregistroa", "Ondo erregistratu zara. Orain saioa hasi dezakezu.");
 			return true;
 		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(null,
-					"Erabiltzaile hau registratuta dago edo errore batekin aurkitu da. Saioa hasi edo beste email bat erabili",
-					"Erregistroa Ezezta", JOptionPane.ERROR_MESSAGE);
+			System.err.println("[ERROR] Errorea erregistroa sortzean");
+
+			if (ex.getMessage() != null && ex.getMessage().contains("EMAIL_EXISTS")) {
+				ErrorHandler.erakutsiErrorea("Erregistroa ezin izan da egin",
+						"Email helbide hau jadanik erregistratuta dago. Saioa hasi edo beste bat erabili.");
+			} else {
+				ErrorHandler.kudeatu(ErrorHandler.ErrorMota.SISTEMA_ERROREA, ex);
+			}
 			return false;
 		}
 	}
@@ -106,30 +118,30 @@ public class ConnectDB {
 		String email = textFieldUser.getText().trim();
 		String password = new String(passwordField.getPassword());
 
-		// Usar el Controller singleton en lugar de crear uno nuevo
+		// Controller singleton erabili
 		Controller controller = Controller.getInstance();
 		Firestore db = controller.getDb();
 
-		if (email.isEmpty() || password.isEmpty()) {
-			JOptionPane.showMessageDialog(null, "Bete Erabiltzailea eta Pasahitza.", "Login",
-					JOptionPane.INFORMATION_MESSAGE);
+		// Balidatu sarrera datuak
+		if (ValidationUtils.testuaHutsik(email) || ValidationUtils.testuaHutsik(password)) {
+			ErrorHandler.erakutsiAbisua("Datuak falta dira", "Erabiltzailea eta pasahitza bete behar dituzu.");
 			return null;
 		}
 
 		try {
 			if (connect && db != null) {
-				// Online (solo si DB está disponible)
+				// Online (DB eskuragarri badago bakarrik)
 				String uid = checkLogin(email, password);
 				if (uid == null) {
-					JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.", "Errorea",
-							JOptionPane.ERROR_MESSAGE);
+					ErrorHandler.erakutsiErrorea("Autentifikazio errorea",
+							"Erabiltzailea edo pasahitza ez dira zuzenak. Egiaztatu eta saiatu berriro.");
 					return null;
 				}
 
 				DocumentSnapshot userDoc = db.collection("users").document(uid).get().get();
 				if (!userDoc.exists()) {
-					JOptionPane.showMessageDialog(null, "Ez dira erabiltzailearen datuak aurkitu.", "Error",
-							JOptionPane.ERROR_MESSAGE);
+					ErrorHandler.erakutsiErrorea("Errorea",
+							"Ezin izan dira erabiltzailearen datuak aurkitu datu-basean.");
 					return null;
 				}
 
@@ -181,8 +193,8 @@ public class ConnectDB {
 						}
 
 						if (!valid) {
-							JOptionPane.showMessageDialog(null, "Erabiltzailea edo Pasahitza okerrak.", "Errorea",
-									JOptionPane.ERROR_MESSAGE);
+							ErrorHandler.erakutsiErrorea("Autentifikazio errorea",
+									"Erabiltzailea edo pasahitza ez dira zuzenak.");
 							return null;
 						}
 
@@ -196,14 +208,14 @@ public class ConnectDB {
 					}
 				}
 
-				JOptionPane.showMessageDialog(null, "Erabiltzailea ez da aurkitu.", "Errorea",
-						JOptionPane.ERROR_MESSAGE);
+				ErrorHandler.erakutsiErrorea("Erabiltzailea ez da aurkitu",
+						"Ez dago erabiltzailerik email horrekin. Lehenik erregistratu behar duzu.");
 				return null;
 			}
 
 		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(null, "Errorea login prozesuan.", "Errorea", JOptionPane.ERROR_MESSAGE);
-			ex.printStackTrace();
+			System.err.println("[ERROR] Errorea login prozesuan");
+			ErrorHandler.kudeatu(ErrorHandler.ErrorMota.AUTENTIFIKAZIO_ERROREA, ex);
 			return null;
 		}
 	}

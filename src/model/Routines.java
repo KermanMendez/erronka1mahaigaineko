@@ -43,21 +43,24 @@ public class Routines {
 		try {
 			if (connect == null || !connect || db == null) {
 				ReadBackup.BackupData backup = reader.loadBackupData();
-				if (backup == null)
-					return new String[] { "No levels available" };
+				if (backup == null) {
+					System.err.println("[ERROR] Ezin izan da backup-a kargatu");
+					return new String[] { "Ez dago mailarik eskuragarri" };
+				}
 
 				level = firestoreUtils.getUserLevelFromBackup(backup, emaila);
 
 				String[] levelsArray = new String[level];
 				for (int i = 1; i <= level; i++) {
-					levelsArray[i - 1] = "Level " + i;
+					levelsArray[i - 1] = i + ". Maila";
 				}
 				return levelsArray;
 			}
 
 			QuerySnapshot querySnapshot = db.collection("users").whereEqualTo("email", emaila).get().get();
 			if (querySnapshot.isEmpty()) {
-				return new String[] { "No levels available" };
+				System.err.println("[ERROR] Ez da erabiltzailea aurkitu: " + emaila);
+				return new String[] { "Ez dago mailarik eskuragarri" };
 			}
 
 			DocumentSnapshot userDoc = querySnapshot.getDocuments().get(0);
@@ -65,13 +68,13 @@ public class Routines {
 
 			String[] levelsArray = new String[level];
 			for (int i = 1; i <= level; i++) {
-				levelsArray[i - 1] = "Level " + i;
+				levelsArray[i - 1] = i + ". Maila";
 			}
 
 			return levelsArray;
 		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
-			return new String[] { "Error retrieving levels" };
+			System.err.println("[ERROR] Errorea mailak eskuratzerakoan");
+			return new String[] { "Errorea mailak kargatzerakoan" };
 		}
 	}
 
@@ -85,13 +88,14 @@ public class Routines {
 				SwingUtilities.invokeLater(() -> {
 					listModel.clear();
 					if (exercises.isEmpty()) {
-						listModel.addElement("Ez daude ariketarik maila honetarako");
+						listModel.addElement("Ez dago ariketarik maila honetarako");
+						System.err.println("[ABISUA] Ez dago ariketarik maila " + maila + "rako");
 						return;
 					}
 
 					exercises.forEach(exercise -> {
-						System.out.println(exercise.getName() + " - Sets: " + exercise.getSets() + ", Reps: "
-								+ exercise.getReps());
+						System.out.println("[INFO] Ariketa: " + exercise.getName() + " - Serieak: " + exercise.getSets()
+								+ ", Errepikazioak: " + exercise.getReps());
 						listModel.addElement(exercise.toString());
 					});
 				});
@@ -130,8 +134,10 @@ public class Routines {
 		if (connect) {
 			QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", selectedLevel).get().get();
 
-			if (querySnapshot.isEmpty())
-				return new String[] { "Ez daude workout-ak maila honetarako" };
+			if (querySnapshot.isEmpty()) {
+				System.err.println("[ABISUA] Ez dago rutinik " + selectedLevel + ". mailarako");
+				return new String[] { "Ez dago rutinik maila honetarako" };
+			}
 
 			for (DocumentSnapshot routineDoc : querySnapshot.getDocuments()) {
 				String name = routineDoc.getString("name");
@@ -220,8 +226,9 @@ public class Routines {
 							if (exerciseDocs != null) {
 								for (ReadBackup.DocumentData exDoc : exerciseDocs) {
 									String exerciseName = exDoc.fields.get("name");
-					String exerciseDesc = exDoc.fields.get("description");
-					int sets = ParseUtils.parseInt(exDoc.fields.get("sets"));									if (exerciseName != null && exerciseDesc != null) {
+									String exerciseDesc = exDoc.fields.get("description");
+									int sets = ParseUtils.parseInt(exDoc.fields.get("sets"));
+									if (exerciseName != null && exerciseDesc != null) {
 										levels.add(exerciseName + " – " + exerciseDesc + " (Total Sets: " + sets + ")");
 									}
 								}
@@ -245,18 +252,19 @@ public class Routines {
 
 	/**
 	 * Actualiza el comboBox de rutinas cuando cambia el nivel
+	 * 
 	 * @param isHistoric true para ViewHistoric, false para Workouts
 	 */
 	public static void updateRoutinesComboBox(JComboBox<String> comboMaila, JComboBox<String> comboMailaRutinakLevel,
 			Routines routines, Boolean connect, JList<String> listaWorkout, boolean isHistoric) {
-		
+
 		int aukeratutakoMaila = comboMaila.getSelectedIndex() + 1;
-		
+
 		new Thread(() -> {
 			try {
 				String[] routinesForLevel = routines.getRoutines(aukeratutakoMaila, connect);
 				final String[] chosenRoutine = new String[1];
-				
+
 				SwingUtilities.invokeLater(() -> {
 					comboMailaRutinakLevel.setModel(new DefaultComboBoxModel<>(routinesForLevel));
 					if (routinesForLevel != null && routinesForLevel.length > 0) {
@@ -274,7 +282,7 @@ public class Routines {
 
 				// Cargar lista según el tipo de vista
 				updateList(aukeratutakoMaila, rutinarenIzenaToUse, connect, listaWorkout, isHistoric);
-				
+
 			} catch (InterruptedException | ExecutionException ex) {
 				ex.printStackTrace();
 			}
@@ -283,16 +291,17 @@ public class Routines {
 
 	/**
 	 * Actualiza la lista cuando cambia la rutina seleccionada
+	 * 
 	 * @param isHistoric true para ViewHistoric, false para Workouts
 	 */
 	public static void updateWorkoutList(JComboBox<String> comboMaila, JComboBox<String> comboMailaRutinakLevel,
 			Boolean connect, JList<String> listaWorkout, boolean isHistoric) {
-		
+
 		int aukeratutakoMaila = comboMaila.getSelectedIndex() + 1;
 		String rutinarenIzena = comboMailaRutinakLevel.getSelectedItem() != null
 				? comboMailaRutinakLevel.getSelectedItem().toString()
 				: "";
-		
+
 		new Thread(() -> {
 			try {
 				updateList(aukeratutakoMaila, rutinarenIzena, connect, listaWorkout, isHistoric);
@@ -307,9 +316,9 @@ public class Routines {
 	 */
 	private static void updateList(int nivel, String rutinaNombre, Boolean connect, JList<String> listaWorkout,
 			boolean isHistoric) throws InterruptedException, ExecutionException {
-		
+
 		String[] datos;
-		
+
 		if (isHistoric) {
 			// Para ViewHistoric: cargar histórico
 			ReadHistoric readHistoric = new ReadHistoric(connect);
@@ -319,7 +328,7 @@ public class Routines {
 			Routines routines = new Routines(connect);
 			datos = routines.getLevels(nivel, rutinaNombre, connect);
 		}
-		
+
 		SwingUtilities.invokeLater(() -> {
 			listaWorkout.setModel(new AbstractListModel<String>() {
 				private static final long serialVersionUID = 1L;
@@ -335,5 +344,5 @@ public class Routines {
 			});
 		});
 	}
-	
+
 }

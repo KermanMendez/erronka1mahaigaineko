@@ -75,7 +75,7 @@ public class ReadBackup {
 		if (!datFile.exists() || datFile.length() == 0) {
 			File file = new File(FICHERO);
 			if (!file.exists() || file.length() == 0) {
-				System.err.println("Ez dago backup fitxategirik");
+				System.err.println("[ERROR] Ez dago backup fitxategirik eskuragarri");
 				return null;
 			}
 			BackupData backup = new BackupData();
@@ -105,7 +105,7 @@ public class ReadBackup {
 				}
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				System.err.println("[ERROR] Errorea backup-a irakurtzerakoan");
 				return null;
 			}
 
@@ -119,7 +119,7 @@ public class ReadBackup {
 				Object obj = ois.readObject();
 
 				if (!(obj instanceof List)) {
-					System.err.println("Formato de backup inesperado");
+					System.err.println("[ERROR] Backup formatua ez da zuzena");
 					return null;
 				}
 
@@ -195,10 +195,11 @@ public class ReadBackup {
 					}
 				}
 
+				System.out.println("[INFO] Backup-a ondo kargatuta");
 				return backup;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println("[ERROR] Errorea backup-a desenkriptatzerakoan");
 			return null;
 		}
 	}

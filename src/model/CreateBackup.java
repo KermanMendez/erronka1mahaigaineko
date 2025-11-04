@@ -38,7 +38,7 @@ public class CreateBackup {
 
 		if (connect) {
 			if (com.google.firebase.FirebaseApp.getApps().isEmpty()) {
-				System.err.println("[ERROR] FirebaseApp no está inicializado. No se puede hacer backup.");
+				System.err.println("[ERROR] FirebaseApp ez dago hasieratuta. Ezin da backup-ik egin.");
 				return;
 			}
 
@@ -46,7 +46,7 @@ public class CreateBackup {
 			db = controller.getDb();
 
 			if (db == null) {
-				System.err.println("[ERROR] Firestore DB no está disponible. No se puede hacer backup.");
+				System.err.println("[ERROR] Firestore DB ez dago eskuragarri. Ezin da backup-ik egin.");
 				return;
 			}
 
@@ -104,9 +104,9 @@ public class CreateBackup {
 					transformer.transform(source, result2);
 				}
 
-				System.out.println("[INFO] Backup ondo gordeta: " + FICHERO);
+				System.out.println("[INFO] Backup-a ondo gordeta: " + FICHERO);
 			} catch (Exception e) {
-				e.printStackTrace();
+				System.err.println("[ERROR] Errorea backup-a gordetzean");
 			}
 		}
 	}

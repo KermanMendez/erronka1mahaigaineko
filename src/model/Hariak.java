@@ -380,25 +380,25 @@ public class Hariak {
 					final int countdown = i;
 					SwingUtilities.invokeLater(() -> {
 						if (labelHasiera != null)
-							labelHasiera.setText("Prest! Hasiera " + countdown + "...");
+							labelHasiera.setText("Prest! Hasten da " + countdown + " segundutan...");
 					});
 					Thread.sleep(1000);
 				}
 
 				SwingUtilities.invokeLater(() -> {
 					if (labelHasiera != null)
-						labelHasiera.setText("Hasi da entrenamendua!");
+						labelHasiera.setText("🏋Goazen! Entrenamendua hasi da!");
 				});
 				Thread.sleep(1000);
 
 				if (exercises == null || exercises.isEmpty()) {
 					SwingUtilities.invokeLater(() -> {
 						if (labelHasiera != null)
-							labelHasiera.setText("Ez da entrenamendurik aurkitu!");
+							labelHasiera.setText("Ez da ariketarik aurkitu rutina honetarako!");
 					});
+					System.err.println("[ERROR] Ez da ariketarik aurkitu");
 					return;
 				}
-
 				if (labelTotal != null)
 					labelTotal.setVisible(true);
 				if (labelSeries != null)
@@ -449,16 +449,19 @@ public class Hariak {
 					final String pctStr = String.format("%.1f", pct).replace('.', ',');
 					SwingUtilities.invokeLater(() -> {
 						JOptionPane.showMessageDialog(null,
-								"Rutina amaitu da! Denbora totala: " + popupTime + " seg\nSeries egindakoak: "
-										+ popupCompletedSets + " / " + popupExpectedSets + " (" + pctStr + "%)");
-						// Ejecutar el callback después de cerrar el popup
+								"Ongi etorri! Rutina amaitu duzu!\n\n" + " Estatistikak:\n" + "  Denbora totala: "
+										+ popupTime + " segundo\n" + "  Serieak: " + popupCompletedSets + " / "
+										+ popupExpectedSets + " (" + pctStr + "%)\n\n"
+										+ "Zorionak zure ahaleginagatik!",
+								"Rutina Amaituta", JOptionPane.INFORMATION_MESSAGE);
+						// Callback exekutatu popup itxi ondoren
 						if (onWorkoutFinished != null) {
 							onWorkoutFinished.run();
 						}
 					});
 					historyLog(routineName);
 				} else {
-					// Si no se completó ningún set, ejecutar el callback inmediatamente
+					// Ez bada serie bat ere egin, callback berehalakoa
 					SwingUtilities.invokeLater(() -> {
 						if (onWorkoutFinished != null) {
 							onWorkoutFinished.run();

@@ -5,17 +5,19 @@ import java.awt.Image;
 import javax.swing.ImageIcon;
 
 /**
- * Carga y cachea el logo de la aplicación para mejorar el rendimiento
+ * Aplikazioaren logoa kargatu eta cache-an gordetzen du errendimendua hobetzeko
  */
 public class LoadLogo {
-	
-	// Cache estático del logo escalado (Singleton pattern)
+
+	// Logo eskalatuaren cache estatikoa (Singleton patroia)
 	private static ImageIcon cachedLogo = null;
-	
+
 	/**
-	 * Obtiene el logo escalado (usa cache si ya existe)
-	 * @param logo parámetro legacy (ignorado, mantiene compatibilidad)
-	 * @return Logo escalado y cacheado
+	 * Logo eskalatua lortu (cache-a erabiltzen du badago)
+	 * 
+	 * @param logo parametro zaharra (ez da erabiltzen, bateragarritasuna
+	 *             mantentzeko)
+	 * @return Logo eskalatua eta cache-atua
 	 */
 	public ImageIcon getLogo(ImageIcon logo) {
 		if (cachedLogo == null) {
@@ -29,9 +31,9 @@ public class LoadLogo {
 		}
 		return cachedLogo;
 	}
-	
+
 	/**
-	 * Obtiene el logo escalado (versión simplificada sin parámetros)
+	 * Logo eskalatua lortu (bertsio sinplifikatua parametrorik gabe)
 	 */
 	public ImageIcon getLogo() {
 		return getLogo(null);

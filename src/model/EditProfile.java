@@ -1,9 +1,16 @@
 package model;
 
-import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.QuerySnapshot;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.UserRecord;
+
 import controller.Controller;
+import util.ErrorHandler;
+import util.ValidationUtils;
 
 public class EditProfile {
 
@@ -11,15 +18,19 @@ public class EditProfile {
 		try {
 			Controller controller = Controller.getInstance();
 			com.google.cloud.firestore.Firestore db = controller.getDb();
-			if (db == null)
+			if (db == null) {
+				System.err.println("[ERROR] Firestore DB ez dago eskuragarri");
 				return false;
+			}
 
 			com.google.cloud.firestore.QuerySnapshot query = db.collection("users").whereEqualTo("email", email).get()
 					.get();
-			if (query.isEmpty())
+			if (query.isEmpty()) {
+				System.err.println("[ERROR] Ez da erabiltzailea aurkitu email honekin: " + email);
 				return false;
+			}
 
-			com.google.cloud.firestore.DocumentReference docRef = query.getDocuments().get(0).getReference();
+			DocumentReference docRef = query.getDocuments().get(0).getReference();
 
 			java.util.Map<String, Object> updates = new java.util.HashMap<>();
 			updates.put("name", name != null ? name : "");
@@ -29,8 +40,10 @@ public class EditProfile {
 				updates.put("birthdate", birthdate);
 
 			docRef.update(updates).get();
+			System.out.println("[INFO] Erabiltzailearen datuak eguneratuta");
 			return true;
 		} catch (Exception ex) {
+			System.err.println("[ERROR] Errorea erabiltzailea eguneratzean: " + ex.getMessage());
 			ex.printStackTrace();
 			return false;
 		}
@@ -43,27 +56,33 @@ public class EditProfile {
 		try {
 			Controller controller = Controller.getInstance();
 			com.google.cloud.firestore.Firestore db = controller.getDb();
-			if (db == null)
+			if (db == null) {
+				System.err.println("[ERROR] Firestore DB ez dago eskuragarri");
 				return false;
+			}
 
 			com.google.cloud.firestore.QuerySnapshot query = db.collection("users").whereEqualTo("email", email).get()
 					.get();
-			if (query.isEmpty())
+			if (query.isEmpty()) {
+				System.err.println("[ERROR] Ez da erabiltzailea aurkitu email honekin: " + email);
 				return false;
+			}
 
 			com.google.cloud.firestore.DocumentSnapshot doc = query.getDocuments().get(0);
 			String uid = doc.getId();
 
-			com.google.firebase.auth.UserRecord.UpdateRequest req = new com.google.firebase.auth.UserRecord.UpdateRequest(
-					uid).setPassword(newPassword);
-			com.google.firebase.auth.FirebaseAuth.getInstance().updateUser(req);
+			UserRecord.UpdateRequest req = new com.google.firebase.auth.UserRecord.UpdateRequest(uid)
+					.setPassword(newPassword);
+			FirebaseAuth.getInstance().updateUser(req);
 
 			model.ConnectDB conn = new model.ConnectDB();
 			String hashed = conn.hashPassword(newPassword);
 			doc.getReference().update(java.util.Map.of("password", hashed)).get();
 
+			System.out.println("[INFO] Pasahitza eguneratuta");
 			return true;
 		} catch (Exception ex) {
+			System.err.println("[ERROR] Errorea pasahitza eguneratzean: " + ex.getMessage());
 			ex.printStackTrace();
 			return false;
 		}
@@ -74,19 +93,19 @@ public class EditProfile {
 			try {
 				String email = new CreateUserBackup().loadEmail();
 				if (email == null || email.trim().isEmpty()) {
+					System.err.println("[ABISUA] Ez dago email-ik gordeta");
 					return;
 				}
 
 				controller.Controller ctrl = controller.Controller.getInstance();
-				com.google.cloud.firestore.Firestore db = ctrl.getDb();
-				
+				Firestore db = ctrl.getDb();
+
 				if (db == null) {
-					System.err.println("[EditProfile] No hay conexión a Firebase");
+					System.err.println("[ERROR] Firestore DB ez dago eskuragarri. Ezin da profila kargatu.");
 					return;
 				}
 
-				com.google.cloud.firestore.QuerySnapshot query = db.collection("users").whereEqualTo("email", email)
-						.get().get();
+				QuerySnapshot query = db.collection("users").whereEqualTo("email", email).get().get();
 				if (query.isEmpty())
 					return;
 
@@ -123,7 +142,7 @@ public class EditProfile {
 				});
 
 			} catch (Exception ex) {
-				ex.printStackTrace();
+				System.err.println("[ERROR] Errorea profila kargatzerakoan");
 			}
 		}).start();
 	}
@@ -131,17 +150,16 @@ public class EditProfile {
 	public void showMessage(Boolean dbOk, Boolean pwdOk, String name, String surname, String dob, Runnable onSuccess) {
 		if (dbOk && pwdOk) {
 			javax.swing.SwingUtilities.invokeLater(() -> {
-				JOptionPane.showMessageDialog(null, "Profila ondo eguneratuta.\nIzena: " + name + "\nAbizenak: "
-						+ surname + "\nJaiotze Data: " + dob, "Gordeta", JOptionPane.INFORMATION_MESSAGE);
+				ErrorHandler.erakutsiInfo("Profila gordeta", "Zure profila ondo eguneratu da.\n\nIzena: " + name
+						+ "\nAbizenak: " + surname + "\nJaiotze Data: " + dob);
 				if (onSuccess != null) {
 					onSuccess.run();
 				}
 			});
 		} else {
 			javax.swing.SwingUtilities.invokeLater(() -> {
-				JOptionPane.showMessageDialog(null,
-						"Errorea profila eguneratzean. Konexioa konprobatu eta berriro zailatu", "Error",
-						JOptionPane.ERROR_MESSAGE);
+				ErrorHandler.erakutsiErrorea("Errorea profila eguneratzean",
+						"Ezin izan da profila eguneratu. Egiaztatu internet konexioa eta saiatu berriro.");
 			});
 		}
 		return;
@@ -157,14 +175,30 @@ public class EditProfile {
 		String pwd2 = new String(pfPassword2.getPassword());
 		String dob = finalTfDob.getText().trim();
 
+		// Balidatu izen-eremuak
+		String errorea = ValidationUtils.balidatuBeteBeharrekoa(name, "Izena");
+		if (errorea != null) {
+			ErrorHandler.erakutsiErrorea("Balidazio errorea", errorea);
+			return null;
+		}
+
+		errorea = ValidationUtils.balidatuBeteBeharrekoa(surname1, "Lehenengo abizena");
+		if (errorea != null) {
+			ErrorHandler.erakutsiErrorea("Balidazio errorea", errorea);
+			return null;
+		}
+
+		errorea = ValidationUtils.balidatuBeteBeharrekoa(surname2, "Bigarren abizena");
+		if (errorea != null) {
+			ErrorHandler.erakutsiErrorea("Balidazio errorea", errorea);
+			return null;
+		}
+
+		// Balidatu pasahitza aldatu nahi bada
 		if (!pwd.isEmpty() || !pwd2.isEmpty()) {
-			if (!pwd.equals(pwd2)) {
-				JOptionPane.showMessageDialog(null, "Pasahitzak ez dira berdinak.", "Error", JOptionPane.ERROR_MESSAGE);
-				return null;
-			}
-			if (pwd.length() < 6) {
-				JOptionPane.showMessageDialog(null, "Pasahitza gutxienez 6 karaktere izan behar ditu", "Error",
-						JOptionPane.ERROR_MESSAGE);
+			errorea = ValidationUtils.balidatuPasahitzakBerdinak(pwd, pwd2);
+			if (errorea != null) {
+				ErrorHandler.erakutsiErrorea("Pasahitza errorea", errorea);
 				return null;
 			}
 		}
@@ -175,23 +209,23 @@ public class EditProfile {
 
 	public void setLocalEmail(String localEmail) {
 		if (localEmail == null || localEmail.trim().isEmpty()) {
-			JOptionPane.showMessageDialog(null, "Ez da emaila aurkitu. Saioa hasi eta berriro zailatu", "Error",
-					JOptionPane.ERROR_MESSAGE);
+			ErrorHandler.erakutsiErrorea("Errorea",
+					"Ezin izan da zure email helbidea aurkitu. Saioa berriro hasi eta saiatu berriro.");
 			return;
 		}
 	}
 
 	public void updateProfileInDb(User userProfile, String targetEmail, Runnable onSuccess) {
 		new Thread(() -> {
-			boolean dbOk = updateUserDocument(targetEmail, userProfile.getName(),
-					userProfile.getSurname(), userProfile.getSurname2(), userProfile.getDobString());
+			boolean dbOk = updateUserDocument(targetEmail, userProfile.getName(), userProfile.getSurname(),
+					userProfile.getSurname2(), userProfile.getDobString());
 			boolean pwdOk = true;
 			if (userProfile.getPassword() != null && !userProfile.getPassword().isEmpty()) {
 				pwdOk = updatePasswordAuthAndSaveHash(targetEmail, userProfile.getPassword());
 			}
 
-			showMessage(dbOk, pwdOk, userProfile.getName(), userProfile.getFullSurname(),
-					userProfile.getDobString(), onSuccess);
+			showMessage(dbOk, pwdOk, userProfile.getName(), userProfile.getFullSurname(), userProfile.getDobString(),
+					onSuccess);
 
 		}).start();
 	}

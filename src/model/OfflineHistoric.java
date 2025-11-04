@@ -123,6 +123,7 @@ public class OfflineHistoric {
 
 	public boolean sinkronizatuLineazKanpoDBra(Boolean konektatuta) {
 		if (konektatuta == null || !konektatuta) {
+			System.out.println("[INFO] Lineaz kanpo - sinkronizaziorik ez");
 			return false;
 		}
 
@@ -132,13 +133,17 @@ public class OfflineHistoric {
 			Controller kontrolatzailea = Controller.getInstance();
 			Firestore db = kontrolatzailea.getDb();
 			if (db == null) {
+				System.err.println("[ERROR] Firestore DB ez dago eskuragarri sinkronizaziorako");
 				return false;
 			}
 
 			File fitxategia = new File(FITXATEGIA);
 			if (!fitxategia.exists() || fitxategia.length() == 0) {
+				System.out.println("[INFO] Ez dago lineaz kanpoko historikorik sinkronizatzeko");
 				return true;
 			}
+
+			System.out.println("[INFO] Hasten da lineaz kanpoko historikoaren sinkronizazioa...");
 
 			DocumentBuilderFactory fabrika = DocumentBuilderFactory.newInstance();
 			DocumentBuilder eraikitzailea = fabrika.newDocumentBuilder();
@@ -201,20 +206,22 @@ public class OfflineHistoric {
 						ApiFuture<WriteResult> etorkizuna = dokBerria.set(datuak);
 						etorkizuna.get();
 
+						System.out.println("[INFO] Historiko sarrera bat sinkronizatuta: " + erabiltzaileDokId);
+
 						try {
 							gehituHistorialeraXml(erabiltzaileDokId, datuak);
 							sinkronizatuIndizeak.add(i);
 						} catch (Exception e) {
-							System.err.println("Error appending to historic.xml: " + e.getMessage());
+							System.err.println("[ERROR] Errorea historic.xml-ra gehitzerakoan");
 							denaSinkronizatuta = false;
 						}
 					} catch (InterruptedException | ExecutionException e) {
-						System.err.println("Error al sincronizar con Firestore: " + e.getMessage());
+						System.err.println("[ERROR] Errorea Firestore-rekin sinkronizatzerakoan");
 						denaSinkronizatuta = false;
 						continue;
 					}
 				} else {
-					System.err.println("No se pudo encontrar el usuario para sincronizar");
+					System.err.println("[ERROR] Ezin izan da erabiltzailea aurkitu sinkronizatzeko: " + email);
 					denaSinkronizatuta = false;
 				}
 			}
@@ -248,10 +255,20 @@ public class OfflineHistoric {
 			Document egiaztatuDok = eraikitzailea.parse(fitxategia);
 			egiaztatuDok.getDocumentElement().normalize();
 			if (!egiaztatuDok.getDocumentElement().hasChildNodes()) {
-				fitxategia.delete();
+				boolean ezabatuta = fitxategia.delete();
+				if (ezabatuta) {
+					System.out.println("[INFO] Lineaz kanpoko historiko fitxategia ezabatuta (hutsik)");
+				}
+			}
+
+			if (denaSinkronizatuta) {
+				System.out.println("[INFO] Lineaz kanpoko historiko guztia ondo sinkronizatuta");
+			} else {
+				System.out.println("[ABISUA] Lineaz kanpoko historiko batzuk ezin izan dira sinkronizatu");
 			}
 
 		} catch (Exception e) {
+			System.err.println("[ERROR] Errorea sinkronizazio prozesuan");
 			e.printStackTrace();
 			return false;
 		}

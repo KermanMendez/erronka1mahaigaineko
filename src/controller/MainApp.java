@@ -5,14 +5,20 @@ import javax.swing.SwingUtilities;
 import model.CreateBackup;
 import model.Theme;
 
+/**
+ * Aplikazioaren sarrera puntua
+ */
 public class MainApp {
 
 	public static void main(String[] args) {
+		// Aplikatu itxura tema
 		Theme.apply();
 
+		// Hasieratu kontrolatzailea
 		Controller.initialize(false);
 		Controller controller = Controller.getInstance();
 
+		// Konektatu Firebase-ra
 		try {
 			DBConnection dbConnection = new DBConnection();
 			boolean connected = dbConnection.initialize(true);
@@ -20,26 +26,32 @@ public class MainApp {
 			if (connected) {
 				controller.setDbConnection(dbConnection);
 				controller.setOnline(true);
-				System.out.println("[MainApp] Firebase-ra konektatuta");
+				System.out.println("[INFO] Firebase-ra konektatuta");
 			} else {
-				System.err.println("[MainApp] Ezin da posible Firebase-ra konektatzea");
+				System.err.println("[ABISUA] Ezin izan da Firebase-ra konektatu. Lineaz kanpoko modua erabiliko da.");
 			}
 		} catch (Exception e) {
-			System.err.println("[MainApp] Error en conexión: " + e.getMessage());
+			System.err.println("[ERROR] Errorea konexioan");
 		}
 
+		// Erakutsi lehenengo leihoa
 		SwingUtilities.invokeLater(() -> {
 			controller.getFirstView(false).setVisible(true);
 		});
 
+		// Sortu backup-a atzeko planoan (daemon thread)
 		Thread backupThread = new Thread(() -> {
 			try {
 				if (controller.getDb() != null && controller.isOnline()) {
+					System.out.println("[INFO] Backup automatikoa hasten...");
 					CreateBackup backup = new CreateBackup();
 					backup.saveBackup(true);
+					System.out.println("[INFO] Backup-a arrakastaz gordeta");
+				} else {
+					System.out.println("[INFO] Lineaz kanpo - backup-ik ez da sortuko");
 				}
 			} catch (Exception e) {
-				System.err.println("[MainApp] Errorea backup-a sortzean");
+				System.err.println("[ERROR] Errorea backup-a sortzean");
 			}
 		}, "BackupThread");
 		backupThread.setPriority(Thread.MIN_PRIORITY);
