@@ -10,7 +10,7 @@ import model.ReadBackup;
 
 public class FirestoreUtils {
 
-	private DocumentSnapshot getUserDocumentByEmail(Firestore db, String email)
+	public DocumentSnapshot getUserDocumentByEmail(Firestore db, String email)
 			throws InterruptedException, ExecutionException {
 		if (db == null || email == null || email.trim().isEmpty()) {
 			return null;

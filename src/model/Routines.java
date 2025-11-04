@@ -26,8 +26,6 @@ public class Routines {
 	private final Firestore db;
 	private final Boolean connect;
 	private final DefaultListModel<String> listModel = new DefaultListModel<>();
-	private CreateUserBackup createUserBackup = new CreateUserBackup();
-	private ReadBackup reader = new ReadBackup();
 	private FirestoreUtils firestoreUtils = new FirestoreUtils();
 
 	public Routines(Boolean connect) {
@@ -37,13 +35,13 @@ public class Routines {
 
 	public String[] levels() {
 
-		String emaila = createUserBackup.loadEmail();
+		String emaila = CreateUserBackup.getCurrentUserEmail();
 		int level = 1;
 
 		try {
 			// OFFLINE MODE: leer del backup
 			if (connect == null || !connect || db == null) {
-				ReadBackup.BackupData backup = reader.loadBackupData();
+				ReadBackup.BackupData backup = ReadBackup.loadBackupSafe();
 				if (backup == null) {
 					System.err.println("[ERROR] Ezin izan da backup-a kargatu");
 					return new String[] { "Ez dago mailarik eskuragarri" };
@@ -58,14 +56,13 @@ public class Routines {
 				return levelsArray;
 			}
 
-			// ONLINE MODE: leer de Firestore
-			QuerySnapshot querySnapshot = db.collection("users").whereEqualTo("email", emaila).get().get();
-			if (querySnapshot.isEmpty()) {
+			// ONLINE MODE: leer de Firestore usando FirestoreUtils
+			DocumentSnapshot userDoc = firestoreUtils.getUserDocumentByEmail(db, emaila);
+			if (userDoc == null) {
 				System.err.println("[ERROR] Ez da erabiltzailea aurkitu: " + emaila);
 				return new String[] { "Ez dago mailarik eskuragarri" };
 			}
 
-			DocumentSnapshot userDoc = querySnapshot.getDocuments().get(0);
 			level = userDoc.getLong("level").intValue();
 
 			String[] levelsArray = new String[level];
@@ -152,8 +149,7 @@ public class Routines {
 			return workoutNames.toArray(new String[0]);
 		} else {
 			// OFFLINE MODE
-			ReadBackup reader = new ReadBackup();
-			ReadBackup.BackupData backup = reader.loadBackupData();
+			ReadBackup.BackupData backup = ReadBackup.loadBackupSafe();
 
 			if (backup != null) {
 				List<ReadBackup.DocumentData> workoutDocs = backup.collections.get("workouts");
@@ -216,7 +212,7 @@ public class Routines {
 			return levels.toArray(new String[0]);
 		} else {
 			// OFFLINE MODE
-			BackupData backup = reader.loadBackupData();
+			BackupData backup = ReadBackup.loadBackupSafe();
 
 			List<String> levels = new ArrayList<>();
 
@@ -256,9 +252,11 @@ public class Routines {
 	}
 
 	/**
+	 * Mailagileak aldatzean, rutinen comboBox-a eguneratzen du
 	 * Actualiza el comboBox de rutinas cuando cambia el nivel
 	 * 
-	 * @param isHistoric true para ViewHistoric, false para Workouts
+	 * @param isHistoric egia ViewHistoric-erako, faltsua Workouts-erako
+	 *                   true para ViewHistoric, false para Workouts
 	 */
 	public static void updateRoutinesComboBox(JComboBox<String> comboMaila, JComboBox<String> comboMailaRutinakLevel,
 			Routines routines, Boolean connect, JList<String> listaWorkout, boolean isHistoric) {
@@ -285,7 +283,7 @@ public class Routines {
 				String rutinarenIzenaToUse = chosenRoutine[0] != null && !chosenRoutine[0].isEmpty() ? chosenRoutine[0]
 						: (comboMailaRutinakLevel.getItemCount() > 0 ? comboMailaRutinakLevel.getItemAt(0) : "");
 
-				// Cargar lista según el tipo de vista
+				// Ikuspegi motaren arabera zerrenda kargatu / Cargar lista según el tipo de vista
 				updateList(aukeratutakoMaila, rutinarenIzenaToUse, connect, listaWorkout, isHistoric);
 
 			} catch (InterruptedException | ExecutionException ex) {
@@ -295,9 +293,11 @@ public class Routines {
 	}
 
 	/**
+	 * Hautatutako rutina aldatzen denean, zerrenda eguneratzen du
 	 * Actualiza la lista cuando cambia la rutina seleccionada
 	 * 
-	 * @param isHistoric true para ViewHistoric, false para Workouts
+	 * @param isHistoric egia ViewHistoric-erako, faltsua Workouts-erako
+	 *                   true para ViewHistoric, false para Workouts
 	 */
 	public static void updateWorkoutList(JComboBox<String> comboMaila, JComboBox<String> comboMailaRutinakLevel,
 			Boolean connect, JList<String> listaWorkout, boolean isHistoric) {
@@ -317,6 +317,7 @@ public class Routines {
 	}
 
 	/**
+	 * Zerrenda eguneratzeko metodo komuna (ariketak edo historikoa)
 	 * Método común para actualizar la lista (ejercicios o histórico)
 	 */
 	private static void updateList(int nivel, String rutinaNombre, Boolean connect, JList<String> listaWorkout,
@@ -325,11 +326,11 @@ public class Routines {
 		String[] datos;
 
 		if (isHistoric) {
-			// Para ViewHistoric: cargar histórico
+			// ViewHistoric-erako: historikoa kargatu / Para ViewHistoric: cargar histórico
 			ReadHistoric readHistoric = new ReadHistoric(connect);
 			datos = readHistoric.getHistoric(nivel, rutinaNombre, connect);
 		} else {
-			// Para Workouts: cargar ejercicios
+			// Workouts-erako: ariketak kargatu / Para Workouts: cargar ejercicios
 			Routines routines = new Routines(connect);
 			datos = routines.getLevels(nivel, rutinaNombre, connect);
 		}

@@ -14,10 +14,10 @@ public class User implements Serializable {
 	private String email;
 	private String password;
 	private Date birthDate;
-	private boolean isTrainer;
+	private boolean trainer;
 
 	public User(String id, String name, String surname, String surname2, String email, String password, Date birthDate,
-			boolean isTrainer) {
+			boolean trainer) {
 		this.id = id;
 		this.name = name;
 		this.surname = surname;
@@ -25,7 +25,7 @@ public class User implements Serializable {
 		this.email = email;
 		this.password = password;
 		this.birthDate = birthDate;
-		this.isTrainer = isTrainer;
+		this.trainer = trainer;
 	}
 
 	public User(String username, String email, String password) {
@@ -63,8 +63,8 @@ public class User implements Serializable {
 		return id;
 	}
 
-	public boolean isTrainer() {
-		return isTrainer;
+	public boolean trainer() {
+		return trainer;
 	}
 
 	public String getName() {
@@ -123,7 +123,7 @@ public class User implements Serializable {
 		this.surname2 = surname2;
 	}
 
-	public void setTrainer(boolean isTrainer) {
-		this.isTrainer = isTrainer;
+	public void setTrainer(boolean trainer) {
+		this.trainer = trainer;
 	}
 }

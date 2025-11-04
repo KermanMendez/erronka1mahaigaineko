@@ -25,6 +25,25 @@ public class ReadBackup {
 	private final String FICHERO = "backup.dat";
 	private CryptoUtils cryptoUtils = new CryptoUtils();
 
+	/**
+	 * Backup-a modu seguruan kargatzen du, null itzultzen du errorea badago
+	 * Carga el backup de forma segura, retornando null si hay error
+	 * 
+	 * Metodo laguntzaile estatikoa erabilera orokorrerako
+	 * Método helper estático para uso común
+	 * 
+	 * @return BackupData edo null ez badago edo errorea badago / BackupData o null si no existe o hay error
+	 */
+	public static BackupData loadBackupSafe() {
+		try {
+			ReadBackup reader = new ReadBackup();
+			return reader.loadBackupData();
+		} catch (Exception e) {
+			System.err.println("[ERROR] Error cargando backup: " + e.getMessage());
+			return null;
+		}
+	}
+
 	public static class UserData {
 		public String uid;
 		public String email;

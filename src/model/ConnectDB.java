@@ -1,14 +1,10 @@
 package model;
 
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
@@ -30,6 +26,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import util.DateUtils;
 import util.ErrorHandler;
+import util.PasswordUtils;
 import util.ValidationUtils;
 import view.Inter;
 
@@ -41,10 +38,8 @@ public class ConnectDB {
 	private static final MediaType JSON_MEDIA = MediaType.parse("application/json; charset=utf-8");
 	private DateUtils dateUtils = new DateUtils();
 
-	private ReadBackup reader = new ReadBackup();
-
 	public Boolean eskaeraRegistratu(String izena, String abizena1, String abizena2, String email, String password,
-			Date birthdate, Boolean isTrainer, Boolean connect) {
+			Date birthdate, Boolean trainer, Boolean connect) {
 
 		// Balidatu datuak ValidationUtils erabiliz
 		String erroreMezua = ValidationUtils.balidatuErregistroa(izena, abizena1, abizena2, email, password, password,
@@ -58,7 +53,7 @@ public class ConnectDB {
 		String birthdateString = dateUtils.formatDate(birthdate);
 
 		try {
-			createUser(izena, abizena1, abizena2, email, password, birthdateString, isTrainer, connect);
+			createUser(izena, abizena1, abizena2, email, password, birthdateString, trainer, connect);
 			ErrorHandler.erakutsiInfo("Erregistroa", "Ondo erregistratu zara. Orain saioa hasi dezakezu.");
 			return true;
 		} catch (Exception ex) {
@@ -75,27 +70,17 @@ public class ConnectDB {
 	}
 
 	public String hashPassword(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
-		int iterations = 65536;
-		int keyLength = 256;
-		byte[] salt = new byte[16];
-		SecureRandom sr = new SecureRandom();
-		sr.nextBytes(salt);
-
-		PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations, keyLength);
-		SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-		byte[] hash = skf.generateSecret(spec).getEncoded();
-
-		return Base64.getEncoder().encodeToString(salt) + "$" + Base64.getEncoder().encodeToString(hash);
+		return PasswordUtils.hashPasahitza(password);
 	}
 
 	public void createUser(String name, String surname1, String surname2, String email, String password,
-			String birthdate, Boolean isTrainer, Boolean connect) throws Exception {
+			String birthdate, Boolean trainer, Boolean connect) throws Exception {
 
 		Controller controller = Controller.getInstance();
 		Firestore db = controller.getDb();
 		int level = 1;
 
-		if (isTrainer) {
+		if (trainer) {
 			level = 5;
 		}
 
@@ -108,7 +93,7 @@ public class ConnectDB {
 
 		DocumentReference uidDoc = db.collection("users").document(userRecord.getUid());
 		Map<String, Object> erabiltzaileDatuak = Map.of("name", name, "surname", surname1, "surname2", surname2,
-				"email", email, "birthdate", birthdate, "isTrainer", isTrainer, "password", hashedPassword, "level",
+				"email", email, "birthdate", birthdate, "trainer", trainer, "password", hashedPassword, "level",
 				level);
 
 		uidDoc.set(erabiltzaileDatuak);
@@ -145,11 +130,11 @@ public class ConnectDB {
 					return null;
 				}
 
-				Boolean entrenatzaileaDa = userDoc.getBoolean("isTrainer");
+				Boolean entrenatzaileaDa = userDoc.getBoolean("trainer");
 				if (entrenatzaileaDa == null)
 					entrenatzaileaDa = false;
 
-				// Pasar el estado de conexión real, no el campo isTrainer
+				// Pasar el estado de conexión real, no el campo trainer
 				Inter inter = new Inter(connect);
 				inter.setVisible(true);
 
@@ -160,7 +145,7 @@ public class ConnectDB {
 
 			} else {
 				// Offline
-				BackupData backup = reader.loadBackupData();
+				BackupData backup = ReadBackup.loadBackupSafe();
 				if (backup == null)
 					return null;
 
@@ -176,24 +161,7 @@ public class ConnectDB {
 							continue;
 						}
 
-						String[] parts = storedPassword.split("\\$");
-						if (parts.length != 2)
-							continue;
-
-						byte[] salt = Base64.getDecoder().decode(parts[0]);
-						byte[] hashStored = Base64.getDecoder().decode(parts[1]);
-
-						PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 256);
-						SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-						byte[] hashAttempt = skf.generateSecret(spec).getEncoded();
-
-						boolean valid = hashStored.length == hashAttempt.length;
-						for (int i = 0; i < hashStored.length && valid; i++) {
-							if (hashStored[i] != hashAttempt[i])
-								valid = false;
-						}
-
-						if (!valid) {
+						if (!PasswordUtils.egiaztaturPasahitza(password, storedPassword)) {
 							ErrorHandler.erakutsiErrorea("Autentifikazio errorea",
 									"Erabiltzailea edo pasahitza ez dira zuzenak.");
 							return null;

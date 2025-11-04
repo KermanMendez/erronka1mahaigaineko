@@ -32,7 +32,7 @@ public class RegisterDialog extends JFrame {
 	private JTextField abizena2Field;
 	private JDatePickerImpl datePicker;
 	private JTextField textFieldIzena;
-	private JCheckBox checkboxIsTrainer;
+	private JCheckBox checkboxtrainer;
 	private ConnectDB connectDB = new ConnectDB();
 
 	public RegisterDialog(Boolean connect) {
@@ -145,10 +145,10 @@ public class RegisterDialog extends JFrame {
 		gbc.gridy = row;
 		form.add(lblTrainer, gbc);
 
-		checkboxIsTrainer = new JCheckBox();
+		checkboxtrainer = new JCheckBox();
 		gbc.gridx = 1;
 		gbc.gridy = row++;
-		form.add(checkboxIsTrainer, gbc);
+		form.add(checkboxtrainer, gbc);
 
 		root.add(form, BorderLayout.CENTER);
 
@@ -163,7 +163,7 @@ public class RegisterDialog extends JFrame {
 				Boolean registroa = connectDB.eskaeraRegistratu(textFieldIzena.getText().trim(),
 						abizena1Field.getText().trim(), abizena2Field.getText().trim(), textFieldEmail.getText().trim(),
 						new String(passwordField.getPassword()), (java.util.Date) datePicker.getModel().getValue(),
-						checkboxIsTrainer.isSelected(), connect);
+						checkboxtrainer.isSelected(), connect);
 				if (registroa) {
 					dispose();
 				}

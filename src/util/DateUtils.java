@@ -9,6 +9,18 @@ public class DateUtils {
 	public static final String DEFAULT_DATE_FORMAT = "dd/MM/yyyy";
 	private static final SimpleDateFormat sdf = new SimpleDateFormat(DEFAULT_DATE_FORMAT);
 	
+	/**
+	 * Uneko data formateatua lortzen du
+	 * Obtiene la fecha actual formateada
+	 * 
+	 * @return dd/MM/yyyy formatua duen String-a / String con formato dd/MM/yyyy
+	 */
+	public static String getCurrentFormattedDate() {
+		synchronized (sdf) {
+			return sdf.format(new Date());
+		}
+	}
+	
 	public String formatDate(Date date) {
 		if (date == null) {
 			return "";
@@ -36,6 +48,21 @@ public class DateUtils {
 	}
 	
 	public String getCurrentDateFormatted() {
-		return formatDate(new Date());
+		return getCurrentFormattedDate();
+	}
+	
+	/**
+	 * Formatea Date a String (método estático de conveniencia)
+	 * @param date Fecha a formatear
+	 * @return String formateado o cadena vacía si es null
+	 */
+	public static String formatDateStatic(Date date) {
+		if (date == null) {
+			return "";
+		}
+		synchronized (sdf) {
+			return sdf.format(date);
+		}
 	}
 }
+

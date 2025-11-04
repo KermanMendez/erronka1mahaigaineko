@@ -1,6 +1,5 @@
 package model;
 
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
@@ -28,24 +27,44 @@ public class Hariak {
 	private int elapsedSeconds = 0;
 	private int expectedTotalSeconds = 0;
 	private Firestore db;
-	private CreateUserBackup createUserBackup = new CreateUserBackup();
 	private volatile boolean skipNow = false;
 	private int level;
 	private FirestoreUtils firestoreUtils = new FirestoreUtils();
 
+	/**
+	 * Carga la rutina completa con todos sus datos
+	 * 
+	 * @deprecated Use loadRoutine() instead
+	 */
+	@Deprecated
 	public List<Exercise> start(int level, String routineName, Boolean connect)
 			throws InterruptedException, ExecutionException {
 		return getExercises(level, routineName, connect);
 	}
 
+	/**
+	 * Rutinaren ariketa zerrenda soilik lortzen du
+	 * Obtiene solo la lista de ejercicios de una rutina
+	 * 
+	 * Metodo erraztu bat da loadRoutine() erabiltzen duena
+	 * Método simplificado que usa loadRoutine()
+	 */
+	public List<Exercise> getExercises(int level, String routineName, Boolean connect)
+			throws InterruptedException, ExecutionException {
+		RoutineData routineData = loadRoutine(level, routineName, connect);
+		return routineData.getExercises();
+	}
+
+	/**
+	 * Carga la rutina completa con descripción y total de sets
+	 */
 	public RoutineData loadRoutine(int level, String routineName, Boolean connect)
 			throws InterruptedException, ExecutionException {
 
 		this.level = level;
 
 		if (connect == null || !connect) {
-			ReadBackup reader = new ReadBackup();
-			ReadBackup.BackupData backup = reader.loadBackupData();
+			ReadBackup.BackupData backup = ReadBackup.loadBackupSafe();
 			if (backup == null)
 				return new RoutineData(Collections.emptyList(), "", 0);
 
@@ -57,24 +76,6 @@ public class Hariak {
 		ExercisesResult res = loadExercisesFromFirestore(level, routineName);
 		String description = getDefaultRoutineDescription(res.routineDescription, res.exercises);
 		return new RoutineData(res.exercises, description, res.totalSets);
-	}
-
-	private List<Exercise> getExercises(int level, String routineName, Boolean connect)
-			throws InterruptedException, ExecutionException {
-
-		this.level = level;
-
-		if (connect == null || !connect) {
-			ReadBackup reader = new ReadBackup();
-			ReadBackup.BackupData backup = reader.loadBackupData();
-			if (backup == null)
-				return new ArrayList<>();
-			ExercisesResult res = loadExercisesFromBackup(level, routineName, backup);
-			return res.exercises;
-		}
-
-		ExercisesResult res = loadExercisesFromFirestore(level, routineName);
-		return res.exercises;
 	}
 
 	private static class ExercisesResult {
@@ -114,10 +115,10 @@ public class Hariak {
 					exerciseDocs = d.subcollections.get("exercise");
 
 				if (exerciseDocs != null) {
-					for (ReadBackup.DocumentData exDoc : exerciseDocs) {
-						Exercise ex = exerciseFromBackupDoc(exDoc);
-						exercises.add(ex);
-						totalSets += ex.getSets();
+					for (ReadBackup.DocumentData exerciseDoc : exerciseDocs) {
+						Exercise exercise = exerciseFromBackupDoc(exerciseDoc);
+						exercises.add(exercise);
+						totalSets += exercise.getSets();
 					}
 				}
 				break;
@@ -127,15 +128,39 @@ public class Hariak {
 		return new ExercisesResult(exercises, totalSets, routineDescription);
 	}
 
+	/**
+	 * Crea un objeto Exercise desde un documento de backup
+	 */
 	private Exercise exerciseFromBackupDoc(ReadBackup.DocumentData exDoc) {
-		Exercise ex = new Exercise();
-		ex.setName(exDoc.fields.get("name"));
-		ex.setDescription(exDoc.fields.get("description"));
-		ex.setReps(exDoc.fields.get("reps"));
-		ex.setSets(exDoc.fields.get("sets"));
-		ex.setSerieTime(exDoc.fields.get("timeSets"));
-		ex.setRestTimeSec(exDoc.fields.get("timePauseSec"));
-		return ex;
+		Exercise exercise = new Exercise();
+		exercise.setName(exDoc.fields.get("name"));
+		exercise.setDescription(exDoc.fields.get("description"));
+		exercise.setReps(exDoc.fields.get("reps"));
+		exercise.setSets(exDoc.fields.get("sets"));
+		exercise.setSerieTime(exDoc.fields.get("timeSets"));
+		exercise.setRestTimeSec(exDoc.fields.get("timePauseSec"));
+		return exercise;
+	}
+
+	/**
+	 * Crea un objeto Exercise desde un documento de Firestore
+	 */
+	private Exercise exerciseFromFirestoreDoc(QueryDocumentSnapshot exerciseDoc) {
+		Exercise exercise = new Exercise();
+		String name = exerciseDoc.getString("name");
+		String description = exerciseDoc.getString("description");
+
+		if (name != null)
+			exercise.setName(name);
+		if (description != null)
+			exercise.setDescription(description);
+
+		exercise.setReps(exerciseDoc.get("reps"));
+		exercise.setSets(exerciseDoc.get("sets"));
+		exercise.setSerieTime(exerciseDoc.get("timeSets"));
+		exercise.setRestTimeSec(exerciseDoc.get("timePauseSec"));
+
+		return exercise;
 	}
 
 	private ExercisesResult loadExercisesFromFirestore(int level, String routineName)
@@ -159,21 +184,10 @@ public class Hariak {
 		List<QueryDocumentSnapshot> exerciseDocs = routineDoc.getReference().collection("exercises").get().get()
 				.getDocuments();
 
-		for (QueryDocumentSnapshot doc : exerciseDocs) {
-			Exercise ex = new Exercise();
-			String name = doc.getString("name");
-			String description = doc.getString("description");
-			if (name != null)
-				ex.setName(name);
-			if (description != null)
-				ex.setDescription(description);
-
-			ex.setReps(doc.get("reps"));
-			ex.setSets(doc.get("sets"));
-			ex.setSerieTime(doc.get("timeSets"));
-			ex.setRestTimeSec(doc.get("timePauseSec"));
-			exercises.add(ex);
-			totalSets += ex.getSets();
+		for (QueryDocumentSnapshot exerciseDoc : exerciseDocs) {
+			Exercise exercise = exerciseFromFirestoreDoc(exerciseDoc);
+			exercises.add(exercise);
+			totalSets += exercise.getSets();
 		}
 
 		return new ExercisesResult(exercises, totalSets, routineDescription);
@@ -187,75 +201,33 @@ public class Hariak {
 		return "";
 	}
 
+	/**
+	 * Ejecuta el thread de ejercicios con el modo especificado Refactorizado para
+	 * reducir complejidad de bucles anidados
+	 */
 	private void runExerciseThread(List<Exercise> exercises, JLabel label, Supplier<Boolean> stopSupplier,
 			Supplier<Boolean> skipRest, Supplier<Boolean> pauseSupplier, Object pauseLock, int mode, boolean canPause) {
 
 		if (exercises == null || exercises.isEmpty())
 			return;
 
-		for (int exIdx = 0; exIdx < exercises.size(); exIdx++) {
-			Exercise ex = exercises.get(exIdx);
-			int sets = ex.getSets();
-			int serieTime = ex.getSerieTime();
-			int restTime = ex.getRestTimeSec();
+		for (int exerciseIndex = 0; exerciseIndex < exercises.size(); exerciseIndex++) {
+			Exercise currentExercise = exercises.get(exerciseIndex);
 
-			for (int s = 1; s <= sets; s++) {
-
-				for (int t = 1; t <= serieTime; t++) {
-					if (stopSupplier != null && stopSupplier.get()) {
-						if (mode == 0)
-							totalSeconds = elapsedSeconds;
-						return;
-					}
-					if (canPause)
-						waitIfPaused(pauseSupplier, pauseLock);
-
-					if (mode == 0) {
-						elapsedSeconds++;
-						totalSeconds = elapsedSeconds;
-						int remaining = expectedTotalSeconds - elapsedSeconds + 1;
-						if (remaining < 0)
-							remaining = 0;
-						totalTime = remaining;
-					}
-
-					final int currentSec = t;
-					final int currentSet = s;
-					final int serieTimeFinal = serieTime;
-
-					SwingUtilities.invokeLater(() -> {
-						if (label == null)
-							return;
-						if (mode == 0)
-							label.setText("Denbora totala: " + totalTime + " seg");
-						else if (mode == 1)
-							label.setText("Sets " + currentSet + " - " + currentSec + "/" + serieTimeFinal + " seg");
-					});
-
-					sleep(1000);
-				}
-
-				if (mode == 0) {
-					completedSets++;
-				}
-
-				if (s < sets) {
-					skipNow = false;
-					boolean stopped = handleRestPeriod(restTime, mode, label, stopSupplier, skipRest, pauseSupplier,
-							pauseLock, false);
-					if (stopped) {
-						if (mode == 0)
-							totalSeconds = elapsedSeconds;
-						return;
-					}
-				}
+			// Ejecutar todos los sets del ejercicio
+			boolean stopped = executeExerciseSets(currentExercise, label, stopSupplier, skipRest, pauseSupplier, pauseLock, mode,
+					canPause);
+			if (stopped) {
+				if (mode == 0)
+					totalSeconds = elapsedSeconds;
+				return;
 			}
 
-			if (exIdx < exercises.size() - 1) {
-				int interExerciseRest = restTime;
+			// Descanso entre ejercicios (si no es el último)
+			if (exerciseIndex < exercises.size() - 1) {
 				skipNow = false;
-				boolean stopped = handleRestPeriod(interExerciseRest, mode, label, stopSupplier, skipRest,
-						pauseSupplier, pauseLock, true);
+				stopped = handleRestPeriod(currentExercise.getRestTimeSec(), mode, label, stopSupplier, skipRest, pauseSupplier,
+						pauseLock, true);
 				if (stopped) {
 					if (mode == 0)
 						totalSeconds = elapsedSeconds;
@@ -263,6 +235,84 @@ public class Hariak {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Ejecuta todos los sets de un ejercicio Extraído para reducir complejidad de
+	 * bucles anidados
+	 */
+	private boolean executeExerciseSets(Exercise exercise, JLabel label, Supplier<Boolean> stopSupplier,
+			Supplier<Boolean> skipRest, Supplier<Boolean> pauseSupplier, Object pauseLock, int mode, boolean canPause) {
+
+		int sets = exercise.getSets();
+		int serieTime = exercise.getSerieTime();
+		int restTime = exercise.getRestTimeSec();
+
+		for (int setNumber = 1; setNumber <= sets; setNumber++) {
+			// Ejecutar una serie completa
+			boolean stopped = executeSet(setNumber, serieTime, label, stopSupplier, pauseSupplier, pauseLock, mode, canPause);
+			if (stopped) {
+				return true;
+			}
+
+			if (mode == 0) {
+				completedSets++;
+			}
+
+			// Descanso entre series (si no es la última)
+			if (setNumber < sets) {
+				skipNow = false;
+				stopped = handleRestPeriod(restTime, mode, label, stopSupplier, skipRest, pauseSupplier, pauseLock,
+						false);
+				if (stopped) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Ejecuta un set (serie) individual Extraído para reducir complejidad de bucles
+	 * anidados
+	 */
+	private boolean executeSet(int currentSet, int serieTime, JLabel label, Supplier<Boolean> stopSupplier,
+			Supplier<Boolean> pauseSupplier, Object pauseLock, int mode, boolean canPause) {
+
+		for (int secondsElapsed = 1; secondsElapsed <= serieTime; secondsElapsed++) {
+			if (stopSupplier != null && stopSupplier.get()) {
+				if (mode == 0)
+					totalSeconds = elapsedSeconds;
+				return true;
+			}
+
+			if (canPause)
+				waitIfPaused(pauseSupplier, pauseLock);
+
+			if (mode == 0) {
+				elapsedSeconds++;
+				totalSeconds = elapsedSeconds;
+				int remaining = expectedTotalSeconds - elapsedSeconds + 1;
+				if (remaining < 0)
+					remaining = 0;
+				totalTime = remaining;
+			}
+
+			final int currentSec = secondsElapsed;
+			final int serieTimeFinal = serieTime;
+
+			SwingUtilities.invokeLater(() -> {
+				if (label == null)
+					return;
+				if (mode == 0)
+					label.setText("Denbora totala: " + totalTime + " seg");
+				else if (mode == 1)
+					label.setText("Sets " + currentSet + " - " + currentSec + "/" + serieTimeFinal + " seg");
+			});
+
+			sleep(1000);
+		}
+		return false;
 	}
 
 	private boolean handleRestPeriod(int restDuration, int mode, JLabel label, Supplier<Boolean> stopSupplier,
@@ -361,7 +411,8 @@ public class Hariak {
 				});
 
 				startExerciseThreads(exercises, labelTotal, labelSeries, labelDescansos, labelHasiera, stopSupplier,
-						skipSupplier, pauseSupplier, lock, routineName, true, true, true, onWorkoutStarted, onWorkoutFinished);
+						skipSupplier, pauseSupplier, lock, routineName, true, true, true, onWorkoutStarted,
+						onWorkoutFinished);
 
 			} catch (InterruptedException | ExecutionException ex) {
 				ex.printStackTrace();
@@ -387,7 +438,7 @@ public class Hariak {
 
 				SwingUtilities.invokeLater(() -> {
 					if (labelHasiera != null)
-						labelHasiera.setText("🏋Goazen! Entrenamendua hasi da!");
+						labelHasiera.setText("Goazen! Entrenamendua hasi da!");
 				});
 				Thread.sleep(1000);
 
@@ -478,22 +529,43 @@ public class Hariak {
 		}).start();
 	}
 
+	/**
+	 * Calcula el tiempo total esperado para completar todos los ejercicios Incluye
+	 * tiempo de series y descansos
+	 */
 	private int computeExpectedTotalSeconds(List<Exercise> exercises) {
-		int total = 0;
-		if (exercises == null)
+		if (exercises == null || exercises.isEmpty())
 			return 0;
+
+		int total = 0;
 		for (int i = 0; i < exercises.size(); i++) {
 			Exercise e = exercises.get(i);
-			int sets = e.getSets();
-			int serieTime = e.getSerieTime();
-			int restTime = e.getRestTimeSec();
-			total += sets * serieTime;
-			if (sets > 1)
-				total += restTime * (sets - 1);
-			if (i < exercises.size() - 1)
-				total += restTime;
+			total += computeExerciseTime(e);
+
+			// Añadir descanso entre ejercicios (excepto el último)
+			if (i < exercises.size() - 1) {
+				total += e.getRestTimeSec();
+			}
 		}
 		return total;
+	}
+
+	/**
+	 * Calcula el tiempo total de un ejercicio individual (tiempo de series +
+	 * descansos entre series)
+	 */
+	private int computeExerciseTime(Exercise exercise) {
+		int sets = exercise.getSets();
+		int serieTime = exercise.getSerieTime();
+		int restTime = exercise.getRestTimeSec();
+
+		// Tiempo total de series
+		int totalSerieTime = sets * serieTime;
+
+		// Tiempo total de descansos entre series (n-1 descansos)
+		int totalRestTime = (sets > 1) ? restTime * (sets - 1) : 0;
+
+		return totalSerieTime + totalRestTime;
 	}
 
 	public void sumLevel() {
@@ -501,14 +573,12 @@ public class Hariak {
 		if (!amaituta)
 			return;
 
-		String emaila = createUserBackup.loadEmail();
+		String emaila = CreateUserBackup.getCurrentUserEmail();
 
 		try {
-			QuerySnapshot querySnapshot = db.collection("users").whereEqualTo("email", emaila).get().get();
-			if (querySnapshot.isEmpty())
+			DocumentSnapshot userDoc = firestoreUtils.getUserDocumentByEmail(db, emaila);
+			if (userDoc == null)
 				return;
-
-			DocumentSnapshot userDoc = querySnapshot.getDocuments().get(0);
 
 			if (level < 5) {
 				level++;
@@ -523,7 +593,7 @@ public class Hariak {
 	}
 
 	public void historyLog(String routineName) {
-		String email = createUserBackup.loadEmail();
+		String email = CreateUserBackup.getCurrentUserEmail();
 
 		try {
 			if (db != null) {
@@ -539,7 +609,7 @@ public class Hariak {
 
 				CollectionReference history = db.collection("users").document(userId).collection("historic");
 
-				String today = java.time.LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+				String today = util.DateUtils.getCurrentFormattedDate();
 				Map<String, Object> data = new HashMap<>();
 				data.put("completed", amaituta);
 				data.put("date", today);
@@ -559,8 +629,7 @@ public class Hariak {
 
 		try {
 			OfflineHistoric offline = new OfflineHistoric();
-			ReadBackup reader = new ReadBackup();
-			ReadBackup.BackupData backup = reader.loadBackupData();
+			ReadBackup.BackupData backup = ReadBackup.loadBackupSafe();
 			String uid = firestoreUtils.getUserIdFromBackup(backup, email);
 
 			String workoutId = null;
@@ -579,7 +648,7 @@ public class Hariak {
 				}
 			}
 
-			String today = java.time.LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+			String today = util.DateUtils.getCurrentFormattedDate();
 			Map<String, String> fields = new HashMap<>();
 			fields.put("completed", String.valueOf(amaituta));
 			fields.put("date", today);

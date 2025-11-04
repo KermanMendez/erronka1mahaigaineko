@@ -5,7 +5,9 @@ import java.util.concurrent.ExecutionException;
 
 import com.google.cloud.firestore.*;
 import controller.Controller;
+import util.FirestoreUtils;
 import util.ParseUtils;
+import util.XMLUtils;
 
 public class ReadHistoric {
 
@@ -22,11 +24,12 @@ public class ReadHistoric {
 		List<String> resultList = new ArrayList<>();
 
 		if (connect) {
-			String email = new CreateUserBackup().loadEmail();
-			QuerySnapshot querySnapshot = db.collection("users").whereEqualTo("email", email).get().get();
+			String email = CreateUserBackup.getCurrentUserEmail();
+			FirestoreUtils firestoreUtils = new FirestoreUtils();
+			DocumentSnapshot userDoc = firestoreUtils.getUserDocumentByEmail(db, email);
 
-			if (!querySnapshot.isEmpty()) {
-				for (DocumentSnapshot routineDoc : querySnapshot.getDocuments()) {
+			if (userDoc != null) {
+				for (DocumentSnapshot routineDoc : java.util.Arrays.asList(userDoc)) {
 					List<QueryDocumentSnapshot> exerciseDocs = routineDoc.getReference().collection("historic")
 							.whereEqualTo("level", aukeratutakoMaila).get().get().getDocuments();
 
@@ -37,9 +40,8 @@ public class ReadHistoric {
 			}
 		}
 
-		ReadBackup reader = new ReadBackup();
-		ReadBackup.BackupData backup = reader.loadBackupData();
-		String email = new CreateUserBackup().loadEmail();
+		ReadBackup.BackupData backup = ReadBackup.loadBackupSafe();
+		String email = CreateUserBackup.getCurrentUserEmail();
 
 		if (backup != null && email != null) {
 			String userId = null;
@@ -120,15 +122,12 @@ public class ReadHistoric {
 			int level, String rutinarenIzena) {
 
 		List<String> result = new ArrayList<>();
-		java.io.File file = new java.io.File(fileName);
-		if (!file.exists() || file.length() == 0)
-			return result;
-
+		
 		try {
-			javax.xml.parsers.DocumentBuilderFactory factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
-			javax.xml.parsers.DocumentBuilder builder = factory.newDocumentBuilder();
-			org.w3c.dom.Document doc = builder.parse(file);
-			doc.getDocumentElement().normalize();
+			org.w3c.dom.Document doc = XMLUtils.parseXmlDocument(fileName);
+			if (doc == null) {
+				return result;
+			}
 
 			org.w3c.dom.NodeList users = doc.getElementsByTagName("user");
 			for (int i = 0; i < users.getLength(); i++) {

@@ -4,12 +4,12 @@ import javax.swing.JTextField;
 
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QuerySnapshot;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserRecord;
 
 import controller.Controller;
 import util.ErrorHandler;
+import util.FirestoreUtils;
 import util.ValidationUtils;
 
 public class EditProfile {
@@ -23,14 +23,14 @@ public class EditProfile {
 				return false;
 			}
 
-			com.google.cloud.firestore.QuerySnapshot query = db.collection("users").whereEqualTo("email", email).get()
-					.get();
-			if (query.isEmpty()) {
+			FirestoreUtils firestoreUtils = new FirestoreUtils();
+			com.google.cloud.firestore.DocumentSnapshot userDoc = firestoreUtils.getUserDocumentByEmail(db, email);
+			if (userDoc == null) {
 				System.err.println("[ERROR] Ez da erabiltzailea aurkitu email honekin: " + email);
 				return false;
 			}
 
-			DocumentReference docRef = query.getDocuments().get(0).getReference();
+			DocumentReference docRef = userDoc.getReference();
 
 			java.util.Map<String, Object> updates = new java.util.HashMap<>();
 			updates.put("name", name != null ? name : "");
@@ -61,23 +61,24 @@ public class EditProfile {
 				return false;
 			}
 
-			com.google.cloud.firestore.QuerySnapshot query = db.collection("users").whereEqualTo("email", email).get()
-					.get();
-			if (query.isEmpty()) {
+			FirestoreUtils firestoreUtils = new FirestoreUtils();
+			String uid = firestoreUtils.getUserIdByEmail(db, email);
+			if (uid == null) {
 				System.err.println("[ERROR] Ez da erabiltzailea aurkitu email honekin: " + email);
 				return false;
 			}
-
-			com.google.cloud.firestore.DocumentSnapshot doc = query.getDocuments().get(0);
-			String uid = doc.getId();
 
 			UserRecord.UpdateRequest req = new com.google.firebase.auth.UserRecord.UpdateRequest(uid)
 					.setPassword(newPassword);
 			FirebaseAuth.getInstance().updateUser(req);
 
-			model.ConnectDB conn = new model.ConnectDB();
-			String hashed = conn.hashPassword(newPassword);
-			doc.getReference().update(java.util.Map.of("password", hashed)).get();
+			String hashed = util.PasswordUtils.hashPasahitza(newPassword);
+
+			com.google.cloud.firestore.DocumentSnapshot userDocForUpdate = firestoreUtils.getUserDocumentByEmail(db,
+					email);
+			if (userDocForUpdate != null) {
+				userDocForUpdate.getReference().update(java.util.Map.of("password", hashed)).get();
+			}
 
 			System.out.println("[INFO] Pasahitza eguneratuta");
 			return true;
@@ -91,7 +92,7 @@ public class EditProfile {
 	public void loadProfileFromDb(JTextField tfName, JTextField tfSurname1, JTextField tfSurname2, JTextField tfDob) {
 		new Thread(() -> {
 			try {
-				String email = new CreateUserBackup().loadEmail();
+				String email = CreateUserBackup.getCurrentUserEmail();
 				if (email == null || email.trim().isEmpty()) {
 					System.err.println("[ABISUA] Ez dago email-ik gordeta");
 					return;
@@ -105,11 +106,10 @@ public class EditProfile {
 					return;
 				}
 
-				QuerySnapshot query = db.collection("users").whereEqualTo("email", email).get().get();
-				if (query.isEmpty())
+				FirestoreUtils firestoreUtils = new FirestoreUtils();
+				com.google.cloud.firestore.DocumentSnapshot userDoc = firestoreUtils.getUserDocumentByEmail(db, email);
+				if (userDoc == null)
 					return;
-
-				com.google.cloud.firestore.DocumentSnapshot userDoc = query.getDocuments().get(0);
 				String name = userDoc.getString("name");
 				String surname = userDoc.getString("surname");
 				String surname2 = userDoc.getString("surname2");

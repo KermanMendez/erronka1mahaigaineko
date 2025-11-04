@@ -1,50 +1,32 @@
 package model;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
+
 import controller.Controller;
+import util.XMLUtils;
 
 public class OfflineHistoric {
 
 	private final String FITXATEGIA = "offlineHistoric.xml";
 
 	private void gehituHistorialeraXml(String erabiltzaileId, Map<String, Object> datuak) throws Exception {
-		File fitxategia = new File("historic.xml");
-		DocumentBuilderFactory fabrika = DocumentBuilderFactory.newInstance();
-		DocumentBuilder eraikitzailea = fabrika.newDocumentBuilder();
-		Document dokumentua;
-		Element erroa;
-
-		if (fitxategia.exists() && fitxategia.length() > 0) {
-			dokumentua = eraikitzailea.parse(fitxategia);
-			dokumentua.getDocumentElement().normalize();
-			erroa = dokumentua.getDocumentElement();
-		} else {
-			dokumentua = eraikitzailea.newDocument();
-			erroa = dokumentua.createElement("historicBackup");
-			dokumentua.appendChild(erroa);
-		}
+		Document dokumentua = XMLUtils.parseOrCreateXmlDocument("historic.xml", "historicBackup");
+		Element erroa = dokumentua.getDocumentElement();
 
 		Element erabiltzaileElem = dokumentua.createElement("user");
 		if (erabiltzaileId != null)
@@ -59,36 +41,13 @@ public class OfflineHistoric {
 
 		erroa.appendChild(erabiltzaileElem);
 
-		TransformerFactory transfFabrika = TransformerFactory.newInstance();
-		Transformer transf = transfFabrika.newTransformer();
-		transf.setOutputProperty(OutputKeys.INDENT, "yes");
-		transf.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-		transf.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-
-		DOMSource iturria = new DOMSource(dokumentua);
-		try (FileOutputStream fos = new FileOutputStream(fitxategia)) {
-			StreamResult emaitza = new StreamResult(fos);
-			transf.transform(iturria, emaitza);
-		}
+		XMLUtils.saveXmlDocument(dokumentua, "historic.xml");
 	}
 
 	public void gehituSarrera(String erabiltzaileId, String email, Map<String, String> eremuak) {
 		try {
-			File fitxategia = new File(FITXATEGIA);
-			DocumentBuilderFactory fabrika = DocumentBuilderFactory.newInstance();
-			DocumentBuilder eraikitzailea = fabrika.newDocumentBuilder();
-			Document dokumentua;
-			Element erroa;
-
-			if (fitxategia.exists() && fitxategia.length() > 0) {
-				dokumentua = eraikitzailea.parse(fitxategia);
-				dokumentua.getDocumentElement().normalize();
-				erroa = dokumentua.getDocumentElement();
-			} else {
-				dokumentua = eraikitzailea.newDocument();
-				erroa = dokumentua.createElement("historicBackup");
-				dokumentua.appendChild(erroa);
-			}
+			Document dokumentua = XMLUtils.parseOrCreateXmlDocument(FITXATEGIA, "historicBackup");
+			Element erroa = dokumentua.getDocumentElement();
 
 			Element erabiltzaileElem = dokumentua.createElement("user");
 			if (erabiltzaileId != null)
@@ -104,17 +63,7 @@ public class OfflineHistoric {
 
 			erroa.appendChild(erabiltzaileElem);
 
-			TransformerFactory transfFabrika = TransformerFactory.newInstance();
-			Transformer transf = transfFabrika.newTransformer();
-			transf.setOutputProperty(OutputKeys.INDENT, "yes");
-			transf.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-			transf.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-
-			DOMSource iturria = new DOMSource(dokumentua);
-			try (FileOutputStream fos = new FileOutputStream(fitxategia)) {
-				StreamResult emaitza = new StreamResult(fos);
-				transf.transform(iturria, emaitza);
-			}
+			XMLUtils.saveXmlDocument(dokumentua, FITXATEGIA);
 
 		} catch (Exception salbuespena) {
 			salbuespena.printStackTrace();
@@ -145,10 +94,11 @@ public class OfflineHistoric {
 
 			System.out.println("[INFO] Hasten da lineaz kanpoko historikoaren sinkronizazioa...");
 
-			DocumentBuilderFactory fabrika = DocumentBuilderFactory.newInstance();
-			DocumentBuilder eraikitzailea = fabrika.newDocumentBuilder();
-			Document dokumentua = eraikitzailea.parse(fitxategia);
-			dokumentua.getDocumentElement().normalize();
+			Document dokumentua = XMLUtils.parseXmlDocument(FITXATEGIA);
+			if (dokumentua == null) {
+				System.err.println("[ERROR] Ezin izan da XML dokumentua kargatu");
+				return false;
+			}
 
 			NodeList erabiltzaileak = dokumentua.getElementsByTagName("user");
 			List<Integer> sinkronizatuIndizeak = new ArrayList<>();
@@ -192,10 +142,8 @@ public class OfflineHistoric {
 
 				String erabiltzaileDokId = null;
 				if (email != null) {
-					QuerySnapshot erabiltzaileQuery = db.collection("users").whereEqualTo("email", email).get().get();
-					if (!erabiltzaileQuery.isEmpty()) {
-						erabiltzaileDokId = erabiltzaileQuery.getDocuments().get(0).getId();
-					}
+					util.FirestoreUtils firestoreUtils = new util.FirestoreUtils();
+					erabiltzaileDokId = firestoreUtils.getUserIdByEmail(db, email);
 				}
 
 				if (erabiltzaileDokId != null) {
@@ -227,9 +175,8 @@ public class OfflineHistoric {
 			}
 
 			if (!sinkronizatuIndizeak.isEmpty()) {
-				Document dokBerria = eraikitzailea.newDocument();
-				Element erroBerria = dokBerria.createElement("historicBackup");
-				dokBerria.appendChild(erroBerria);
+				Document dokBerria = XMLUtils.createNewDocument("historicBackup");
+				Element erroBerria = dokBerria.getDocumentElement();
 
 				for (int i = 0; i < erabiltzaileak.getLength(); i++) {
 					if (sinkronizatuIndizeak.contains(i))
@@ -239,22 +186,11 @@ public class OfflineHistoric {
 					erroBerria.appendChild(inportatua);
 				}
 
-				TransformerFactory transfFabrika = TransformerFactory.newInstance();
-				Transformer transf = transfFabrika.newTransformer();
-				transf.setOutputProperty(OutputKeys.INDENT, "yes");
-				transf.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-				transf.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-
-				DOMSource iturria = new DOMSource(dokBerria);
-				try (FileOutputStream fos = new FileOutputStream(fitxategia)) {
-					StreamResult emaitza = new StreamResult(fos);
-					transf.transform(iturria, emaitza);
-				}
+				XMLUtils.saveXmlDocument(dokBerria, FITXATEGIA);
 			}
 
-			Document egiaztatuDok = eraikitzailea.parse(fitxategia);
-			egiaztatuDok.getDocumentElement().normalize();
-			if (!egiaztatuDok.getDocumentElement().hasChildNodes()) {
+			Document egiaztatuDok = XMLUtils.parseXmlDocument(FITXATEGIA);
+			if (egiaztatuDok != null && !egiaztatuDok.getDocumentElement().hasChildNodes()) {
 				boolean ezabatuta = fitxategia.delete();
 				if (ezabatuta) {
 					System.out.println("[INFO] Lineaz kanpoko historiko fitxategia ezabatuta (hutsik)");

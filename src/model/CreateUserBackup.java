@@ -17,6 +17,19 @@ public class CreateUserBackup {
 	private final String FICHERO = "user.dat";
 	private CryptoUtils cryptoUtils = new CryptoUtils();
 
+	/**
+	 * Uneko erabiltzailearen emaila modu estatikoan lortzen du
+	 * Obtiene el email del usuario actual de forma estática
+	 * 
+	 * Metodo laguntzailea instantziak sortu gabe
+	 * Método helper para evitar crear instancias repetidas
+	 * 
+	 * @return Uneko erabiltzailearen emaila edo null ez badago / Email del usuario actual o null si no existe
+	 */
+	public static String getCurrentUserEmail() {
+		return new CreateUserBackup().loadEmail();
+	}
+
 	public void saveEmail(String email) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
