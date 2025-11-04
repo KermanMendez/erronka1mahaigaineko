@@ -4,18 +4,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-/**
- * Utilidad para formateo y parseo de fechas
- */
 public class DateUtils {
 	
 	public static final String DEFAULT_DATE_FORMAT = "dd/MM/yyyy";
 	private static final SimpleDateFormat sdf = new SimpleDateFormat(DEFAULT_DATE_FORMAT);
 	
-	/**
-	 * Formatea una fecha a String con formato dd/MM/yyyy
-	 */
-	public static String formatDate(Date date) {
+	public String formatDate(Date date) {
 		if (date == null) {
 			return "";
 		}
@@ -24,10 +18,7 @@ public class DateUtils {
 		}
 	}
 	
-	/**
-	 * Parsea un String a Date con formato dd/MM/yyyy
-	 */
-	public static Date parseDate(String dateStr) throws ParseException {
+	public Date parseDate(String dateStr) throws ParseException {
 		if (dateStr == null || dateStr.trim().isEmpty()) {
 			return null;
 		}
@@ -36,10 +27,7 @@ public class DateUtils {
 		}
 	}
 	
-	/**
-	 * Parsea un String a Date de forma segura (devuelve null si hay error)
-	 */
-	public static Date parseDateSafe(String dateStr) {
+	public Date parseDateSafe(String dateStr) {
 		try {
 			return parseDate(dateStr);
 		} catch (ParseException e) {
@@ -47,10 +35,7 @@ public class DateUtils {
 		}
 	}
 	
-	/**
-	 * Obtiene la fecha actual en formato dd/MM/yyyy
-	 */
-	public static String getCurrentDateFormatted() {
+	public String getCurrentDateFormatted() {
 		return formatDate(new Date());
 	}
 }

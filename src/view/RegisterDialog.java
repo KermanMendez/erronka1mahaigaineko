@@ -21,7 +21,6 @@ import org.jdatepicker.impl.UtilDateModel;
 
 import model.ConnectDB;
 import model.DateFormater;
-import model.Theme;
 import model.UIStyle;
 
 public class RegisterDialog extends JFrame {
@@ -38,7 +37,6 @@ public class RegisterDialog extends JFrame {
 
 	public RegisterDialog(Boolean connect) {
 
-		Theme.apply();
 		setIconImage(Toolkit.getDefaultToolkit().getImage(RegisterDialog.class.getResource("/img/logo.png")));
 		setTitle("Erabiltzailearen Registroa");
 		setSize(520, 420);

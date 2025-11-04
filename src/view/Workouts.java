@@ -15,8 +15,8 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import model.CardListRenderer;
 import model.Routines;
-import model.Theme;
 import model.UIStyle;
 
 public class Workouts extends JFrame {
@@ -32,7 +32,6 @@ public class Workouts extends JFrame {
 
 	public Workouts(Boolean connect) {
 
-		Theme.apply();
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Workouts.class.getResource("/img/logo.png")));
 		Routines routines = new Routines(connect);
 		setTitle("Workouts");

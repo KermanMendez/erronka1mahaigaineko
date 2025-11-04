@@ -6,7 +6,6 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -47,18 +46,6 @@ public class ThreadFrame extends JFrame {
 		UIStyle.stylePanel(contentPane);
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-
-		JButton btnAtzera = new JButton(new ImageIcon(new ImageIcon(getClass().getResource("/img/atzera.png"))
-				.getImage().getScaledInstance(36, 36, java.awt.Image.SCALE_SMOOTH)));
-		btnAtzera.setBounds(10, 10, 36, 36);
-		UIStyle.styleIconButton(btnAtzera);
-		btnAtzera.addActionListener(e -> {
-			// Solo marcar como detenido y cerrar sin abrir Workouts
-			// (el usuario no completó el workout)
-			stopRequested = true;
-			dispose();
-		});
-		contentPane.add(btnAtzera);
 
 		lblRutinaIzena = new JLabel(routineName);
 		lblRutinaIzena.setBounds(54, 40, 300, 24);

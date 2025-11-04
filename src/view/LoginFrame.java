@@ -17,7 +17,6 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import model.ConnectDB;
-import model.Theme;
 import model.UIStyle;
 
 public class LoginFrame extends JFrame {
@@ -28,8 +27,6 @@ public class LoginFrame extends JFrame {
 	private ConnectDB connectDB = new ConnectDB();
 
 	public LoginFrame(Boolean connect) {
-
-		Theme.apply();
 
 		setIconImage(Toolkit.getDefaultToolkit().getImage(LoginFrame.class.getResource("/img/logo.png")));
 		setTitle("LOGIN");

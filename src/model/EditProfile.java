@@ -180,4 +180,19 @@ public class EditProfile {
 			return;
 		}
 	}
+
+	public void updateProfileInDb(User userProfile, String targetEmail, Runnable onSuccess) {
+		new Thread(() -> {
+			boolean dbOk = updateUserDocument(targetEmail, userProfile.getName(),
+					userProfile.getSurname(), userProfile.getSurname2(), userProfile.getDobString());
+			boolean pwdOk = true;
+			if (userProfile.getPassword() != null && !userProfile.getPassword().isEmpty()) {
+				pwdOk = updatePasswordAuthAndSaveHash(targetEmail, userProfile.getPassword());
+			}
+
+			showMessage(dbOk, pwdOk, userProfile.getName(), userProfile.getFullSurname(),
+					userProfile.getDobString(), onSuccess);
+
+		}).start();
+	}
 }

@@ -38,6 +38,7 @@ public class ConnectDB {
 			: DEFAULT_API_KEY;
 	private static final OkHttpClient HTTP_BEZEROA = new OkHttpClient();
 	private static final MediaType JSON_MEDIA = MediaType.parse("application/json; charset=utf-8");
+	private DateUtils dateUtils = new DateUtils();
 
 	private ReadBackup reader = new ReadBackup();
 
@@ -48,7 +49,7 @@ public class ConnectDB {
 			JOptionPane.showMessageDialog(null, "Datu Guztiak Bete.", "Errorea", JOptionPane.INFORMATION_MESSAGE);
 			return null;
 		}
-		String birthdateString = DateUtils.formatDate(birthdate);
+		String birthdateString = dateUtils.formatDate(birthdate);
 		try {
 			createUser(izena, abizena1, abizena2, email, password, birthdateString, isTrainer, connect);
 			JOptionPane.showMessageDialog(null, "Registratu zara", "Login", JOptionPane.INFORMATION_MESSAGE);

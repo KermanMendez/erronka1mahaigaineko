@@ -23,6 +23,7 @@ import util.CryptoUtils;
 public class ReadBackup {
 
 	private final String FICHERO = "backup.dat";
+	private CryptoUtils cryptoUtils = new CryptoUtils();
 
 	public static class UserData {
 		public String uid;
@@ -60,8 +61,6 @@ public class ReadBackup {
 		}
 	}
 
-
-
 	private static String getTagValue(String tag, Element element) {
 		NodeList nodeList = element.getElementsByTagName(tag);
 		if (nodeList.getLength() > 0) {
@@ -91,8 +90,8 @@ public class ReadBackup {
 					Node userNode = users.item(i);
 					if (userNode.getNodeType() == Node.ELEMENT_NODE) {
 						Element userElement = (Element) userNode;
-						String uid = CryptoUtils.xorDecrypt(getTagValue("uid", userElement));
-						String email = CryptoUtils.xorDecrypt(getTagValue("email", userElement));
+						String uid = cryptoUtils.xorDecrypt(getTagValue("uid", userElement));
+						String email = cryptoUtils.xorDecrypt(getTagValue("email", userElement));
 						backup.users.add(new UserData(uid, email));
 					}
 				}
@@ -115,7 +114,7 @@ public class ReadBackup {
 
 		try {
 			byte[] fileBytes = Files.readAllBytes(Paths.get("backup.dat"));
-			byte[] decrypted = CryptoUtils.xorBytes(fileBytes);
+			byte[] decrypted = cryptoUtils.xorBytes(fileBytes);
 			try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decrypted))) {
 				Object obj = ois.readObject();
 
@@ -135,13 +134,13 @@ public class ReadBackup {
 					String line = raw.replaceAll("^\\s+", "");
 					if (line.startsWith("USER_UID:")) {
 						String v = line.substring("USER_UID:".length());
-						String uid = CryptoUtils.xorDecrypt(v);
+						String uid = cryptoUtils.xorDecrypt(v);
 						String email = "";
 						if (i + 1 < lines.size()) {
 							String next = lines.get(i + 1).replaceAll("^\\s+", "");
 							if (next.startsWith("USER_EMAIL:")) {
 								i++;
-								email = CryptoUtils.xorDecrypt(next.substring("USER_EMAIL:".length()));
+								email = cryptoUtils.xorDecrypt(next.substring("USER_EMAIL:".length()));
 							}
 						}
 						backup.users.add(new UserData(uid, email));
@@ -169,7 +168,7 @@ public class ReadBackup {
 						if (eq > 0) {
 							String key = kv.substring(0, eq);
 							String valEnc = kv.substring(eq + 1);
-							String val = CryptoUtils.xorDecrypt(valEnc);
+							String val = cryptoUtils.xorDecrypt(valEnc);
 							currentDoc.fields.put(key, val);
 						}
 						continue;
@@ -229,7 +228,7 @@ public class ReadBackup {
 							documentData.subcollections.put(subName, parseDocuments(field));
 						} else {
 							String key = field.getNodeName();
-							String decryptedValue = CryptoUtils.xorDecrypt(field.getTextContent());
+							String decryptedValue = cryptoUtils.xorDecrypt(field.getTextContent());
 							documentData.fields.put(key, decryptedValue);
 						}
 					}
@@ -256,7 +255,7 @@ public class ReadBackup {
 				if (eq > 0) {
 					String key = kv.substring(0, eq);
 					String valEnc = kv.substring(eq + 1);
-					String val = CryptoUtils.xorDecrypt(valEnc);
+					String val = cryptoUtils.xorDecrypt(valEnc);
 					current.fields.put(key, val);
 				}
 			}

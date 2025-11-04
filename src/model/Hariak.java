@@ -31,6 +31,7 @@ public class Hariak {
 	private CreateUserBackup createUserBackup = new CreateUserBackup();
 	private volatile boolean skipNow = false;
 	private int level;
+	private FirestoreUtils firestoreUtils = new FirestoreUtils();
 
 	public List<Exercise> start(int level, String routineName, Boolean connect)
 			throws InterruptedException, ExecutionException {
@@ -525,7 +526,7 @@ public class Hariak {
 				}
 				DocumentSnapshot routineDoc = routineQuery.getDocuments().get(0);
 
-				String userId = FirestoreUtils.getUserIdByEmail(db, email);
+				String userId = firestoreUtils.getUserIdByEmail(db, email);
 				if (userId == null)
 					return;
 
@@ -553,7 +554,7 @@ public class Hariak {
 			OfflineHistoric offline = new OfflineHistoric();
 			ReadBackup reader = new ReadBackup();
 			ReadBackup.BackupData backup = reader.loadBackupData();
-			String uid = FirestoreUtils.getUserIdFromBackup(backup, email);
+			String uid = firestoreUtils.getUserIdFromBackup(backup, email);
 
 			String workoutId = null;
 			if (backup != null && backup.collections != null) {

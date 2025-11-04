@@ -1,14 +1,7 @@
 package util;
 
-/**
- * Utilidad para operaciones de parseo y conversión
- */
 public class ParseUtils {
 	
-	/**
-	 * Convierte un Object a int de forma segura
-	 * Soporta Number, String y null
-	 */
 	public static int parseInt(Object value) {
 		if (value == null) {
 			return 0;
@@ -33,10 +26,7 @@ public class ParseUtils {
 		return 0;
 	}
 	
-	/**
-	 * Parsea múltiples valores hasta encontrar uno válido
-	 */
-	public static int parseIntFirstValid(Object... values) {
+	public int parseIntFirstValid(Object... values) {
 		for (Object v : values) {
 			if (v != null) {
 				int result = parseInt(v);
@@ -48,10 +38,7 @@ public class ParseUtils {
 		return 0;
 	}
 	
-	/**
-	 * Parsea un String a boolean considerando múltiples formatos
-	 */
-	public static boolean parseBoolean(String val) {
+	public boolean parseBoolean(String val) {
 		if (val == null) {
 			return false;
 		}
@@ -59,16 +46,10 @@ public class ParseUtils {
 		return val.equals("true") || val.equals("bai") || val.equals("yes") || val.equals("1");
 	}
 	
-	/**
-	 * Convierte un boolean a String en euskera (Bai/Ez)
-	 */
-	public static String booleanToEuskera(boolean value) {
+	public String booleanToEuskera(boolean value) {
 		return value ? "Bai" : "Ez";
 	}
 	
-	/**
-	 * Obtiene un valor int desde Long de Firestore
-	 */
 	public static int getIntValue(Long val) {
 		return val != null ? val.intValue() : 0;
 	}

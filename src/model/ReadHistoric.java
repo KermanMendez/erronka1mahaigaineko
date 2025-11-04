@@ -10,6 +10,7 @@ import util.ParseUtils;
 public class ReadHistoric {
 
 	private final Firestore db;
+	private final ParseUtils parse = new ParseUtils();
 
 	public ReadHistoric(Boolean connect) {
 		this.db = Controller.getInstance().getDb();
@@ -67,7 +68,7 @@ public class ReadHistoric {
 	private void addEntryIfMatch(List<String> list, Firestore db, DocumentSnapshot exerciseDoc, String rutinarenIzena)
 			throws InterruptedException, ExecutionException {
 
-		String exerciseCompleted = ParseUtils.booleanToEuskera(
+		String exerciseCompleted = parse.booleanToEuskera(
 				exerciseDoc.getBoolean("completed") != null && exerciseDoc.getBoolean("completed"));
 		String exerciseDate = exerciseDoc.getString("date");
 		int totalSets = ParseUtils.getIntValue(exerciseDoc.getLong("totalSets"));
@@ -151,9 +152,9 @@ public class ReadHistoric {
 				if (!String.valueOf(level).equals(fields.get("level")))
 					continue;
 
-				String exerciseCompleted = ParseUtils.booleanToEuskera(ParseUtils.parseBoolean(fields.get("completed")));
+				String exerciseCompleted = parse.booleanToEuskera(parse.parseBoolean(fields.get("completed")));
 				String exerciseDate = fields.get("date");
-				int totalSets = ParseUtils.parseIntFirstValid(fields.get("totalSets"), fields.get("totalReps"));
+				int totalSets = parse.parseIntFirstValid(fields.get("totalSets"), fields.get("totalReps"));
 				int totalTime = ParseUtils.parseInt(fields.get("totalTime"));
 				String workoutId = fields.get("workoutId");
 				String workoutName = workoutId;

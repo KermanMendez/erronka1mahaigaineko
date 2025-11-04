@@ -24,7 +24,6 @@ public class FirstView extends JFrame {
 
 	public FirstView(Boolean connect) {
 		this.controller = Controller.getInstance();
-		// Theme.apply() ya se llama en MainApp, no es necesario repetirlo
 
 		setTitle("LONG RING LONG LAND GYM");
 		setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/img/logo.png")));
@@ -35,7 +34,6 @@ public class FirstView extends JFrame {
 		setContentPane(contentPane);
 
 		JLabel labelLogo = new JLabel("");
-		// Usar el logo cacheado para mejorar el rendimiento
 		labelLogo.setIcon(loadLogo.getLogo());
 		labelLogo.setHorizontalAlignment(SwingConstants.CENTER);
 		UIStyle.styleLabel(labelLogo, true);

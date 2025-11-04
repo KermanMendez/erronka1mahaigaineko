@@ -20,7 +20,6 @@ import javax.swing.text.MaskFormatter;
 
 import model.CreateUserBackup;
 import model.EditProfile;
-import model.Theme;
 import model.UIStyle;
 import model.User;
 
@@ -41,7 +40,6 @@ public class Profile extends JFrame {
 	private EditProfile editProfile = new EditProfile();
 
 	public Profile(Boolean connect) {
-		Theme.apply();
 
 		setTitle("Erabiltzailearen Profila");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -209,9 +207,8 @@ public class Profile extends JFrame {
 			userProfile = editProfile.validateChanges(tfName, tfSurname1, tfSurname2, pfPassword, pfPassword2,
 					finalTfDob);
 
-			// validateChanges returns null on validation error (e.g. passwords mismatch)
 			if (userProfile == null) {
-				return; // user alerted inside validateChanges
+				return;
 			}
 
 			String localEmail = null;
@@ -224,22 +221,12 @@ public class Profile extends JFrame {
 			editProfile.setLocalEmail(localEmail);
 
 			final String targetEmail = localEmail;
-			new Thread(() -> {
-				boolean dbOk = editProfile.updateUserDocument(targetEmail, userProfile.getName(),
-						userProfile.getSurname(), userProfile.getSurname2(), userProfile.getDobString());
-				boolean pwdOk = true;
-				if (userProfile.getPassword() != null && !userProfile.getPassword().isEmpty()) {
-					pwdOk = editProfile.updatePasswordAuthAndSaveHash(targetEmail, userProfile.getPassword());
-				}
-
-				editProfile.showMessage(dbOk, pwdOk, userProfile.getName(), userProfile.getFullSurname(),
-						userProfile.getDobString(), () -> {
-							Inter inter = new Inter(connect);
-							inter.setVisible(true);
-							dispose();
-						});
-
-			}).start();
+			
+			editProfile.updateProfileInDb(userProfile, targetEmail, () -> {
+				Inter inter = new Inter(connect);
+				inter.setVisible(true);
+				dispose();
+			});
 		});
 
 		buttons.add(btnCancel);

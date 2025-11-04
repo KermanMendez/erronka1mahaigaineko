@@ -16,7 +16,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import model.Theme;
 import model.UIStyle;
 
 public class Inter extends JFrame {
@@ -25,7 +24,6 @@ public class Inter extends JFrame {
 	private JPanel contentPane;
 
 	public Inter(Boolean connect) {
-		Theme.apply();
 
 		setTitle("Ongi Etorri LRLL");
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Inter.class.getResource("/img/logo.png")));
@@ -37,11 +35,10 @@ public class Inter extends JFrame {
 		UIStyle.stylePanel(contentPane);
 		setContentPane(contentPane);
 
-		// Panel superior con título y logo
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
 		UIStyle.stylePanel(topPanel);
-		
+
 		JLabel lblTitle = new JLabel("LONG RING LONG LAND GYM");
 		lblTitle.setFont(UIStyle.TITLE_FONT);
 		lblTitle.setForeground(UIStyle.PRIMARY);
@@ -53,7 +50,6 @@ public class Inter extends JFrame {
 
 		contentPane.add(topPanel, BorderLayout.NORTH);
 
-		// Panel central con botones
 		JPanel centerPanel = new JPanel(new GridBagLayout());
 		UIStyle.stylePanel(centerPanel);
 		GridBagConstraints gbc = new GridBagConstraints();
@@ -62,7 +58,6 @@ public class Inter extends JFrame {
 		gbc.weightx = 1.0;
 		gbc.weighty = 1.0;
 
-		// Botón Profila
 		JButton btnProfile = new JButton("Profila");
 		UIStyle.styleButton(btnProfile);
 		btnProfile.setToolTipText("Zure profila ikusi eta editatu");
@@ -72,23 +67,17 @@ public class Inter extends JFrame {
 			profile.setVisible(true);
 			dispose();
 		});
-		
-		// Cargar icono de perfil
-		try {
-			ImageIcon profileIcon = new ImageIcon(getClass().getResource("/img/profile_icon.png"));
-			Image scaledProfileImage = profileIcon.getImage().getScaledInstance(80, 54, Image.SCALE_SMOOTH);
-			btnProfile.setIcon(new ImageIcon(scaledProfileImage));
-			btnProfile.setVerticalTextPosition(SwingConstants.BOTTOM);
-			btnProfile.setHorizontalTextPosition(SwingConstants.CENTER);
-		} catch (Exception ex) {
-			// Si no existe el icono, solo muestra texto
-		}
-		
+
+		ImageIcon profileIcon = new ImageIcon(getClass().getResource("/img/profile_icon.png"));
+		Image scaledProfileImage = profileIcon.getImage().getScaledInstance(80, 54, Image.SCALE_SMOOTH);
+		btnProfile.setIcon(new ImageIcon(scaledProfileImage));
+		btnProfile.setVerticalTextPosition(SwingConstants.BOTTOM);
+		btnProfile.setHorizontalTextPosition(SwingConstants.CENTER);
+
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		centerPanel.add(btnProfile, gbc);
 
-		// Botón Workouts
 		JButton btnWorkouts = new JButton("Workouts");
 		UIStyle.styleButton(btnWorkouts);
 		btnWorkouts.setToolTipText("Zure entrenamenduen errutina ikusi");
@@ -98,18 +87,13 @@ public class Inter extends JFrame {
 			workouts.setVisible(true);
 			dispose();
 		});
-		
-		// Cargar icono de workout
-		try {
-			ImageIcon workoutIcon = new ImageIcon(getClass().getResource("/img/workout_icon.png"));
-			Image scaledWorkoutImage = workoutIcon.getImage().getScaledInstance(80, 54, Image.SCALE_SMOOTH);
-			btnWorkouts.setIcon(new ImageIcon(scaledWorkoutImage));
-			btnWorkouts.setVerticalTextPosition(SwingConstants.BOTTOM);
-			btnWorkouts.setHorizontalTextPosition(SwingConstants.CENTER);
-		} catch (Exception ex) {
-			// Si no existe el icono, solo muestra texto
-		}
-		
+
+		ImageIcon workoutIcon = new ImageIcon(getClass().getResource("/img/workout_icon.png"));
+		Image scaledWorkoutImage = workoutIcon.getImage().getScaledInstance(80, 54, Image.SCALE_SMOOTH);
+		btnWorkouts.setIcon(new ImageIcon(scaledWorkoutImage));
+		btnWorkouts.setVerticalTextPosition(SwingConstants.BOTTOM);
+		btnWorkouts.setHorizontalTextPosition(SwingConstants.CENTER);
+
 		gbc.gridx = 1;
 		gbc.gridy = 0;
 		centerPanel.add(btnWorkouts, gbc);

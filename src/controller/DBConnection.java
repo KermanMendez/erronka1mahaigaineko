@@ -20,7 +20,7 @@ public class DBConnection {
 
 	public boolean initialize(Boolean connect) {
 		try {
-			File keyFile = new File("serviceAccountKey.json");
+			File keyFile = new File("serviceAccountKeya.json");
 			if (!keyFile.exists()) {
 				System.err.println("[DBConnection] serviceAccountKey.json aurkitu ezina");
 				return false;
@@ -30,7 +30,6 @@ public class DBConnection {
 				FirebaseOptions options = FirebaseOptions.builder()
 						.setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
 
-				// Test de conexión con timeout reducido (1 segundo en lugar de 3)
 				try (Socket s = new Socket()) {
 					s.connect(new InetSocketAddress("firestore.googleapis.com", 443), 1000);
 				} catch (IOException ex) {

@@ -1,4 +1,4 @@
-package view;
+package model;
 
 import java.awt.Component;
 
@@ -8,8 +8,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
-
-import model.UIStyle;
 
 public class CardListRenderer implements ListCellRenderer<String> {
 

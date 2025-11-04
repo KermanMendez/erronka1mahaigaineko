@@ -32,6 +32,7 @@ public class CreateBackup {
 
 	private final String FICHERO = "backup.dat";
 	private Firestore db;
+	private CryptoUtils cryptoUtils = new CryptoUtils();
 
 	public void saveBackup(Boolean connect) {
 
@@ -41,11 +42,9 @@ public class CreateBackup {
 				return;
 			}
 
-			// Usar el Controller singleton existente en lugar de crear uno nuevo
 			Controller controller = Controller.getInstance();
 			db = controller.getDb();
-			
-			// Verificar que la DB está disponible
+
 			if (db == null) {
 				System.err.println("[ERROR] Firestore DB no está disponible. No se puede hacer backup.");
 				return;
@@ -56,8 +55,8 @@ public class CreateBackup {
 
 				ListUsersPage page = FirebaseAuth.getInstance().listUsers(null);
 				for (ExportedUserRecord user : page.getValues()) {
-					lines.add("USER_UID:" + CryptoUtils.xorEncrypt(user.getUid()));
-					lines.add("USER_EMAIL:" + CryptoUtils.xorEncrypt(user.getEmail() != null ? user.getEmail() : ""));
+					lines.add("USER_UID:" + cryptoUtils.xorEncrypt(user.getUid()));
+					lines.add("USER_EMAIL:" + cryptoUtils.xorEncrypt(user.getEmail() != null ? user.getEmail() : ""));
 				}
 
 				Iterable<CollectionReference> collections = db.listCollections();
@@ -71,7 +70,7 @@ public class CreateBackup {
 				ObjectOutputStream oos = new ObjectOutputStream(baos);
 				oos.writeObject(lines);
 				oos.close();
-				byte[] encrypted = CryptoUtils.xorBytes(baos.toByteArray());
+				byte[] encrypted = cryptoUtils.xorBytes(baos.toByteArray());
 				try (FileOutputStream fos = new FileOutputStream(FICHERO)) {
 					fos.write(encrypted);
 				}
@@ -105,7 +104,7 @@ public class CreateBackup {
 					transformer.transform(source, result2);
 				}
 
-				System.out.println("Backup guardado en " + FICHERO);
+				System.out.println("[INFO] Backup ondo gordeta: " + FICHERO);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -123,7 +122,7 @@ public class CreateBackup {
 			Map<String, Object> data = document.getData();
 			for (Map.Entry<String, Object> entry : data.entrySet()) {
 				String value = entry.getValue() != null ? entry.getValue().toString() : "";
-				lines.add(indent + "FIELD:" + entry.getKey() + "=" + CryptoUtils.xorEncrypt(value));
+				lines.add(indent + "FIELD:" + entry.getKey() + "=" + cryptoUtils.xorEncrypt(value));
 			}
 
 			Iterable<CollectionReference> subcollections = document.getReference().listCollections();
@@ -151,7 +150,7 @@ public class CreateBackup {
 		}
 	}
 
-	private static class HistoricRecord {
+	private class HistoricRecord {
 		String userId;
 		Map<String, String> fields;
 	}

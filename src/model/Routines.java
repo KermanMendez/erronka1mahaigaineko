@@ -28,6 +28,7 @@ public class Routines {
 	private final DefaultListModel<String> listModel = new DefaultListModel<>();
 	private CreateUserBackup createUserBackup = new CreateUserBackup();
 	private ReadBackup reader = new ReadBackup();
+	private FirestoreUtils firestoreUtils = new FirestoreUtils();
 
 	public Routines(Boolean connect) {
 		this.db = Controller.getInstance().getDb();
@@ -45,7 +46,7 @@ public class Routines {
 				if (backup == null)
 					return new String[] { "No levels available" };
 
-				level = FirestoreUtils.getUserLevelFromBackup(backup, emaila);
+				level = firestoreUtils.getUserLevelFromBackup(backup, emaila);
 
 				String[] levelsArray = new String[level];
 				for (int i = 1; i <= level; i++) {

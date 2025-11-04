@@ -15,13 +15,14 @@ import util.CryptoUtils;
 public class CreateUserBackup {
 
 	private final String FICHERO = "user.dat";
+	private CryptoUtils cryptoUtils = new CryptoUtils();
 
 	public void saveEmail(String email) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
 			oos.writeObject(email);
 		}
-		byte[] encryptedData = CryptoUtils.xorBytes(baos.toByteArray());
+		byte[] encryptedData = cryptoUtils.xorBytes(baos.toByteArray());
 
 		try (FileOutputStream fos = new FileOutputStream(FICHERO)) {
 			fos.write(encryptedData);
@@ -36,7 +37,7 @@ public class CreateUserBackup {
 
 		try {
 			byte[] fileBytes = Files.readAllBytes(Paths.get(FICHERO));
-			byte[] decryptedData = CryptoUtils.xorBytes(fileBytes);
+			byte[] decryptedData = cryptoUtils.xorBytes(fileBytes);
 			try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decryptedData))) {
 				Object obj = ois.readObject();
 				if (obj instanceof String) {
