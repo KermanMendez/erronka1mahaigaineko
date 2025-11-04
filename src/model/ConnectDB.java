@@ -149,7 +149,8 @@ public class ConnectDB {
 				if (entrenatzaileaDa == null)
 					entrenatzaileaDa = false;
 
-				Inter inter = new Inter(entrenatzaileaDa);
+				// Pasar el estado de conexión real, no el campo isTrainer
+				Inter inter = new Inter(connect);
 				inter.setVisible(true);
 
 				CreateUserBackup createUserBackup = new CreateUserBackup();

@@ -340,7 +340,7 @@ public class Hariak {
 	public void executeWorkout(int level, String routineName, Boolean connect, JLabel labelTotal, JLabel labelSeries,
 			JLabel labelDescansos, JLabel labelHasiera, JLabel lblRutinaDeskribapena, JLabel lblRutinaSets,
 			Supplier<Boolean> stopSupplier, Supplier<Boolean> skipSupplier, Supplier<Boolean> pauseSupplier,
-			Object lock, Runnable onWorkoutFinished) {
+			Object lock, Runnable onWorkoutStarted, Runnable onWorkoutFinished) {
 
 		new Thread(() -> {
 			try {
@@ -361,7 +361,7 @@ public class Hariak {
 				});
 
 				startExerciseThreads(exercises, labelTotal, labelSeries, labelDescansos, labelHasiera, stopSupplier,
-						skipSupplier, pauseSupplier, lock, routineName, true, true, true, onWorkoutFinished);
+						skipSupplier, pauseSupplier, lock, routineName, true, true, true, onWorkoutStarted, onWorkoutFinished);
 
 			} catch (InterruptedException | ExecutionException ex) {
 				ex.printStackTrace();
@@ -372,7 +372,7 @@ public class Hariak {
 	public void startExerciseThreads(List<Exercise> exercises, JLabel labelTotal, JLabel labelSeries,
 			JLabel labelDescansos, JLabel labelHasiera, Supplier<Boolean> stopSupplier, Supplier<Boolean> skipSupplier,
 			Supplier<Boolean> pauseSupplier, Object lock, String routineName, boolean thread1, boolean thread2,
-			boolean thread3, Runnable onWorkoutFinished) {
+			boolean thread3, Runnable onWorkoutStarted, Runnable onWorkoutFinished) {
 
 		new Thread(() -> {
 			try {
@@ -407,6 +407,11 @@ public class Hariak {
 					labelDescansos.setVisible(true);
 				if (labelHasiera != null)
 					labelHasiera.setVisible(false);
+
+				// Notificar que el entrenamiento ha comenzado (habilitar botones)
+				if (onWorkoutStarted != null) {
+					SwingUtilities.invokeLater(onWorkoutStarted);
+				}
 
 				int computedTotalSets = 0;
 				int computedTotalSeconds = computeExpectedTotalSeconds(exercises);
@@ -449,10 +454,9 @@ public class Hariak {
 					final String pctStr = String.format("%.1f", pct).replace('.', ',');
 					SwingUtilities.invokeLater(() -> {
 						JOptionPane.showMessageDialog(null,
-								"Ongi etorri! Rutina amaitu duzu!\n\n" + " Estatistikak:\n" + "  Denbora totala: "
-										+ popupTime + " segundo\n" + "  Serieak: " + popupCompletedSets + " / "
-										+ popupExpectedSets + " (" + pctStr + "%)\n\n"
-										+ "Zorionak zure ahaleginagatik!",
+								"Rutina amaitu duzu!\n\n" + " Estatistikak:\n" + "  Denbora totala: " + popupTime
+										+ " segundo\n" + "  Serieak: " + popupCompletedSets + " / " + popupExpectedSets
+										+ " (" + pctStr + "%)\n\n" + "Zorionak zure ahaleginagatik!",
 								"Rutina Amaituta", JOptionPane.INFORMATION_MESSAGE);
 						// Callback exekutatu popup itxi ondoren
 						if (onWorkoutFinished != null) {

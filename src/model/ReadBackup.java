@@ -109,6 +109,7 @@ public class ReadBackup {
 				return null;
 			}
 
+			System.out.println("[INFO] Backup XML kargatuta");
 			return backup;
 		}
 

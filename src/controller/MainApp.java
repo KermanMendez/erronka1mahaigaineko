@@ -36,7 +36,8 @@ public class MainApp {
 
 		// Erakutsi lehenengo leihoa
 		SwingUtilities.invokeLater(() -> {
-			controller.getFirstView(false).setVisible(true);
+			// Usar el estado real de conexión del controller
+			controller.getFirstView(controller.isOnline()).setVisible(true);
 		});
 
 		// Sortu backup-a atzeko planoan (daemon thread)

@@ -108,13 +108,16 @@ public class ThreadFrame extends JFrame {
 				}
 			}
 		});
-
+		// btnPause.setVisible(false);
+		btnPause.setEnabled(false);
 		buttonPanel.add(btnPause);
 
 		JButton btnSkip = new JButton("Atsedena saltatu");
 		UIStyle.styleButton(btnSkip);
 		UIStyle.addHoverEffect(btnSkip);
 		btnSkip.addActionListener(e -> skipRestRequested = true);
+		// btnSkip.setVisible(false);
+		btnSkip.setEnabled(false);
 		buttonPanel.add(btnSkip);
 
 		JButton btnAmaitu = new JButton("Amaitu rutina");
@@ -123,7 +126,8 @@ public class ThreadFrame extends JFrame {
 		btnAmaitu.addActionListener(e -> {
 			stopRequested = true;
 		});
-
+		// btnAmaitu.setVisible(false);
+		btnAmaitu.setEnabled(false);
 		buttonPanel.add(btnAmaitu);
 		contentPane.add(buttonPanel);
 
@@ -134,7 +138,18 @@ public class ThreadFrame extends JFrame {
 						return true;
 					}
 					return false;
-				}, () -> paused, pauseLock, () -> {
+				}, () -> paused, pauseLock,
+				// Callback cuando el entrenamiento comienza (después de la cuenta atrás)
+				() -> {
+					btnPause.setVisible(true);
+					btnPause.setEnabled(true);
+					btnSkip.setVisible(true);
+					btnSkip.setEnabled(true);
+					btnAmaitu.setVisible(true);
+					btnAmaitu.setEnabled(true);
+				},
+				// Callback cuando el entrenamiento termina
+				() -> {
 					Workouts workouts = new Workouts(connect);
 					workouts.setVisible(true);
 					dispose();
