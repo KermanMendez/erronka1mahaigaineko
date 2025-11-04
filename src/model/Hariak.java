@@ -43,11 +43,11 @@ public class Hariak {
 	}
 
 	/**
-	 * Rutinaren ariketa zerrenda soilik lortzen du
-	 * Obtiene solo la lista de ejercicios de una rutina
+	 * Rutinaren ariketa zerrenda soilik lortzen du Obtiene solo la lista de
+	 * ejercicios de una rutina
 	 * 
-	 * Metodo erraztu bat da loadRoutine() erabiltzen duena
-	 * Método simplificado que usa loadRoutine()
+	 * Metodo erraztu bat da loadRoutine() erabiltzen duena Método simplificado que
+	 * usa loadRoutine()
 	 */
 	public List<Exercise> getExercises(int level, String routineName, Boolean connect)
 			throws InterruptedException, ExecutionException {
@@ -215,8 +215,8 @@ public class Hariak {
 			Exercise currentExercise = exercises.get(exerciseIndex);
 
 			// Ejecutar todos los sets del ejercicio
-			boolean stopped = executeExerciseSets(currentExercise, label, stopSupplier, skipRest, pauseSupplier, pauseLock, mode,
-					canPause);
+			boolean stopped = executeExerciseSets(currentExercise, label, stopSupplier, skipRest, pauseSupplier,
+					pauseLock, mode, canPause);
 			if (stopped) {
 				if (mode == 0)
 					totalSeconds = elapsedSeconds;
@@ -226,8 +226,8 @@ public class Hariak {
 			// Descanso entre ejercicios (si no es el último)
 			if (exerciseIndex < exercises.size() - 1) {
 				skipNow = false;
-				stopped = handleRestPeriod(currentExercise.getRestTimeSec(), mode, label, stopSupplier, skipRest, pauseSupplier,
-						pauseLock, true);
+				stopped = handleRestPeriod(currentExercise.getRestTimeSec(), mode, label, stopSupplier, skipRest,
+						pauseSupplier, pauseLock, true);
 				if (stopped) {
 					if (mode == 0)
 						totalSeconds = elapsedSeconds;
@@ -250,7 +250,8 @@ public class Hariak {
 
 		for (int setNumber = 1; setNumber <= sets; setNumber++) {
 			// Ejecutar una serie completa
-			boolean stopped = executeSet(setNumber, serieTime, label, stopSupplier, pauseSupplier, pauseLock, mode, canPause);
+			boolean stopped = executeSet(setNumber, serieTime, label, stopSupplier, pauseSupplier, pauseLock, mode,
+					canPause);
 			if (stopped) {
 				return true;
 			}
@@ -568,6 +569,28 @@ public class Hariak {
 		return totalSerieTime + totalRestTime;
 	}
 
+	public int getUserLevel() {
+		String emaila = CreateUserBackup.getCurrentUserEmail();
+
+		int userLevel = 0;
+		try {
+			DocumentSnapshot userDoc = firestoreUtils.getUserDocumentByEmail(db, emaila);
+			if (userDoc == null) {
+				userLevel = 1;
+				return userLevel;
+			}
+
+			Object levelObj = userDoc.get("level");
+			userLevel = util.ParseUtils.parseInt(levelObj);
+			if (userLevel < 1)
+				userLevel = 1;
+
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
+		return userLevel;
+	}
+
 	public void sumLevel() {
 
 		if (!amaituta)
@@ -575,20 +598,24 @@ public class Hariak {
 
 		String emaila = CreateUserBackup.getCurrentUserEmail();
 
-		try {
-			DocumentSnapshot userDoc = firestoreUtils.getUserDocumentByEmail(db, emaila);
-			if (userDoc == null)
-				return;
+		int userLevel = getUserLevel();
 
-			if (level < 5) {
+		if (level < userLevel) {
+			return;
+		} else {
+			try {
+				DocumentSnapshot userDoc = firestoreUtils.getUserDocumentByEmail(db, emaila);
+				if (userDoc == null)
+					return;
+
 				level++;
 				Map<String, Object> data = new HashMap<>();
 				data.put("level", level);
 				db.collection("users").document(userDoc.getId()).update(data);
-			}
 
-		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
