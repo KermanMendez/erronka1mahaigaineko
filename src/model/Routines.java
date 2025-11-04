@@ -43,7 +43,6 @@ public class Routines {
 		try {
 			// OFFLINE MODE: leer del backup
 			if (connect == null || !connect || db == null) {
-				System.out.println("[INFO] Modo offline: leyendo niveles del backup");
 				ReadBackup.BackupData backup = reader.loadBackupData();
 				if (backup == null) {
 					System.err.println("[ERROR] Ezin izan da backup-a kargatu");
@@ -60,7 +59,6 @@ public class Routines {
 			}
 
 			// ONLINE MODE: leer de Firestore
-			System.out.println("[INFO] Modo online: leyendo niveles de Firestore");
 			QuerySnapshot querySnapshot = db.collection("users").whereEqualTo("email", emaila).get().get();
 			if (querySnapshot.isEmpty()) {
 				System.err.println("[ERROR] Ez da erabiltzailea aurkitu: " + emaila);
@@ -135,9 +133,8 @@ public class Routines {
 
 		List<String> workoutNames = new ArrayList<>();
 
-		// ONLINE MODE: leer de Firestore
+		// ONLINE MODE
 		if (connect != null && connect && db != null) {
-			System.out.println("[INFO] Modo online: leyendo rutinas de Firestore");
 			QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", selectedLevel).get().get();
 
 			if (querySnapshot.isEmpty()) {
@@ -154,8 +151,7 @@ public class Routines {
 
 			return workoutNames.toArray(new String[0]);
 		} else {
-			// OFFLINE MODE: leer del backup
-			System.out.println("[INFO] Modo offline: leyendo rutinas del backup");
+			// OFFLINE MODE
 			ReadBackup reader = new ReadBackup();
 			ReadBackup.BackupData backup = reader.loadBackupData();
 
@@ -182,9 +178,8 @@ public class Routines {
 	public String[] getLevels(int nivelSeleccionado, String nivelText, Boolean connect)
 			throws InterruptedException, ExecutionException {
 
-		// ONLINE MODE: leer de Firestore
+		// ONLINE MODE
 		if (connect != null && connect && db != null) {
-			System.out.println("[INFO] Modo online: leyendo ejercicios de Firestore");
 			QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", nivelSeleccionado)
 					.whereEqualTo("name", nivelText).get().get();
 
@@ -220,8 +215,7 @@ public class Routines {
 
 			return levels.toArray(new String[0]);
 		} else {
-			// OFFLINE MODE: leer del backup
-			System.out.println("[INFO] Modo offline: leyendo ejercicios del backup");
+			// OFFLINE MODE
 			BackupData backup = reader.loadBackupData();
 
 			List<String> levels = new ArrayList<>();
