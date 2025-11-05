@@ -22,20 +22,7 @@ import util.FirestoreUtils;
 
 /**
  * Entrenamendu errutinen exekuzioa kudeatzen duen zerbitzua.
- * 
- * <p>Klase honek entrenamendu osoa kudeatzen du, ariketak kargatzetik hasi
- * eta exekuzioa kontrolatzeraino, denbora errealean hari anitzak erabiliz.
- * Konexioarekin edo gabe funtzionatzen du, Firestore edo backup lokalak erabiliz.</p>
- * 
- * <p>Funtzionalitate nagusiak:</p>
- * <ul>
- *   <li>Errutinak eta ariketak kargatzea (online edo offline)</li>
- *   <li>Entrenamendu exekuzioa denbora errealean</li>
- *   <li>Serie, errepikapena eta atsedenen kudeaketa</li>
- *   <li>Pausa, gelditu eta saltatu kontrolak</li>
- *   <li>Erabiltzailearen maila automatikoki eguneratzea</li>
- *   <li>Entrenamendu historia gordetzea</li>
- * </ul>
+ * Hari anitzak erabiliz, online edo offline moduan funtzionatzen du.
  */
 public class WorkoutExecutionService {
 
