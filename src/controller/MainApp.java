@@ -5,9 +5,7 @@ import javax.swing.SwingUtilities;
 import service.BackupService;
 import view.Theme;
 
-/**
- * Aplikazioaren sarrera puntua
- */
+//Aplikazioaren sarrera puntua
 public class MainApp {
 
 	public static void main(String[] args) {
