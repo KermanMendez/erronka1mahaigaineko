@@ -5,11 +5,10 @@ import javax.swing.SwingUtilities;
 
 /**
  * Erroreen kudeaketa zentralizatua euskerazko mezuekin
- * Centralizador de gestión de errores con mensajes en euskera
  */
 public class ExceptionHandler {
 
-	// Errore motak / Tipos de error
+	// Errore motak
 	public enum ErrorMota {
 		KONEXIO_ERROREA,
 		AUTENTIFIKAZIO_ERROREA,

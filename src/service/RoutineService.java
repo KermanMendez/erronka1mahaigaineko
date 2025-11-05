@@ -40,7 +40,7 @@ public class RoutineService {
 		int level = 1;
 
 		try {
-			// OFFLINE MODE: leer del backup
+			// OFFLINE MODUA: backup-etik irakurri
 			if (connect == null || !connect || db == null) {
 				BackupReaderService.BackupData backup = BackupReaderService.loadBackupSafe();
 				if (backup == null) {
@@ -57,7 +57,7 @@ public class RoutineService {
 				return levelsArray;
 			}
 
-			// ONLINE MODE: leer de Firestore usando FirestoreUtils
+			// ONLINE MODUA: Firestore-tik irakurri FirestoreUtils erabiliz
 			DocumentSnapshot userDoc = firestoreUtils.getUserDocumentByEmail(db, emaila);
 			if (userDoc == null) {
 				System.err.println("[ERROR] Ez da erabiltzailea aurkitu: " + emaila);
@@ -131,7 +131,7 @@ public class RoutineService {
 
 		List<String> workoutNames = new ArrayList<>();
 
-		// ONLINE MODE
+		// ONLINE MODUA
 		if (connect != null && connect && db != null) {
 			QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", selectedLevel).get().get();
 
@@ -149,7 +149,7 @@ public class RoutineService {
 
 			return workoutNames.toArray(new String[0]);
 		} else {
-			// OFFLINE MODE
+			// OFFLINE MODUA
 			BackupReaderService.BackupData backup = BackupReaderService.loadBackupSafe();
 
 			if (backup != null) {
@@ -175,7 +175,7 @@ public class RoutineService {
 	public String[] getLevels(int nivelSeleccionado, String nivelText, Boolean connect)
 			throws InterruptedException, ExecutionException {
 
-		// ONLINE MODE
+		// ONLINE MODUA
 		if (connect != null && connect && db != null) {
 			QuerySnapshot querySnapshot = db.collection("workouts").whereEqualTo("level", nivelSeleccionado)
 					.whereEqualTo("name", nivelText).get().get();
@@ -212,7 +212,7 @@ public class RoutineService {
 
 			return levels.toArray(new String[0]);
 		} else {
-			// OFFLINE MODE
+			// OFFLINE MODUA
 			BackupData backup = BackupReaderService.loadBackupSafe();
 
 			List<String> levels = new ArrayList<>();
@@ -284,7 +284,7 @@ public class RoutineService {
 				String rutinarenIzenaToUse = chosenRoutine[0] != null && !chosenRoutine[0].isEmpty() ? chosenRoutine[0]
 						: (comboMailaRutinakLevel.getItemCount() > 0 ? comboMailaRutinakLevel.getItemAt(0) : "");
 
-				// Ikuspegi motaren arabera zerrenda kargatu / Cargar lista según el tipo de vista
+				// Ikuspegi motaren arabera zerrenda kargatu
 				updateList(aukeratutakoMaila, rutinarenIzenaToUse, connect, listaWorkout, isHistoric);
 
 			} catch (InterruptedException | ExecutionException ex) {
@@ -295,10 +295,8 @@ public class RoutineService {
 
 	/**
 	 * Hautatutako rutina aldatzen denean, zerrenda eguneratzen du
-	 * Actualiza la lista cuando cambia la rutina seleccionada
 	 * 
 	 * @param isHistoric egia ViewHistoric-erako, faltsua Workouts-erako
-	 *                   true para ViewHistoric, false para Workouts
 	 */
 	public static void updateWorkoutList(JComboBox<String> comboMaila, JComboBox<String> comboMailaRutinakLevel,
 			Boolean connect, JList<String> listaWorkout, boolean isHistoric) {
@@ -319,7 +317,6 @@ public class RoutineService {
 
 	/**
 	 * Zerrenda eguneratzeko metodo komuna (ariketak edo historikoa)
-	 * Método común para actualizar la lista (ejercicios o histórico)
 	 */
 	private static void updateList(int nivel, String rutinaNombre, Boolean connect, JList<String> listaWorkout,
 			boolean isHistoric) throws InterruptedException, ExecutionException {
@@ -327,11 +324,11 @@ public class RoutineService {
 		String[] datos;
 
 		if (isHistoric) {
-			// ViewHistoric-erako: historikoa kargatu / Para ViewHistoric: cargar histórico
+			// ViewHistoric-erako: historikoa kargatu
 			HistoricReaderService readHistoric = new HistoricReaderService(connect);
 			datos = readHistoric.getHistoric(nivel, rutinaNombre, connect);
 		} else {
-			// Workouts-erako: ariketak kargatu / Para Workouts: cargar ejercicios
+			// Workouts-erako: ariketak kargatu
 			RoutineService routines = new RoutineService(connect);
 			datos = routines.getLevels(nivel, rutinaNombre, connect);
 		}

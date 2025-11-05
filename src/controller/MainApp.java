@@ -34,7 +34,7 @@ public class MainApp {
 
 		// Erakutsi lehenengo leihoa
 		SwingUtilities.invokeLater(() -> {
-			// Usar el estado real de conexión del controller
+			// Kontrolatzailearen benetako konexio egoera erabili
 			controller.getFirstView(controller.isOnline()).setVisible(true);
 		});
 

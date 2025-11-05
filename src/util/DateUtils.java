@@ -52,9 +52,9 @@ public class DateUtils {
 	}
 	
 	/**
-	 * Formatea Date a String (método estático de conveniencia)
-	 * @param date Fecha a formatear
-	 * @return String formateado o cadena vacía si es null
+	 * Date formatuatu String bihurtu (metodo estatiko erosoa)
+	 * @param date Formateatzeko data
+	 * @return Formateatutako String edo kate hutsa null bada
 	 */
 	public static String formatDateStatic(Date date) {
 		if (date == null) {

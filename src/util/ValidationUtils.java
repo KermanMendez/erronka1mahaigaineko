@@ -4,11 +4,10 @@ import java.util.regex.Pattern;
 
 /**
  * Datuak balidatzeko utilitate klasea
- * Clase de utilidades para validar datos
  */
 public class ValidationUtils {
 
-	// Email patroiak / Patrones de email
+	// Email patroiak
 	private static final Pattern EMAIL_PATTERN = Pattern.compile(
 			"^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 

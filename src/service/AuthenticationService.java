@@ -115,7 +115,7 @@ public class AuthenticationService {
 
 		try {
 			if (connect && db != null) {
-				// Online (DB eskuragarri badago bakarrik)
+				// Online (DB eskuragarri badago soilik)
 				String uid = checkLogin(email, password);
 				if (uid == null) {
 					ExceptionHandler.erakutsiErrorea("Autentifikazio errorea",
@@ -134,7 +134,7 @@ public class AuthenticationService {
 				if (entrenatzaileaDa == null)
 					entrenatzaileaDa = false;
 
-				// Pasar el estado de conexión real, no el campo trainer
+				// Konexio egoera erreala pasatu, ez entrenatzaile eremua
 				Inter inter = new Inter(connect);
 				inter.setVisible(true);
 

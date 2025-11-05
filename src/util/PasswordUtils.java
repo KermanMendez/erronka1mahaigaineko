@@ -10,7 +10,6 @@ import javax.crypto.spec.PBEKeySpec;
 
 /**
  * Pasahitzen kudeaketa seguruaren utilitateak
- * Utilidades para el manejo seguro de contraseñas
  */
 public class PasswordUtils {
 
@@ -21,7 +20,6 @@ public class PasswordUtils {
 
 	/**
 	 * PBKDF2 erabiliz pasahitz batek hash segurua sortzen du
-	 * Genera un hash seguro de la contraseña usando PBKDF2
 	 * 
 	 * @param pasahitza Testu arrunteko pasahitza
 	 * @return "gatz$hash" formatuko hash-a (Base64)
@@ -110,7 +108,6 @@ public class PasswordUtils {
 
 	/**
 	 * Array-en konparazioa denbora konstantean timing attacks saihesteko
-	 * Comparación de arrays en tiempo constante para prevenir timing attacks
 	 * 
 	 * @param a Lehenengo array-a
 	 * @param b Bigarren array-a
@@ -129,7 +126,6 @@ public class PasswordUtils {
 	}
 
 	// Atzeraeragingarritasuna: Metodo zaharrak mantendu
-	// Mantener métodos antiguos para retrocompatibilidad
 
 	/**
 	 * @deprecated Erabili hashPasahitza() horren ordez

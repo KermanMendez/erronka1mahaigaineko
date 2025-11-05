@@ -19,17 +19,15 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * Utilidades para operaciones XML
  * XML eragiketetarako utilitateak
  */
 public class XMLUtils {
 
 	/**
 	 * XML fitxategia parseatu eta Document itzultzen du
-	 * Parsea un archivo XML y retorna el Document
 	 * 
-	 * @param fileName XML fitxategiaren izena / Nombre del archivo XML
-	 * @return Parseaturiko dokumentua edo null errorea badago / Document parseado o null si hay error
+	 * @param fileName XML fitxategiaren izena
+	 * @return Parseaturiko dokumentua edo null errorea badago
 	 */
 	public static Document parseXmlDocument(String fileName) {
 		File file = new File(fileName);
@@ -51,11 +49,11 @@ public class XMLUtils {
 	}
 
 	/**
-	 * Parsea un archivo XML existente o crea uno nuevo si no existe
+	 * Existitzen den XML fitxategia parseatu edo berria sortzen du ez badago
 	 * 
-	 * @param fileName    Nombre del archivo
-	 * @param rootElement Nombre del elemento raíz si se crea nuevo
-	 * @return Document parseado o nuevo
+	 * @param fileName    Fitxategiaren izena
+	 * @param rootElement Erro elementuaren izena berria sortu behar bada
+	 * @return Parseaturiko edo berri sortutako dokumentua
 	 * @throws ParserConfigurationException
 	 * @throws SAXException
 	 * @throws IOException
@@ -79,10 +77,10 @@ public class XMLUtils {
 	}
 
 	/**
-	 * Crea un nuevo documento XML con un elemento raíz
+	 * Erro elementu batekin XML dokumentu berria sortzen du
 	 * 
-	 * @param rootElement Nombre del elemento raíz
-	 * @return Nuevo Document
+	 * @param rootElement Erro elementuaren izena
+	 * @return Dokumentu berria
 	 * @throws ParserConfigurationException
 	 */
 	public static Document createNewDocument(String rootElement) throws ParserConfigurationException {
@@ -95,10 +93,10 @@ public class XMLUtils {
 	}
 
 	/**
-	 * Guarda un documento XML en un archivo con formato indentado
+	 * XML dokumentua formatu indentatuarekin fitxategi batean gordetzen du
 	 * 
-	 * @param doc      Document a guardar
-	 * @param fileName Nombre del archivo de destino
+	 * @param doc      Gordetzeko dokumentua
+	 * @param fileName Helmuga fitxategiaren izena
 	 * @throws TransformerException
 	 * @throws IOException
 	 */
@@ -130,11 +128,10 @@ public class XMLUtils {
 
 	/**
 	 * Tag izenaren arabera seme elementu baten testu balioa lortzen du
-	 * Obtiene el valor de texto de un elemento hijo por nombre de tag
 	 * 
-	 * @param tag     Bilatzeko tag-aren izena / Nombre del tag a buscar
-	 * @param element Guraso elementua / Elemento padre
-	 * @return Elementuaren testua edo kate hutsa ez badago / Texto del elemento o cadena vacía si no existe
+	 * @param tag     Bilatzeko tag-aren izena
+	 * @param element Guraso elementua
+	 * @return Elementuaren testua edo kate hutsa ez badago
 	 */
 	public static String getTagValue(String tag, Element element) {
 		org.w3c.dom.NodeList nodeList = element.getElementsByTagName(tag);

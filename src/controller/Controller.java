@@ -54,7 +54,7 @@ public class Controller {
 	}
 
 	public Firestore getDb() {
-		// Si db es null pero estamos online, intentar obtener Firestore
+		// db null bada baina online gaude, Firestore lortu
 		if (db == null && online && dbConnection != null && dbConnection.isInitialized()) {
 			db = getFirestore();
 		}
