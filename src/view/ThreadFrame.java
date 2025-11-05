@@ -108,7 +108,6 @@ public class ThreadFrame extends JFrame {
 				}
 			}
 		});
-		// btnPause.setVisible(false);
 		btnPause.setEnabled(false);
 		buttonPanel.add(btnPause);
 
@@ -116,7 +115,6 @@ public class ThreadFrame extends JFrame {
 		UIStyle.styleButton(btnSkip);
 		UIStyle.addHoverEffect(btnSkip);
 		btnSkip.addActionListener(e -> skipRestRequested = true);
-		// btnSkip.setVisible(false);
 		btnSkip.setEnabled(false);
 		buttonPanel.add(btnSkip);
 
@@ -126,7 +124,6 @@ public class ThreadFrame extends JFrame {
 		btnAmaitu.addActionListener(e -> {
 			stopRequested = true;
 		});
-		// btnAmaitu.setVisible(false);
 		btnAmaitu.setEnabled(false);
 		buttonPanel.add(btnAmaitu);
 		contentPane.add(buttonPanel);
@@ -139,7 +136,6 @@ public class ThreadFrame extends JFrame {
 					}
 					return false;
 				}, () -> paused, pauseLock,
-				// Callback cuando el entrenamiento comienza (después de la cuenta atrás)
 				() -> {
 					btnPause.setVisible(true);
 					btnPause.setEnabled(true);
@@ -148,7 +144,6 @@ public class ThreadFrame extends JFrame {
 					btnAmaitu.setVisible(true);
 					btnAmaitu.setEnabled(true);
 				},
-				// Callback cuando el entrenamiento termina
 				() -> {
 					Workouts workouts = new Workouts(connect);
 					workouts.setVisible(true);
