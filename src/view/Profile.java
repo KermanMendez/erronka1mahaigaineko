@@ -18,10 +18,9 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.MaskFormatter;
 
-import model.CreateUserBackup;
-import model.EditProfile;
-import model.UIStyle;
 import model.User;
+import service.ProfileService;
+import service.UserBackupService;
 
 public class Profile extends JFrame {
 
@@ -37,7 +36,7 @@ public class Profile extends JFrame {
 	private JPasswordField pfPassword2;
 	private JFormattedTextField tfDob;
 
-	private EditProfile editProfile = new EditProfile();
+	private ProfileService profileService = new ProfileService();
 
 	public Profile(Boolean connect) {
 
@@ -204,7 +203,7 @@ public class Profile extends JFrame {
 		final JFormattedTextField finalTfDob = tfDob;
 		btnSave.addActionListener((ActionEvent e) -> {
 
-			userProfile = editProfile.validateChanges(tfName, tfSurname1, tfSurname2, pfPassword, pfPassword2,
+			userProfile = profileService.validateChanges(tfName, tfSurname1, tfSurname2, pfPassword, pfPassword2,
 					finalTfDob);
 
 			if (userProfile == null) {
@@ -213,16 +212,16 @@ public class Profile extends JFrame {
 
 			String localEmail = null;
 			try {
-				localEmail = new CreateUserBackup().loadEmail();
+				localEmail = new UserBackupService().loadEmail();
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 
-			editProfile.setLocalEmail(localEmail);
+			profileService.setLocalEmail(localEmail);
 
 			final String targetEmail = localEmail;
 			
-			editProfile.updateProfileInDb(userProfile, targetEmail, () -> {
+			profileService.updateProfileInDb(userProfile, targetEmail, () -> {
 				Inter inter = new Inter(connect);
 				inter.setVisible(true);
 				dispose();
@@ -234,7 +233,7 @@ public class Profile extends JFrame {
 
 		contentPane.add(buttons, BorderLayout.SOUTH);
 
-		editProfile.loadProfileFromDb(tfName, tfSurname1, tfSurname2, tfDob);
+		profileService.loadProfileFromDb(tfName, tfSurname1, tfSurname2, tfDob);
 
 	}
 }

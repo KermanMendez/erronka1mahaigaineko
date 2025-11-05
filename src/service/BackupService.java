@@ -1,4 +1,4 @@
-package model;
+package service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
@@ -29,7 +29,7 @@ import com.google.firebase.auth.ListUsersPage;
 import controller.Controller;
 import util.CryptoUtils;
 
-public class CreateBackup {
+public class BackupService {
 
 	private final String FICHERO = "backup.dat";
 	private Firestore db;

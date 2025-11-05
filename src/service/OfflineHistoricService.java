@@ -1,4 +1,4 @@
-package model;
+package service;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import com.google.cloud.firestore.WriteResult;
 import controller.Controller;
 import util.XMLUtils;
 
-public class OfflineHistoric {
+public class OfflineHistoricService {
 
 	private final String FITXATEGIA = "offlineHistoric.xml";
 

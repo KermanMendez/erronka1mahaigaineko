@@ -16,15 +16,14 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import model.ConnectDB;
-import model.UIStyle;
+import service.AuthenticationService;
 
 public class LoginFrame extends JFrame {
 	public static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextField textFieldUser;
 	private JPasswordField passwordField;
-	private ConnectDB connectDB = new ConnectDB();
+	private AuthenticationService authService = new AuthenticationService();
 
 	public LoginFrame(Boolean connect) {
 
@@ -88,7 +87,7 @@ public class LoginFrame extends JFrame {
 		btnLogin.setToolTipText("Saioa hasi");
 		UIStyle.addHoverEffect(btnLogin);
 		btnLogin.addActionListener(e -> {
-			String user = connectDB.handleLogin(textFieldUser, passwordField, connect);
+			String user = authService.handleLogin(textFieldUser, passwordField, connect);
 			if (user != null) {
 				dispose();
 			}

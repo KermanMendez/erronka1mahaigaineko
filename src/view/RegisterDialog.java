@@ -19,9 +19,8 @@ import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
-import model.ConnectDB;
-import model.DateFormater;
-import model.UIStyle;
+import service.AuthenticationService;
+import util.DateFormater;
 
 public class RegisterDialog extends JFrame {
 
@@ -33,7 +32,7 @@ public class RegisterDialog extends JFrame {
 	private JDatePickerImpl datePicker;
 	private JTextField textFieldIzena;
 	private JCheckBox checkboxtrainer;
-	private ConnectDB connectDB = new ConnectDB();
+	private AuthenticationService authService = new AuthenticationService();
 
 	public RegisterDialog(Boolean connect) {
 
@@ -160,7 +159,7 @@ public class RegisterDialog extends JFrame {
 		UIStyle.addHoverEffect(btnRegistrar);
 		btnRegistrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Boolean registroa = connectDB.eskaeraRegistratu(textFieldIzena.getText().trim(),
+				Boolean registroa = authService.eskaeraRegistratu(textFieldIzena.getText().trim(),
 						abizena1Field.getText().trim(), abizena2Field.getText().trim(), textFieldEmail.getText().trim(),
 						new String(passwordField.getPassword()), (java.util.Date) datePicker.getModel().getValue(),
 						checkboxtrainer.isSelected(), connect);

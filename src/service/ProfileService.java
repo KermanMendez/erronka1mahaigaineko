@@ -1,4 +1,4 @@
-package model;
+package service;
 
 import javax.swing.JTextField;
 
@@ -8,11 +8,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserRecord;
 
 import controller.Controller;
+import model.User;
 import util.ExceptionHandler;
 import util.FirestoreUtils;
 import util.ValidationUtils;
 
-public class EditProfile {
+public class ProfileService {
 
 	public boolean updateUserDocument(String email, String name, String surname1, String surname2, String birthdate) {
 		try {
@@ -92,7 +93,7 @@ public class EditProfile {
 	public void loadProfileFromDb(JTextField tfName, JTextField tfSurname1, JTextField tfSurname2, JTextField tfDob) {
 		new Thread(() -> {
 			try {
-				String email = CreateUserBackup.getCurrentUserEmail();
+				String email = UserBackupService.getCurrentUserEmail();
 				if (email == null || email.trim().isEmpty()) {
 					System.err.println("[ABISUA] Ez dago email-ik gordeta");
 					return;

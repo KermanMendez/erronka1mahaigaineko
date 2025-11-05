@@ -12,13 +12,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import model.Hariak;
-import model.UIStyle;
+import service.WorkoutExecutionService;
 
 public class ThreadFrame extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	private Hariak hariak = new Hariak();
+	private WorkoutExecutionService workoutService = new WorkoutExecutionService();
 	private boolean paused = false;
 	private boolean skipRestRequested = false;
 	private final Object pauseLock = new Object();
@@ -128,7 +127,7 @@ public class ThreadFrame extends JFrame {
 		buttonPanel.add(btnAmaitu);
 		contentPane.add(buttonPanel);
 
-		hariak.executeWorkout(level, routineName, connect, labelTotala, labelSerieak, labelAtsedenak, labelHasiera,
+		workoutService.executeWorkout(level, routineName, connect, labelTotala, labelSerieak, labelAtsedenak, labelHasiera,
 				lblRutinaDeskribapena, lblRutinaSets, () -> stopRequested, () -> {
 					if (skipRestRequested) {
 						skipRestRequested = false;

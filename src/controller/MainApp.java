@@ -2,8 +2,8 @@ package controller;
 
 import javax.swing.SwingUtilities;
 
-import model.CreateBackup;
-import model.Theme;
+import service.BackupService;
+import view.Theme;
 
 /**
  * Aplikazioaren sarrera puntua
@@ -45,7 +45,7 @@ public class MainApp {
 			try {
 				if (controller.getDb() != null && controller.isOnline()) {
 					System.out.println("[INFO] Backup automatikoa hasten...");
-					CreateBackup backup = new CreateBackup();
+					BackupService backup = new BackupService();
 					backup.saveBackup(true);
 					System.out.println("[INFO] Backup-a arrakastaz gordeta");
 				} else {

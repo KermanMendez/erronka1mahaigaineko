@@ -15,9 +15,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import model.CardListRenderer;
-import model.Routines;
-import model.UIStyle;
+import service.RoutineService;
 
 public class Workouts extends JFrame {
 
@@ -33,7 +31,7 @@ public class Workouts extends JFrame {
 	public Workouts(Boolean connect) {
 
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Workouts.class.getResource("/img/logo.png")));
-		Routines routines = new Routines(connect);
+		RoutineService routines = new RoutineService(connect);
 		setTitle("Workouts");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(700, 500);
@@ -147,16 +145,16 @@ public class Workouts extends JFrame {
 
 		getContentPane().setBackground(UIStyle.BACKGROUND);
 
-		Routines.updateWorkoutList(comboMaila, comboMailaRutinakLevel, connect, listaWorkout, false);
+		RoutineService.updateWorkoutList(comboMaila, comboMailaRutinakLevel, connect, listaWorkout, false);
 
 		comboMaila.addActionListener(e -> {
 			int aukeratutakoMaila = comboMaila.getSelectedIndex() + 1;
 			lblMailaAktuala.setText("Maila: " + aukeratutakoMaila);
-			Routines.updateRoutinesComboBox(comboMaila, comboMailaRutinakLevel, routines, connect, listaWorkout, false);
+			RoutineService.updateRoutinesComboBox(comboMaila, comboMailaRutinakLevel, routines, connect, listaWorkout, false);
 		});
 
 		comboMailaRutinakLevel.addActionListener(e -> {
-			Routines.updateWorkoutList(comboMaila, comboMailaRutinakLevel, connect, listaWorkout, false);
+			RoutineService.updateWorkoutList(comboMaila, comboMailaRutinakLevel, connect, listaWorkout, false);
 		});
 	}
 }

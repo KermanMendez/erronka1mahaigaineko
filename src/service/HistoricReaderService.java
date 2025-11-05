@@ -1,20 +1,21 @@
-package model;
+package service;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import com.google.cloud.firestore.*;
 import controller.Controller;
+import model.Exercise;
 import util.FirestoreUtils;
 import util.ParseUtils;
 import util.XMLUtils;
 
-public class ReadHistoric {
+public class HistoricReaderService {
 
 	private final Firestore db;
 	private final ParseUtils parse = new ParseUtils();
 
-	public ReadHistoric(Boolean connect) {
+	public HistoricReaderService(Boolean connect) {
 		this.db = Controller.getInstance().getDb();
 	}
 
@@ -24,7 +25,7 @@ public class ReadHistoric {
 		List<String> resultList = new ArrayList<>();
 
 		if (connect) {
-			String email = CreateUserBackup.getCurrentUserEmail();
+			String email = UserBackupService.getCurrentUserEmail();
 			FirestoreUtils firestoreUtils = new FirestoreUtils();
 			DocumentSnapshot userDoc = firestoreUtils.getUserDocumentByEmail(db, email);
 
@@ -40,13 +41,13 @@ public class ReadHistoric {
 			}
 		}
 
-		ReadBackup.BackupData backup = ReadBackup.loadBackupSafe();
-		String email = CreateUserBackup.getCurrentUserEmail();
+		BackupReaderService.BackupData backup = BackupReaderService.loadBackupSafe();
+		String email = UserBackupService.getCurrentUserEmail();
 
 		if (backup != null && email != null) {
 			String userId = null;
 			if (backup.users != null) {
-				for (ReadBackup.UserData u : backup.users) {
+				for (BackupReaderService.UserData u : backup.users) {
 					if (email.equals(u.email)) {
 						userId = u.uid;
 						break;
@@ -118,7 +119,7 @@ public class ReadHistoric {
 				+ " | ⏱Denbora: " + totalTime + " seg");
 	}
 
-	private List<String> readOfflineXml(String fileName, String userId, String email, ReadBackup.BackupData backup,
+	private List<String> readOfflineXml(String fileName, String userId, String email, BackupReaderService.BackupData backup,
 			int level, String rutinarenIzena) {
 
 		List<String> result = new ArrayList<>();
@@ -162,16 +163,16 @@ public class ReadHistoric {
 
 				int totalSetsInWorkout = 0;
 				if (backup.collections != null && workoutId != null) {
-					List<ReadBackup.DocumentData> workoutDocs = backup.collections.get("workouts");
+					List<BackupReaderService.DocumentData> workoutDocs = backup.collections.get("workouts");
 					if (workoutDocs != null) {
-						for (ReadBackup.DocumentData wd : workoutDocs) {
+						for (BackupReaderService.DocumentData wd : workoutDocs) {
 							if (workoutId.equals(wd.id)) {
 								if (wd.fields.get("name") != null) {
 									workoutName = wd.fields.get("name");
 								}
-								List<ReadBackup.DocumentData> exerciseDocs = wd.subcollections.get("exercises");
+								List<BackupReaderService.DocumentData> exerciseDocs = wd.subcollections.get("exercises");
 								if (exerciseDocs != null) {
-									for (ReadBackup.DocumentData exd : exerciseDocs) {
+									for (BackupReaderService.DocumentData exd : exerciseDocs) {
 										totalSetsInWorkout += ParseUtils.parseInt(exd.fields.get("sets"));
 									}
 								}

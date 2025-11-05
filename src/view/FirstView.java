@@ -11,8 +11,6 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import controller.Controller;
-import model.LoadLogo;
-import model.UIStyle;
 
 public class FirstView extends JFrame {
 

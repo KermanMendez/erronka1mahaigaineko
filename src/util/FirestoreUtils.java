@@ -6,7 +6,10 @@ import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QuerySnapshot;
 
-import model.ReadBackup;
+import service.BackupReaderService;
+import service.BackupReaderService.BackupData;
+import service.BackupReaderService.DocumentData;
+import service.BackupReaderService.UserData;
 
 public class FirestoreUtils {
 
@@ -30,12 +33,12 @@ public class FirestoreUtils {
 		return doc != null ? doc.getId() : null;
 	}
 
-	public String getUserIdFromBackup(ReadBackup.BackupData backup, String email) {
+	public String getUserIdFromBackup(BackupData backup, String email) {
 		if (backup == null || backup.users == null || email == null) {
 			return null;
 		}
 
-		for (ReadBackup.UserData u : backup.users) {
+		for (UserData u : backup.users) {
 			if (email.equals(u.email)) {
 				return u.uid;
 			}
@@ -44,7 +47,7 @@ public class FirestoreUtils {
 		return null;
 	}
 
-	public int getUserLevelFromBackup(ReadBackup.BackupData backup, String email) {
+	public int getUserLevelFromBackup(BackupData backup, String email) {
 		if (backup == null || backup.collections == null || email == null) {
 			return 1;
 		}
@@ -54,7 +57,7 @@ public class FirestoreUtils {
 			return 1;
 		}
 
-		for (ReadBackup.DocumentData ud : users) {
+		for (DocumentData ud : users) {
 			String userEmail = ud.fields.get("email");
 			if (userEmail != null && userEmail.equals(email)) {
 				String levelStr = ud.fields.get("level");

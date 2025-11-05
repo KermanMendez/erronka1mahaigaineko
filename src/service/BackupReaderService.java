@@ -1,4 +1,4 @@
-package model;
+package service;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -20,7 +20,7 @@ import org.w3c.dom.NodeList;
 
 import util.CryptoUtils;
 
-public class ReadBackup {
+public class BackupReaderService {
 
 	private final String FICHERO = "backup.dat";
 	private CryptoUtils cryptoUtils = new CryptoUtils();
@@ -36,7 +36,7 @@ public class ReadBackup {
 	 */
 	public static BackupData loadBackupSafe() {
 		try {
-			ReadBackup reader = new ReadBackup();
+			BackupReaderService reader = new BackupReaderService();
 			return reader.loadBackupData();
 		} catch (Exception e) {
 			System.err.println("[ERROR] Error cargando backup: " + e.getMessage());
@@ -148,7 +148,7 @@ public class ReadBackup {
 				BackupData backup = new BackupData();
 
 				String currentCollection = null;
-				ReadBackup.DocumentData currentDoc = null;
+				BackupReaderService.DocumentData currentDoc = null;
 				for (int i = 0; i < lines.size(); i++) {
 					String raw = lines.get(i);
 					String line = raw.replaceAll("^\\s+", "");
