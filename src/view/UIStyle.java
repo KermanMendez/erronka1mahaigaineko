@@ -67,8 +67,8 @@ public class UIStyle {
 		button.setContentAreaFilled(false);
 		button.setOpaque(false);
 
-		button.setMinimumSize(new java.awt.Dimension(120, 40));
-		button.setPreferredSize(new java.awt.Dimension(120, 40));
+		button.setMinimumSize(new java.awt.Dimension(160, 40));
+		button.setPreferredSize(new java.awt.Dimension(160, 40));
 
 		button.setBorder(new RoundedBorder(BUTTON_BG, 10));
 
