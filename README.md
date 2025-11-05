@@ -489,7 +489,7 @@ BackupService (Thread daemon) → Backup automático en background
 | **Backup** | ✅ Automático | ✅ Lectura local |
 | **Histórico** | ✅ Firestore | ✅ XML local |
 | **Registro histórico** | ✅ Firestore | ✅ `offlineHistoric.xml` |
-| **Incremento nivel** | ✅ Sí | ✅ Sí |
+| **Incremento nivel** | ✅ Sí | ❌ No |
 | **Crear usuarios** | ✅ Sí | ❌ No |
 | **Editar perfil** | ✅ Sí | ❌ No |
 
