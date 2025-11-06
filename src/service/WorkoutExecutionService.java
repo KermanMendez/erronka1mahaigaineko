@@ -58,6 +58,36 @@ public class WorkoutExecutionService {
 	
 	/** Firestore erabiltzeko utilitatea */
 	private FirestoreUtils firestoreUtils = new FirestoreUtils();
+	
+	/**
+	 * Ariketak, serie kopurua eta deskribapena biltzen dituen klase laguntzailea.
+	 * 
+	 * <p>Metodo pribatuetan erabiltzen da emaitzak itzultzeko, Firestore edo
+	 * backup lokal batetik kargatutako datuekin.</p>
+	 */
+	private class ExercisesResult {
+		/** Ariketa zerrenda */
+		final List<Exercise> exercises;
+		
+		/** Serie kopuru totala */
+		final int totalSets;
+		
+		/** Rutinaren deskribapena */
+		final String routineDescription;
+
+		/**
+		 * ExercisesResult instantzia berria sortzen du.
+		 * 
+		 * @param exercises ariketa zerrenda
+		 * @param totalSets serie kopuru totala
+		 * @param routineDescription rutinaren deskribapena
+		 */
+		ExercisesResult(List<Exercise> exercises, int totalSets, String routineDescription) {
+			this.exercises = exercises;
+			this.totalSets = totalSets;
+			this.routineDescription = routineDescription;
+		}
+	}
 
 	/**
 	 * Rutinaren ariketa zerrenda soilik lortzen du.
@@ -109,36 +139,6 @@ public class WorkoutExecutionService {
 		ExercisesResult res = loadExercisesFromFirestore(level, routineName);
 		String description = getDefaultRoutineDescription(res.routineDescription, res.exercises);
 		return new RoutineData(res.exercises, description, res.totalSets);
-	}
-
-	/**
-	 * Ariketak, serie kopurua eta deskribapena biltzen dituen klase laguntzailea.
-	 * 
-	 * <p>Metodo pribatuetan erabiltzen da emaitzak itzultzeko, Firestore edo
-	 * backup lokal batetik kargatutako datuekin.</p>
-	 */
-	private static class ExercisesResult {
-		/** Ariketa zerrenda */
-		final List<Exercise> exercises;
-		
-		/** Serie kopuru totala */
-		final int totalSets;
-		
-		/** Rutinaren deskribapena */
-		final String routineDescription;
-
-		/**
-		 * ExercisesResult instantzia berria sortzen du.
-		 * 
-		 * @param exercises ariketa zerrenda
-		 * @param totalSets serie kopuru totala
-		 * @param routineDescription rutinaren deskribapena
-		 */
-		ExercisesResult(List<Exercise> exercises, int totalSets, String routineDescription) {
-			this.exercises = exercises;
-			this.totalSets = totalSets;
-			this.routineDescription = routineDescription;
-		}
 	}
 
 	/**
