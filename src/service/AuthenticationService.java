@@ -93,8 +93,7 @@ public class AuthenticationService {
 
 		DocumentReference uidDoc = db.collection("users").document(userRecord.getUid());
 		Map<String, Object> erabiltzaileDatuak = Map.of("name", name, "surname", surname1, "surname2", surname2,
-				"email", email, "birthdate", birthdate, "trainer", trainer, "password", hashedPassword, "level",
-				level);
+				"email", email, "birthdate", birthdate, "trainer", trainer, "password", hashedPassword, "level", level);
 
 		uidDoc.set(erabiltzaileDatuak);
 	}

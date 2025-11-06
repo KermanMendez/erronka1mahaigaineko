@@ -18,13 +18,14 @@ public class UserBackupService {
 	private CryptoUtils cryptoUtils = new CryptoUtils();
 
 	/**
-	 * Uneko erabiltzailearen emaila modu estatikoan lortzen du
-	 * Obtiene el email del usuario actual de forma estática
+	 * Uneko erabiltzailearen emaila modu estatikoan lortzen du Obtiene el email del
+	 * usuario actual de forma estática
 	 * 
-	 * Metodo laguntzailea instantziak sortu gabe
-	 * Método helper para evitar crear instancias repetidas
+	 * Metodo laguntzailea instantziak sortu gabe Método helper para evitar crear
+	 * instancias repetidas
 	 * 
-	 * @return Uneko erabiltzailearen emaila edo null ez badago / Email del usuario actual o null si no existe
+	 * @return Uneko erabiltzailearen emaila edo null ez badago / Email del usuario
+	 *         actual o null si no existe
 	 */
 	public static String getCurrentUserEmail() {
 		return new UserBackupService().loadEmail();

@@ -26,13 +26,14 @@ public class BackupReaderService {
 	private CryptoUtils cryptoUtils = new CryptoUtils();
 
 	/**
-	 * Backup-a modu seguruan kargatzen du, null itzultzen du errorea badago
-	 * Carga el backup de forma segura, retornando null si hay error
+	 * Backup-a modu seguruan kargatzen du, null itzultzen du errorea badago Carga
+	 * el backup de forma segura, retornando null si hay error
 	 * 
-	 * Metodo laguntzaile estatikoa erabilera orokorrerako
-	 * Método helper estático para uso común
+	 * Metodo laguntzaile estatikoa erabilera orokorrerako Método helper estático
+	 * para uso común
 	 * 
-	 * @return BackupData edo null ez badago edo errorea badago / BackupData o null si no existe o hay error
+	 * @return BackupData edo null ez badago edo errorea badago / BackupData o null
+	 *         si no existe o hay error
 	 */
 	public static BackupData loadBackupSafe() {
 		try {

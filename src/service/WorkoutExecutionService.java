@@ -21,65 +21,70 @@ import service.BackupReaderService.BackupData;
 import util.FirestoreUtils;
 
 /**
- * Entrenamendu errutinen exekuzioa kudeatzen duen zerbitzua.
- * Hari anitzak erabiliz, online edo offline moduan funtzionatzen du.
+ * Entrenamendu errutinen exekuzioa kudeatzen duen zerbitzua. Hari anitzak
+ * erabiliz, online edo offline moduan funtzionatzen du.
  */
 public class WorkoutExecutionService {
 
 	/** Entrenamendua osatua izan den ala ez adierazten duen bandera */
 	private boolean amaituta = false;
-	
+
 	/** Entrenamenduan igarotako segundo guztiak */
 	private long totalSeconds;
-	
+
 	/** Osatutako serie kopurua */
 	private int completedSets = 0;
-	
+
 	/** Espero den serie kopuru osoa */
 	private int expectedTotalSets = 0;
-	
+
 	/** Geratzen den denbora segundutan */
 	private int totalTime = 0;
-	
+
 	/** Igarotako segundoak */
 	private int elapsedSeconds = 0;
-	
+
 	/** Espero den segundo kopuru osoa */
 	private int expectedTotalSeconds = 0;
-	
+
 	/** Firestore datu-basearen instantzia */
 	private Firestore db;
-	
-	/** Atsedena orain saltatu behar den adierazten duen bandera (volatile hari anitzek atzitu dezaketelako) */
+
+	/**
+	 * Atsedena orain saltatu behar den adierazten duen bandera (volatile hari
+	 * anitzek atzitu dezaketelako)
+	 */
 	private volatile boolean skipNow = false;
-	
+
 	/** Uneko maila */
 	private int level;
-	
+
 	/** Firestore erabiltzeko utilitatea */
 	private FirestoreUtils firestoreUtils = new FirestoreUtils();
-	
+
 	/**
 	 * Ariketak, serie kopurua eta deskribapena biltzen dituen klase laguntzailea.
 	 * 
-	 * <p>Metodo pribatuetan erabiltzen da emaitzak itzultzeko, Firestore edo
-	 * backup lokal batetik kargatutako datuekin.</p>
+	 * <p>
+	 * Metodo pribatuetan erabiltzen da emaitzak itzultzeko, Firestore edo backup
+	 * lokal batetik kargatutako datuekin.
+	 * </p>
 	 */
 	private class ExercisesResult {
 		/** Ariketa zerrenda */
 		final List<Exercise> exercises;
-		
+
 		/** Serie kopuru totala */
 		final int totalSets;
-		
+
 		/** Rutinaren deskribapena */
 		final String routineDescription;
 
 		/**
 		 * ExercisesResult instantzia berria sortzen du.
 		 * 
-		 * @param exercises ariketa zerrenda
-		 * @param totalSets serie kopuru totala
+		 * @param exercises          ariketa zerrenda
+		 * @param totalSets          serie kopuru totala
 		 * @param routineDescription rutinaren deskribapena
 		 */
 		ExercisesResult(List<Exercise> exercises, int totalSets, String routineDescription) {
@@ -92,15 +97,18 @@ public class WorkoutExecutionService {
 	/**
 	 * Rutinaren ariketa zerrenda soilik lortzen du.
 	 * 
-	 * <p>Metodo erraztu bat da {@link #loadRoutine(int, String, Boolean)} erabiltzen duena
-	 * eta ariketak bakarrik itzultzen ditu.</p>
+	 * <p>
+	 * Metodo erraztu bat da {@link #loadRoutine(int, String, Boolean)} erabiltzen
+	 * duena eta ariketak bakarrik itzultzen ditu.
+	 * </p>
 	 * 
-	 * @param level rutinaren zailtasun maila
+	 * @param level       rutinaren zailtasun maila
 	 * @param routineName rutinaren izena
-	 * @param connect konexioa erabilgarri dagoen adierazten du (true=online, false/null=offline)
+	 * @param connect     konexioa erabilgarri dagoen adierazten du (true=online,
+	 *                    false/null=offline)
 	 * @return rutinaren ariketa zerrenda
 	 * @throws InterruptedException haria eten bada
-	 * @throws ExecutionException exekuzioan erroreren bat gertatzen bada
+	 * @throws ExecutionException   exekuzioan erroreren bat gertatzen bada
 	 */
 	public List<Exercise> getExercises(int level, String routineName, Boolean connect)
 			throws InterruptedException, ExecutionException {
@@ -111,15 +119,19 @@ public class WorkoutExecutionService {
 	/**
 	 * Rutina osoa kargatzen du deskribapena eta serie kopuru osoarekin.
 	 * 
-	 * <p>Konexioaren arabera, Firestore-tik edo backup lokal batetik kargatzen du
-	 * informazioa. Rutinaren ariketak, deskribapena eta serie kopuru totala itzultzen ditu.</p>
+	 * <p>
+	 * Konexioaren arabera, Firestore-tik edo backup lokal batetik kargatzen du
+	 * informazioa. Rutinaren ariketak, deskribapena eta serie kopuru totala
+	 * itzultzen ditu.
+	 * </p>
 	 * 
-	 * @param level rutinaren zailtasun maila
+	 * @param level       rutinaren zailtasun maila
 	 * @param routineName rutinaren izena
-	 * @param connect konexioa erabilgarri dagoen adierazten du (true=online, false/null=offline)
+	 * @param connect     konexioa erabilgarri dagoen adierazten du (true=online,
+	 *                    false/null=offline)
 	 * @return RoutineData objektua ariketak, deskribapena eta serie kopuruarekin
 	 * @throws InterruptedException haria eten bada
-	 * @throws ExecutionException exekuzioan erroreren bat gertatzen bada
+	 * @throws ExecutionException   exekuzioan erroreren bat gertatzen bada
 	 */
 	public RoutineData loadRoutine(int level, String routineName, Boolean connect)
 			throws InterruptedException, ExecutionException {
@@ -144,15 +156,18 @@ public class WorkoutExecutionService {
 	/**
 	 * Backup lokal batetik ariketak kargatzen ditu.
 	 * 
-	 * <p>Backup-eko datuetatik bilatzen du maila eta izen zehatzeko rutina bat,
-	 * eta bere ariketak, serie kopurua eta deskribapena itzultzen ditu.</p>
+	 * <p>
+	 * Backup-eko datuetatik bilatzen du maila eta izen zehatzeko rutina bat, eta
+	 * bere ariketak, serie kopurua eta deskribapena itzultzen ditu.
+	 * </p>
 	 * 
-	 * @param level rutinaren zailtasun maila
+	 * @param level       rutinaren zailtasun maila
 	 * @param routineName rutinaren izena
-	 * @param backup kargatu den backup datua
+	 * @param backup      kargatu den backup datua
 	 * @return ExercisesResult objektua ariketak eta datuak dituela
 	 */
-	private ExercisesResult loadExercisesFromBackup(int level, String routineName, BackupReaderService.BackupData backup) {
+	private ExercisesResult loadExercisesFromBackup(int level, String routineName,
+			BackupReaderService.BackupData backup) {
 		List<Exercise> exercises = new ArrayList<>();
 		int totalSets = 0;
 		String routineDescription = null;
@@ -234,14 +249,16 @@ public class WorkoutExecutionService {
 	/**
 	 * Firestore-tik ariketak kargatzen ditu.
 	 * 
-	 * <p>Firestore datu-basetik bilatzen du maila eta izen zehatzeko rutina bat,
-	 * eta bere ariketak, serie kopurua eta deskribapena itzultzen ditu.</p>
+	 * <p>
+	 * Firestore datu-basetik bilatzen du maila eta izen zehatzeko rutina bat, eta
+	 * bere ariketak, serie kopurua eta deskribapena itzultzen ditu.
+	 * </p>
 	 * 
-	 * @param level rutinaren zailtasun maila
+	 * @param level       rutinaren zailtasun maila
 	 * @param routineName rutinaren izena
 	 * @return ExercisesResult objektua ariketak eta datuak dituela
 	 * @throws InterruptedException haria eten bada
-	 * @throws ExecutionException exekuzioan erroreren bat gertatzen bada
+	 * @throws ExecutionException   exekuzioan erroreren bat gertatzen bada
 	 */
 	private ExercisesResult loadExercisesFromFirestore(int level, String routineName)
 			throws InterruptedException, ExecutionException {
@@ -276,11 +293,13 @@ public class WorkoutExecutionService {
 	/**
 	 * Lehenetsitako rutina deskribapena lortzen du.
 	 * 
-	 * <p>Rutinaren deskribapena lehentasunarekin itzultzen du; bestela, lehen
-	 * ariketaren deskribapena; bestela, testu hutsa.</p>
+	 * <p>
+	 * Rutinaren deskribapena lehentasunarekin itzultzen du; bestela, lehen
+	 * ariketaren deskribapena; bestela, testu hutsa.
+	 * </p>
 	 * 
 	 * @param routineDescription rutinaren deskribapena
-	 * @param exercises ariketa zerrenda
+	 * @param exercises          ariketa zerrenda
 	 * @return deskribapena edo testu hutsa
 	 */
 	private String getDefaultRoutineDescription(String routineDescription, List<Exercise> exercises) {
@@ -294,21 +313,24 @@ public class WorkoutExecutionService {
 	/**
 	 * Ariketen haria exekutatzen du zehaztutako moduan.
 	 * 
-	 * <p>Metodo hau hiru modutan funtziona dezake:</p>
+	 * <p>
+	 * Metodo hau hiru modutan funtziona dezake:
+	 * </p>
 	 * <ul>
-	 *   <li>mode=0: denbora totala kontrolatzen du</li>
-	 *   <li>mode=1: serie unekoak kontrolatzen ditu</li>
-	 *   <li>mode=2: atsedenak kontrolatzen ditu</li>
+	 * <li>mode=0: denbora totala kontrolatzen du</li>
+	 * <li>mode=1: serie unekoak kontrolatzen ditu</li>
+	 * <li>mode=2: atsedenak kontrolatzen ditu</li>
 	 * </ul>
 	 * 
-	 * @param exercises exekutatu beharreko ariketa zerrenda
-	 * @param label eguneratu beharreko JLabel-a
-	 * @param stopSupplier gelditzeko baldintza hornitzen duen Supplier-a
-	 * @param skipRest atsedena saltatu behar den adierazten duen Supplier-a
+	 * @param exercises     exekutatu beharreko ariketa zerrenda
+	 * @param label         eguneratu beharreko JLabel-a
+	 * @param stopSupplier  gelditzeko baldintza hornitzen duen Supplier-a
+	 * @param skipRest      atsedena saltatu behar den adierazten duen Supplier-a
 	 * @param pauseSupplier pausan dagoen adierazten duen Supplier-a
-	 * @param pauseLock pausaren sinkronizaziorako blokeoa
-	 * @param mode exekuzio modua (0=denbora totala, 1=serieak, 2=atsedenak)
-	 * @param canPause pausatzeko gai den ala ez
+	 * @param pauseLock     pausaren sinkronizaziorako blokeoa
+	 * @param mode          exekuzio modua (0=denbora totala, 1=serieak,
+	 *                      2=atsedenak)
+	 * @param canPause      pausatzeko gai den ala ez
 	 */
 	private void runExerciseThread(List<Exercise> exercises, JLabel label, Supplier<Boolean> stopSupplier,
 			Supplier<Boolean> skipRest, Supplier<Boolean> pauseSupplier, Object pauseLock, int mode, boolean canPause) {
@@ -345,16 +367,18 @@ public class WorkoutExecutionService {
 	/**
 	 * Ariketa baten serie guztiak exekutatzen ditu.
 	 * 
-	 * <p>Metodo hau atera da bukle habiaratuen konplexutasuna murrizteko.</p>
+	 * <p>
+	 * Metodo hau atera da bukle habiaratuen konplexutasuna murrizteko.
+	 * </p>
 	 * 
-	 * @param exercise exekutatu beharreko ariketa
-	 * @param label eguneratu beharreko JLabel-a
-	 * @param stopSupplier gelditzeko baldintza hornitzen duen Supplier-a
-	 * @param skipRest atsedena saltatu behar den adierazten duen Supplier-a
+	 * @param exercise      exekutatu beharreko ariketa
+	 * @param label         eguneratu beharreko JLabel-a
+	 * @param stopSupplier  gelditzeko baldintza hornitzen duen Supplier-a
+	 * @param skipRest      atsedena saltatu behar den adierazten duen Supplier-a
 	 * @param pauseSupplier pausan dagoen adierazten duen Supplier-a
-	 * @param pauseLock pausaren sinkronizaziorako blokeoa
-	 * @param mode exekuzio modua
-	 * @param canPause pausatzeko gai den ala ez
+	 * @param pauseLock     pausaren sinkronizaziorako blokeoa
+	 * @param mode          exekuzio modua
+	 * @param canPause      pausatzeko gai den ala ez
 	 * @return true gelditu bada, bestela false
 	 */
 	private boolean executeExerciseSets(Exercise exercise, JLabel label, Supplier<Boolean> stopSupplier,
@@ -392,16 +416,18 @@ public class WorkoutExecutionService {
 	/**
 	 * Serie (set) bakarra exekutatzen du.
 	 * 
-	 * <p>Metodo hau atera da bukle habiaratuen konplexutasuna murrizteko.</p>
+	 * <p>
+	 * Metodo hau atera da bukle habiaratuen konplexutasuna murrizteko.
+	 * </p>
 	 * 
-	 * @param currentSet uneko serie zenbakia
-	 * @param serieTime serie bakoitzaren iraupena segundutan
-	 * @param label eguneratu beharreko JLabel-a
-	 * @param stopSupplier gelditzeko baldintza hornitzen duen Supplier-a
+	 * @param currentSet    uneko serie zenbakia
+	 * @param serieTime     serie bakoitzaren iraupena segundutan
+	 * @param label         eguneratu beharreko JLabel-a
+	 * @param stopSupplier  gelditzeko baldintza hornitzen duen Supplier-a
 	 * @param pauseSupplier pausan dagoen adierazten duen Supplier-a
-	 * @param pauseLock pausaren sinkronizaziorako blokeoa
-	 * @param mode exekuzio modua
-	 * @param canPause pausatzeko gai den ala ez
+	 * @param pauseLock     pausaren sinkronizaziorako blokeoa
+	 * @param mode          exekuzio modua
+	 * @param canPause      pausatzeko gai den ala ez
 	 * @return true gelditu bada, bestela false
 	 */
 	private boolean executeSet(int currentSet, int serieTime, JLabel label, Supplier<Boolean> stopSupplier,
@@ -446,16 +472,18 @@ public class WorkoutExecutionService {
 	/**
 	 * Atseden garaia kudeatzen du.
 	 * 
-	 * <p>Serieen arteko edo ariketen arteko atsedena kontrolatzen du, saltatzeko
-	 * eta pausatzeko aukerak kontuan hartuz.</p>
+	 * <p>
+	 * Serieen arteko edo ariketen arteko atsedena kontrolatzen du, saltatzeko eta
+	 * pausatzeko aukerak kontuan hartuz.
+	 * </p>
 	 * 
-	 * @param restDuration atseden iraupena segundutan
-	 * @param mode exekuzio modua
-	 * @param label eguneratu beharreko JLabel-a
-	 * @param stopSupplier gelditzeko baldintza hornitzen duen Supplier-a
-	 * @param skipRest atsedena saltatu behar den adierazten duen Supplier-a
-	 * @param pauseSupplier pausan dagoen adierazten duen Supplier-a
-	 * @param pauseLock pausaren sinkronizaziorako blokeoa
+	 * @param restDuration    atseden iraupena segundutan
+	 * @param mode            exekuzio modua
+	 * @param label           eguneratu beharreko JLabel-a
+	 * @param stopSupplier    gelditzeko baldintza hornitzen duen Supplier-a
+	 * @param skipRest        atsedena saltatu behar den adierazten duen Supplier-a
+	 * @param pauseSupplier   pausan dagoen adierazten duen Supplier-a
+	 * @param pauseLock       pausaren sinkronizaziorako blokeoa
 	 * @param isInterExercise ariketen artekoa den ala ez
 	 * @return true gelditu bada, bestela false
 	 */
@@ -513,11 +541,13 @@ public class WorkoutExecutionService {
 	/**
 	 * Pausan egonez gero, itxaroten du.
 	 * 
-	 * <p>Pausan dagoen bitartean, haria blokeoan mantentzen du pauseLock-ekin,
-	 * eta pausatik ateratzen denean jarraituko du.</p>
+	 * <p>
+	 * Pausan dagoen bitartean, haria blokeoan mantentzen du pauseLock-ekin, eta
+	 * pausatik ateratzen denean jarraituko du.
+	 * </p>
 	 * 
 	 * @param pauseSupplier pausan dagoen adierazten duen Supplier-a
-	 * @param pauseLock pausaren sinkronizaziorako blokeoa
+	 * @param pauseLock     pausaren sinkronizaziorako blokeoa
 	 */
 	private void waitIfPaused(Supplier<Boolean> pauseSupplier, Object pauseLock) {
 		while (pauseSupplier != null && pauseSupplier.get()) {
@@ -548,25 +578,30 @@ public class WorkoutExecutionService {
 	/**
 	 * Entrenamendua exekutatzen du.
 	 * 
-	 * <p>Metodo nagusia, rutina bat kargatzen du eta exekutatzen du hari berri batean.
+	 * <p>
+	 * Metodo nagusia, rutina bat kargatzen du eta exekutatzen du hari berri batean.
 	 * Interfaze grafikoko etiketak eguneratzen ditu eta callback-ak deitzen ditu
-	 * entrenamendua hasterakoan eta amaitzerakoan.</p>
+	 * entrenamendua hasterakoan eta amaitzerakoan.
+	 * </p>
 	 * 
-	 * @param level rutinaren zailtasun maila
-	 * @param routineName rutinaren izena
-	 * @param connect konexioa erabilgarri dagoen adierazten du
-	 * @param labelTotal denbora totala bistaratzeko etiketa
-	 * @param labelSeries serieak bistaratzeko etiketa
-	 * @param labelDescansos atsedenak bistaratzeko etiketa
-	 * @param labelHasiera hasierako mezuak bistaratzeko etiketa
+	 * @param level                 rutinaren zailtasun maila
+	 * @param routineName           rutinaren izena
+	 * @param connect               konexioa erabilgarri dagoen adierazten du
+	 * @param labelTotal            denbora totala bistaratzeko etiketa
+	 * @param labelSeries           serieak bistaratzeko etiketa
+	 * @param labelDescansos        atsedenak bistaratzeko etiketa
+	 * @param labelHasiera          hasierako mezuak bistaratzeko etiketa
 	 * @param lblRutinaDeskribapena rutinaren deskribapena bistaratzeko etiketa
-	 * @param lblRutinaSets serie kopurua bistaratzeko etiketa
-	 * @param stopSupplier gelditzeko baldintza hornitzen duen Supplier-a
-	 * @param skipSupplier atsedena saltatu behar den adierazten duen Supplier-a
-	 * @param pauseSupplier pausan dagoen adierazten duen Supplier-a
-	 * @param lock pausaren sinkronizaziorako blokeoa
-	 * @param onWorkoutStarted entrenamendua hasterakoan exekutatuko den callback-a
-	 * @param onWorkoutFinished entrenamendua amaitzerakoan exekutatuko den callback-a
+	 * @param lblRutinaSets         serie kopurua bistaratzeko etiketa
+	 * @param stopSupplier          gelditzeko baldintza hornitzen duen Supplier-a
+	 * @param skipSupplier          atsedena saltatu behar den adierazten duen
+	 *                              Supplier-a
+	 * @param pauseSupplier         pausan dagoen adierazten duen Supplier-a
+	 * @param lock                  pausaren sinkronizaziorako blokeoa
+	 * @param onWorkoutStarted      entrenamendua hasterakoan exekutatuko den
+	 *                              callback-a
+	 * @param onWorkoutFinished     entrenamendua amaitzerakoan exekutatuko den
+	 *                              callback-a
 	 */
 	public void executeWorkout(int level, String routineName, Boolean connect, JLabel labelTotal, JLabel labelSeries,
 			JLabel labelDescansos, JLabel labelHasiera, JLabel lblRutinaDeskribapena, JLabel lblRutinaSets,
@@ -604,32 +639,37 @@ public class WorkoutExecutionService {
 	/**
 	 * Ariketa hariak hasten ditu.
 	 * 
-	 * <p>Hiru hari paraleloak sortzen ditu entrenamendua kontrolatzeko:</p>
+	 * <p>
+	 * Hiru hari paraleloak sortzen ditu entrenamendua kontrolatzeko:
+	 * </p>
 	 * <ul>
-	 *   <li>Haria 1: denbora totala</li>
-	 *   <li>Haria 2: serie unekoak</li>
-	 *   <li>Haria 3: atsedenak</li>
+	 * <li>Haria 1: denbora totala</li>
+	 * <li>Haria 2: serie unekoak</li>
+	 * <li>Haria 3: atsedenak</li>
 	 * </ul>
 	 * 
-	 * <p>5 segundoko kontaketa atzeratu bat egiten du hasi aurretik, eta
-	 * entrenamendua amaitzen denean, estatistikak bistaratzen ditu eta
-	 * historia gordetzen du.</p>
+	 * <p>
+	 * 5 segundoko kontaketa atzeratu bat egiten du hasi aurretik, eta entrenamendua
+	 * amaitzen denean, estatistikak bistaratzen ditu eta historia gordetzen du.
+	 * </p>
 	 * 
-	 * @param exercises exekutatu beharreko ariketa zerrenda
-	 * @param labelTotal denbora totala bistaratzeko etiketa
-	 * @param labelSeries serieak bistaratzeko etiketa
-	 * @param labelDescansos atsedenak bistaratzeko etiketa
-	 * @param labelHasiera hasierako mezuak bistaratzeko etiketa
-	 * @param stopSupplier gelditzeko baldintza hornitzen duen Supplier-a
-	 * @param skipSupplier atsedena saltatu behar den adierazten duen Supplier-a
-	 * @param pauseSupplier pausan dagoen adierazten duen Supplier-a
-	 * @param lock pausaren sinkronizaziorako blokeoa
-	 * @param routineName rutinaren izena
-	 * @param thread1 lehen haria pausatzeko gai den ala ez
-	 * @param thread2 bigarren haria pausatzeko gai den ala ez
-	 * @param thread3 hirugarren haria pausatzeko gai den ala ez
-	 * @param onWorkoutStarted entrenamendua hasterakoan exekutatuko den callback-a
-	 * @param onWorkoutFinished entrenamendua amaitzerakoan exekutatuko den callback-a
+	 * @param exercises         exekutatu beharreko ariketa zerrenda
+	 * @param labelTotal        denbora totala bistaratzeko etiketa
+	 * @param labelSeries       serieak bistaratzeko etiketa
+	 * @param labelDescansos    atsedenak bistaratzeko etiketa
+	 * @param labelHasiera      hasierako mezuak bistaratzeko etiketa
+	 * @param stopSupplier      gelditzeko baldintza hornitzen duen Supplier-a
+	 * @param skipSupplier      atsedena saltatu behar den adierazten duen
+	 *                          Supplier-a
+	 * @param pauseSupplier     pausan dagoen adierazten duen Supplier-a
+	 * @param lock              pausaren sinkronizaziorako blokeoa
+	 * @param routineName       rutinaren izena
+	 * @param thread1           lehen haria pausatzeko gai den ala ez
+	 * @param thread2           bigarren haria pausatzeko gai den ala ez
+	 * @param thread3           hirugarren haria pausatzeko gai den ala ez
+	 * @param onWorkoutStarted  entrenamendua hasterakoan exekutatuko den callback-a
+	 * @param onWorkoutFinished entrenamendua amaitzerakoan exekutatuko den
+	 *                          callback-a
 	 */
 	public void startExerciseThreads(List<Exercise> exercises, JLabel labelTotal, JLabel labelSeries,
 			JLabel labelDescansos, JLabel labelHasiera, Supplier<Boolean> stopSupplier, Supplier<Boolean> skipSupplier,
@@ -743,7 +783,9 @@ public class WorkoutExecutionService {
 	/**
 	 * Ariketa guztiak osatzeko espero den denbora totala kalkulatzen du.
 	 * 
-	 * <p>Serieen eta atsedenen denbora guztia barne hartzen du.</p>
+	 * <p>
+	 * Serieen eta atsedenen denbora guztia barne hartzen du.
+	 * </p>
 	 * 
 	 * @param exercises ariketa zerrenda
 	 * @return espero den segundo kopuru totala
@@ -768,7 +810,9 @@ public class WorkoutExecutionService {
 	/**
 	 * Ariketa bakar baten denbora totala kalkulatzen du.
 	 * 
-	 * <p>Serieen denbora eta serieen arteko atsedenen denbora barne hartzen du.</p>
+	 * <p>
+	 * Serieen denbora eta serieen arteko atsedenen denbora barne hartzen du.
+	 * </p>
 	 * 
 	 * @param exercise ariketa
 	 * @return ariketaren segundo kopuru totala
@@ -790,8 +834,10 @@ public class WorkoutExecutionService {
 	/**
 	 * Erabiltzailearen uneko maila lortzen du.
 	 * 
-	 * <p>Firestore-tik erabiltzailearen maila kontsultatzen du bere email-aren bidez.
-	 * Ez bada aurkitzen edo erroreren bat gertatzen bada, 1 itzultzen du.</p>
+	 * <p>
+	 * Firestore-tik erabiltzailearen maila kontsultatzen du bere email-aren bidez.
+	 * Ez bada aurkitzen edo erroreren bat gertatzen bada, 1 itzultzen du.
+	 * </p>
 	 * 
 	 * @return erabiltzailearen maila (gutxienez 1)
 	 */
@@ -820,9 +866,10 @@ public class WorkoutExecutionService {
 	/**
 	 * Erabiltzailearen maila gehitzen du.
 	 * 
-	 * <p>Entrenamendua osatu bada eta erabiltzailearen maila uneko mailaren
-	 * berdina edo txikiagoa bada, maila bat gehitzen dio eta Firestore-n
-	 * eguneratzen du.</p>
+	 * <p>
+	 * Entrenamendua osatu bada eta erabiltzailearen maila uneko mailaren berdina
+	 * edo txikiagoa bada, maila bat gehitzen dio eta Firestore-n eguneratzen du.
+	 * </p>
 	 */
 	public void sumLevel() {
 
@@ -855,12 +902,16 @@ public class WorkoutExecutionService {
 	/**
 	 * Entrenamendua historian gordetzen du.
 	 * 
-	 * <p>Entrenamendua amaitzean, erabiltzailearen historian sarrera berri bat sortzen du
-	 * honako informazioarekin: data, denbora totala, serie kopurua, rutinaren izena/ID-a,
-	 * maila eta osatu den ala ez.</p>
+	 * <p>
+	 * Entrenamendua amaitzean, erabiltzailearen historian sarrera berri bat sortzen
+	 * du honako informazioarekin: data, denbora totala, serie kopurua, rutinaren
+	 * izena/ID-a, maila eta osatu den ala ez.
+	 * </p>
 	 * 
-	 * <p>Konexioa badago, Firestore-n gordetzen du; bestela, backup lokalean gordetzen du
-	 * OfflineHistoricService erabiliz.</p>
+	 * <p>
+	 * Konexioa badago, Firestore-n gordetzen du; bestela, backup lokalean gordetzen
+	 * du OfflineHistoricService erabiliz.
+	 * </p>
 	 * 
 	 * @param routineName rutinaren izena
 	 */

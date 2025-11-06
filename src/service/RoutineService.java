@@ -253,11 +253,11 @@ public class RoutineService {
 	}
 
 	/**
-	 * Mailagileak aldatzean, rutinen comboBox-a eguneratzen du
-	 * Actualiza el comboBox de rutinas cuando cambia el nivel
+	 * Mailagileak aldatzean, rutinen comboBox-a eguneratzen du Actualiza el
+	 * comboBox de rutinas cuando cambia el nivel
 	 * 
-	 * @param isHistoric egia ViewHistoric-erako, faltsua Workouts-erako
-	 *                   true para ViewHistoric, false para Workouts
+	 * @param isHistoric egia ViewHistoric-erako, faltsua Workouts-erako true para
+	 *                   ViewHistoric, false para Workouts
 	 */
 	public static void updateRoutinesComboBox(JComboBox<String> comboMaila, JComboBox<String> comboMailaRutinakLevel,
 			RoutineService routines, Boolean connect, JList<String> listaWorkout, boolean isHistoric) {

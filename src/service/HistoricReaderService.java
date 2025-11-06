@@ -119,11 +119,11 @@ public class HistoricReaderService {
 				+ " | ⏱Denbora: " + totalTime + " seg");
 	}
 
-	private List<String> readOfflineXml(String fileName, String userId, String email, BackupReaderService.BackupData backup,
-			int level, String rutinarenIzena) {
+	private List<String> readOfflineXml(String fileName, String userId, String email,
+			BackupReaderService.BackupData backup, int level, String rutinarenIzena) {
 
 		List<String> result = new ArrayList<>();
-		
+
 		try {
 			org.w3c.dom.Document doc = XMLUtils.parseXmlDocument(fileName);
 			if (doc == null) {
@@ -170,7 +170,8 @@ public class HistoricReaderService {
 								if (wd.fields.get("name") != null) {
 									workoutName = wd.fields.get("name");
 								}
-								List<BackupReaderService.DocumentData> exerciseDocs = wd.subcollections.get("exercises");
+								List<BackupReaderService.DocumentData> exerciseDocs = wd.subcollections
+										.get("exercises");
 								if (exerciseDocs != null) {
 									for (BackupReaderService.DocumentData exd : exerciseDocs) {
 										totalSetsInWorkout += ParseUtils.parseInt(exd.fields.get("sets"));
